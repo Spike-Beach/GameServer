@@ -1,9 +1,13 @@
 #pragma once
+
 #include <string>
 #include <memory>
 #include "ContentsProcess.h"
+#include "Package.h"
+//#include "Packet.h"
 
-class Package;
+struct Package;
+class ContentsProcess;
 
 enum SERVER_STATUS
 {
@@ -17,10 +21,10 @@ class Server
 public:
 	Server(std::unique_ptr<ContentsProcess> contentsProcess);
 	virtual ~Server();
-	virtual void init();
-	virtual bool run();
+	virtual void Init();
+	virtual bool Run() = 0;
 	SERVER_STATUS& getStatus();
-	void putPackage(Package package);
+	void PutPackage(Package package);
 
 protected:
 	std::string _ip;
