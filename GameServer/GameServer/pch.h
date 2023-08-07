@@ -17,7 +17,22 @@
 #include <functional>
 #include <time.h>
 #include <iostream>
+#include <memory>
+
+//https://kyungpyo-kim.github.io/study/thread-safety-of-unordered_map/
+#include <shared_mutex>
+
 #include <processthreadsapi.h>
+
+#include <hiredis.h>
+//#include <async.h>
+//#include <adapters/libevent.h>
+
 
 #include "Singleton.h"
 #include "PacketId.h"
+#include "Packet.h"
+#include "ErrorCode.h"
+
+//typedef std::tuple<INT64, std::string> UserInfo;
+//typedef std::array<UserInfo, 2> Team;

@@ -13,7 +13,7 @@ class TaskProcesser
 public:
 	TaskProcesser(INT32 ProcesserId);
 	~TaskProcesser();
-	TaskProcesser(const TaskProcesser &);
+	//TaskProcesser(const TaskProcesser &);
 	//void AddTask(TaskContainer taskContainer);
 	void AddTask(std::unique_ptr<Task> task, INT32 freqMs, INT32 expireMs);
 	void Shutdown();

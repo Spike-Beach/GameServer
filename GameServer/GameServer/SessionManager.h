@@ -16,11 +16,11 @@ public:
 	std::shared_ptr<Session> GetEmptySession();
 	std::list<INT32> GetTimeOverSessionList();
 	//void ClearSession(std::shared_ptr<Session>);
-	bool ReleaseSession(INT32 Idx, bool isForse);
+	void SendData(INT32 idx, std::vector<char>&& serializedPacket);
+	bool ReleaseSession(INT32 idx, bool isForse);
 	INT32 ClientSessionCap();
-protected:
 private:
-	std::vector<std::shared_ptr<Session>> _sessions;
+	std::vector<std::shared_ptr<Session> > _sessions;
 	//std::vector<Session*> _sessions;
 	std::stack<INT32> _emptySessionIndexStack;
 	std::mutex _mutex;

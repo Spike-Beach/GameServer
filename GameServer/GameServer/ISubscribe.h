@@ -1,7 +1,12 @@
 #pragma once
+#include "Task.h"
 
-class ISubscribe
+class RedisSubScribTask : public Task
 {
 public:
-	void forTestFunc();
+	RedisSubScribTask() {};
+	void Do()
+	{
+
+	}
 };

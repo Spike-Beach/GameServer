@@ -4,7 +4,7 @@
 //#include <array>
 //#include <vector>
 //#include <optional>
-#include "Packet.h"
+#include "Package.h"
 
 #define BUFSIZE 1024
 
@@ -29,9 +29,10 @@ public:
     bool IsNeedMoreIo(size_t transferSize);
 
     // for recv
-    std::optional<Packet> ReadPacketFromBuf();
+    //std::optional<Packet> ReadPacketFromBuf();
+    Package ReadPacketFromBuf();
     // for send
-    bool WritePacketToBuf(Packet packet);
+    bool WriteToBuf(std::vector<char>&& serializedPacket);
 private:   
     OVERLAPPED _overlapped;
     IO_TYPE _ioType;

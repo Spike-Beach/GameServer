@@ -4,8 +4,9 @@
 
 std::atomic<bool> IocpServer::_isShutdown = false;
 
-IocpServer::IocpServer(std::unique_ptr<ContentsProcess> contentsProcess)
-	: Server(std::move(contentsProcess))
+//IocpServer::IocpServer(std::unique_ptr<ContentsProcess> contentsProcess)
+IocpServer::IocpServer(std::shared_ptr<GameHandler> gameHandler)
+	: Server(std::move(gameHandler))
 {
 	//_isShutdown.store(false);
 	_status = SERVER_STATUS::SERVER_INITIALZE;
@@ -118,6 +119,7 @@ DWORD WINAPI  IocpServer::AcceptThreadFunc(LPVOID serverPtr)
 	IocpServer* server = static_cast<IocpServer*>(serverPtr);
 	SOCKET acceptSocket;
 	SOCKADDR_IN recvAddrInfo;
+	_isShutdown.store(false);
 	int recvAddrInfoSize = sizeof(recvAddrInfo);
 	while (_isShutdown == false)
 	{
@@ -168,7 +170,7 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 		{
 			case IO_TYPE::WRITE:
 			{
-				iocpSession->KeepSendPacket(transferSize);
+				iocpSession->KeepSendData(transferSize);
 				break;
 			}
 			case IO_TYPE::READ:
@@ -176,7 +178,9 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 				std::optional<Package> receivedPackage = iocpSession->KeepRecvPacket(transferSize);
 				if (receivedPackage.has_value() == true)
 				{
-					server->PutPackage(receivedPackage.value());
+					// package.pakcetId = PacketId::PARSE_ERROR인 경우 map에서 걸러지게.
+					//server->PutPackage(receivedPackage.value());
+					server->_gameHandler->Mapping(receivedPackage.value());
 				}
 				break;
 			}
