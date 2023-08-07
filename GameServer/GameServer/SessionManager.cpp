@@ -76,6 +76,20 @@ std::list<INT32> SessionManager::GetTimeOverSessionList()
 //	}
 //}
 
+void SessionManager::SendData(INT32 idx, std::vector<char>&& serializedPacket)
+{
+	if (idx < 0 || idx > _sessions.size())
+	{
+		// log
+		return;
+	}
+	else if (_sessions[idx]->GetStatus() != SESSION_STATUS::CONN)
+	{
+		return;
+	}
+	_sessions[idx]->SendData(std::move(serializedPacket));
+}
+
 bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 {
 	std::unique_lock<std::mutex> lock(_mutex);
@@ -83,9 +97,16 @@ bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 	{
 		// TODO : forse close
 		//return _sessions[sessionId]->Close(isForse);
-		_sessions[sessionIdx]->Close();
-		_sessions[sessionIdx]->Clear();
-		_emptySessionIndexStack.push(sessionIdx);
+		if (isForse == true)
+		{
+			_sessions[sessionIdx]->Close();
+			_sessions[sessionIdx]->Clear();
+			_emptySessionIndexStack.push(sessionIdx);
+		}
+		else
+		{
+			_sessions[sessionIdx]->WaitSelfDisconnect();
+		}
 		return true;
 	}
 	return false;

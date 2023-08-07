@@ -17,11 +17,11 @@ public:
 
     INT32 GetId();
 
-    void KeepSendPacket(size_t transferSize);
+    void KeepSendData(size_t transferSize);
     std::optional<Package> KeepRecvPacket(size_t transferSize);
     
-    void SendPacket(Packet packet);
-
+    void SendData(std::vector<char>&& serializedPacket);
+  
     // use to trig
     void RecvTrigger();
 private:

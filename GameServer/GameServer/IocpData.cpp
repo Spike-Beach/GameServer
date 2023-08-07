@@ -91,33 +91,43 @@ bool IocpData::SetdesiredLength()
 	return false;
 }
 
-std::optional<Packet> IocpData::ReadPacketFromBuf()
+Package IocpData::ReadPacketFromBuf()
 {
-	if (_desiredLength > _currentLength || _currentLength > _buffer.size())
+	Package package;
+	if (_desiredLength > _currentLength 
+		|| _currentLength > _buffer.size())
 	{
 		// TODO : log
-		return std::nullopt;
+		package.pakcetId = PacketId::ERROR_OCCUR;
+		return package;
 	}
 
-	Packet packet;
-	if (packet.Deserialize(_buffer.data(), _desiredLength) == false)
-	{
-		// TODO : log
-		return std::nullopt;
-	}
+	//Packet packet;
+	//if (packet.Deserialize(_buffer.data(), _desiredLength) == false)
+	//{
+	//	// TODO : log
+	//	return std::nullopt;
+	//}
+	
+	package._buffer.resize(_desiredLength);
+	std::memmove(package._buffer.data(), _buffer.data(), _desiredLength);
+	package.pakcetId = Packet::GetPacketId(package._buffer.data(), package._buffer.size());
+	//if (package.pakcetId == PacketId::PARSE_ERROR)
+	//{
+	//	// TODO : log
+	//	return package;
+	//}
 	
 	size_t remainingDataSize = _currentLength - _desiredLength;
 	std::memmove(_buffer.data(), _buffer.data() + _desiredLength, remainingDataSize);
-	
 	_currentLength = remainingDataSize;
 	_desiredLength = 0;
 	
-	return packet;
+	return package;
 }
 
-bool IocpData::WritePacketToBuf(Packet packet)
+bool IocpData::WriteToBuf(std::vector<char>&& serializedPacket)
 {
-	std::vector<char> serializedPacket = packet.Serialize();
 	std::copy(serializedPacket.begin(), serializedPacket.end(), _buffer.begin());
 	_desiredLength = serializedPacket.size();
 	return true;

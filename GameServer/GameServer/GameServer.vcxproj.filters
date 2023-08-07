@@ -1,19 +1,182 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="DBRedis">
-      <UniqueIdentifier>{fd670d33-32a6-455e-b28c-b081268eea1b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DBMysql">
       <UniqueIdentifier>{237dbd6e-c8a8-49b8-a367-4328fe80ebd8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tasks">
+      <UniqueIdentifier>{b3ff27bd-bc32-4f04-8574-2ff905d852b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TaskCore">
+      <UniqueIdentifier>{b4847239-a1f1-4555-85db-2c39b992e873}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Session">
+      <UniqueIdentifier>{a8efb47c-68ac-41a4-a702-4582c1a07057}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ServerCore">
+      <UniqueIdentifier>{31eaea85-cfbc-483b-985a-c87b11a7e293}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PacketBases">
+      <UniqueIdentifier>{2df5c8aa-e1c1-4ba9-8fea-f44c116ff14a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packets">
+      <UniqueIdentifier>{86b01c6c-199c-4c5f-bfa7-1dbfac2cc0be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SpikeBeach">
+      <UniqueIdentifier>{64d2b7ed-193f-40ce-8032-0b16cb7ad9af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SpikeBeach\Game">
+      <UniqueIdentifier>{d6d615fd-9a55-416b-9f29-af4210cdb97b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jsoncpp">
+      <UniqueIdentifier>{596bc5e1-376d-4bd6-9b2a-bd3e72a04505}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ISubscribe.h">
-      <Filter>DBRedis</Filter>
+    <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Task.h">
+      <Filter>TaskCore</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskContainer.h">
+      <Filter>TaskCore</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskManager.h">
+      <Filter>TaskCore</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskProcesser.h">
+      <Filter>TaskCore</Filter>
+    </ClInclude>
+    <ClInclude Include="HeartBeatTask.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SessionMonitor.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameHandler.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="SpikeBeachHandler.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="IocpSession.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="IocpData.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="SessionManager.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>ServerCore</Filter>
+    </ClInclude>
+    <ClInclude Include="IocpServer.h">
+      <Filter>ServerCore</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketId.h">
+      <Filter>PacketBases</Filter>
+    </ClInclude>
+    <ClInclude Include="Package.h">
+      <Filter>PacketBases</Filter>
+    </ClInclude>
+    <ClInclude Include="Packet.h">
+      <Filter>PacketBases</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEnter.h">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorCode.h">
+      <Filter>PacketBases</Filter>
+    </ClInclude>
+    <ClInclude Include="SpikeBeachGame.h">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ParsedRoomInfo.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSyncTask.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSetTask.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="SBUserCheckNSet.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="SBManager.h" />
+    <ClInclude Include="SBUserManager.h" />
+    <ClInclude Include="jsoncpp\json\json.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="CloseConnPacket.h">
+      <Filter>Packets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TaskContainer.cpp">
+      <Filter>TaskCore</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskManager.cpp">
+      <Filter>TaskCore</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskProcesser.cpp">
+      <Filter>TaskCore</Filter>
+    </ClCompile>
+    <ClCompile Include="HeartBeatTask.cpp">
+      <Filter>Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="SessionMonitor.cpp">
+      <Filter>Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameHandler.cpp">
+      <Filter>SpikeBeach</Filter>
+    </ClCompile>
+    <ClCompile Include="SpikeBeachHandler.cpp">
+      <Filter>SpikeBeach</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="IocpSession.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="IocpData.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="Session.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="SessionManager.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>ServerCore</Filter>
+    </ClCompile>
+    <ClCompile Include="IocpServer.cpp">
+      <Filter>ServerCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Package.cpp">
+      <Filter>PacketBases</Filter>
+    </ClCompile>
+    <ClCompile Include="Packet.cpp">
+      <Filter>PacketBases</Filter>
+    </ClCompile>
+    <ClCompile Include="SpikeBeachGame.cpp">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ParsedRoomInfo.cpp">
+      <Filter>SpikeBeach</Filter>
+    </ClCompile>
+    <ClCompile Include="SpikeBeachUtils.h">
+      <Filter>SpikeBeach</Filter>
+    </ClCompile>
+    <ClCompile Include="SBManager.cpp" />
+    <ClCompile Include="UserManager.cpp" />
+    <ClCompile Include="jsoncpp\jsoncpp.cpp">
+      <Filter>jsoncpp</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

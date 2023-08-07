@@ -33,7 +33,7 @@ INT32 IocpSession::GetId()
 	return _idx;
 }
 
-void IocpSession::KeepSendPacket(size_t transferSize)
+void IocpSession::KeepSendData(size_t transferSize)
 {
 	if (_iocpData[IO_TYPE::WRITE].IsNeedMoreIo(transferSize))
 	{
@@ -68,21 +68,16 @@ std::optional<Package> IocpSession::KeepRecvPacket(size_t transferSize)
 		return std::nullopt;
 	}
 
-	std::optional<Packet> rtPacket = _iocpData[IO_TYPE::READ].ReadPacketFromBuf();
-	if (rtPacket.has_value() == false)
-	{
-		return std::nullopt;
-	}
-
-	Package package;
-	package.packet = rtPacket.value();
-	package.sessionId = _idx;
-	return package;
+	Package rtPackage = _iocpData[IO_TYPE::READ].ReadPacketFromBuf();
+	rtPackage.sessionId = _idx;
+	return rtPackage;
 }
 
-void IocpSession::SendPacket(Packet packet)
+// WSASend 완료 이전에 WSASend가 들어오는 경우 문제 발생할 듯.
+// TODO: 문제 발생시 해결.
+void IocpSession::SendData(std::vector<char>&& serializedPacket)
 {
-	_iocpData[IO_TYPE::WRITE].WritePacketToBuf(packet);
+	_iocpData[IO_TYPE::WRITE].WriteToBuf(std::move(serializedPacket));
 
 	DWORD sendBytes;
 	DWORD flags = 0;

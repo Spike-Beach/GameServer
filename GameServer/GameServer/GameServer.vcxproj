@@ -106,15 +106,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STATIC_CONCPP;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\hiredis-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\hiredis-master;$(SolutionDir)Libraries\mysql-8.1.0-debug\include\jdbc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\hiredis-master\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hiredisd.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\hiredis-master\Debug;$(SolutionDir)Libraries\mysql-8.1.0-debug\lib64\vs14\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hiredisd.lib;ws2_32.lib;mysqlcppconn-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,10 +137,65 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ISubscribe.h" />
+    <ClInclude Include="CloseConnPacket.h" />
+    <ClInclude Include="GameHandler.h" />
+    <ClInclude Include="ErrorCode.h" />
+    <ClInclude Include="jsoncpp\json\json.h" />
+    <ClInclude Include="SpikeBeachGame.h" />
+    <ClInclude Include="GameEnter.h" />
+    <ClInclude Include="SBManager.h" />
+    <ClInclude Include="GameSetTask.h" />
+    <ClInclude Include="GameSyncTask.h" />
+    <ClInclude Include="HeartBeatTask.h" />
+    <ClInclude Include="IocpData.h" />
+    <ClInclude Include="IocpServer.h" />
+    <ClInclude Include="IocpSession.h" />
+    <ClInclude Include="Package.h" />
+    <ClInclude Include="Packet.h" />
+    <ClInclude Include="PacketId.h" />
+    <ClInclude Include="ParsedRoomInfo.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Server.h" />
+    <ClInclude Include="Session.h" />
+    <ClInclude Include="SessionManager.h" />
+    <ClInclude Include="SessionMonitor.h" />
+    <ClInclude Include="Singleton.h" />
+    <ClInclude Include="SpikeBeachHandler.h" />
+    <ClInclude Include="Task.h" />
+    <ClInclude Include="TaskContainer.h" />
+    <ClInclude Include="TaskManager.h" />
+    <ClInclude Include="TaskProcesser.h" />
+    <ClInclude Include="SBUserCheckNSet.h" />
+    <ClInclude Include="SBUserManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameHandler.cpp" />
+    <ClCompile Include="jsoncpp\jsoncpp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SpikeBeachGame.cpp" />
+    <ClCompile Include="SBManager.cpp" />
+    <ClCompile Include="HeartBeatTask.cpp" />
+    <ClCompile Include="IocpData.cpp" />
+    <ClCompile Include="IocpServer.cpp" />
+    <ClCompile Include="IocpSession.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Package.cpp" />
+    <ClCompile Include="Packet.cpp" />
+    <ClCompile Include="ParsedRoomInfo.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="Session.cpp" />
+    <ClCompile Include="SessionManager.cpp" />
+    <ClCompile Include="SessionMonitor.cpp" />
+    <ClCompile Include="SpikeBeachHandler.cpp" />
+    <ClCompile Include="SpikeBeachUtils.h" />
+    <ClCompile Include="TaskContainer.cpp" />
+    <ClCompile Include="TaskManager.cpp" />
+    <ClCompile Include="TaskProcesser.cpp" />
+    <ClCompile Include="UserManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

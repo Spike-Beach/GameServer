@@ -7,7 +7,7 @@
 class IocpServer : public Server, public Singleton<IocpServer>
 {
 public:
-	IocpServer(std::unique_ptr<ContentsProcess> contentsProcess);
+	IocpServer(std::shared_ptr<GameHandler> contentsProcess);
 	~IocpServer();
 	void Init();
 	bool Run();
