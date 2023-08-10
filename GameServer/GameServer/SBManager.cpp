@@ -68,7 +68,7 @@ bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 	{
 		return iter->second->UserIn(user);
 	}
-	// log
+	g_logger.Log(LogLevel::ERR, "SBManager::UserEnterGame", "Not found roomId : " + std::to_string(roomId));
 	return false;
 }
 
@@ -92,10 +92,6 @@ void SBManager::SyncGames()
 		else if (status == GameStatus::PLAYING)
 		{
 			runningGame.second->PlayingSync();
-		}
-		else
-		{
-			// log
 		}
 	}
 }

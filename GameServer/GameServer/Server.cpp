@@ -10,8 +10,8 @@ Server::Server(std::shared_ptr<GameHandler> gameHandler)
 
 Server::~Server()
 {
+	_status = SERVER_STATUS::SERVER_STOP;
 	_gameHandler.reset();
-	// TODO: logger
 }
 
 void Server::Init()
@@ -19,6 +19,7 @@ void Server::Init()
 	_ip = "127.0.0.1";
 	_port = 8444;
 	_workerThreadCount = 4;
+	g_logger.Log(LogLevel::INFO, "Server::Init()", "Server Init Done");
 }
 
 //void Server::PutPackage(Package package)

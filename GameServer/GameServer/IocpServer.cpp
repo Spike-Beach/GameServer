@@ -9,13 +9,12 @@ IocpServer::IocpServer(std::shared_ptr<GameHandler> gameHandler)
 	: Server(std::move(gameHandler))
 {
 	//_isShutdown.store(false);
-	_status = SERVER_STATUS::SERVER_INITIALZE;
 }
 
 IocpServer::~IocpServer()
 {
 	_isShutdown.store(true);
-	_status = SERVER_STATUS::SERVER_STOP;
+	
 	_acceptThread.join();
 	for (auto& workerThread : _workerThreads)
 	{
@@ -28,6 +27,7 @@ void IocpServer::Init()
 {
 	Server::Init();
 	_workerThreadCount = 4;
+	g_logger.Log(LogLevel::INFO, "IocpServer::Init()", "IocpServer Init Done");
 }
 
 bool IocpServer::SetListenSocket()
@@ -40,8 +40,7 @@ bool IocpServer::SetListenSocket()
 	_listenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (_listenSocket == INVALID_SOCKET)
 	{
-		// TODO: logger
-		int errorCode = WSAGetLastError();
+		g_logger.Log(LogLevel::ERR, "IocpServer::SetListenSocket()", "WSASocket() failed with error code: " + std::to_string(WSAGetLastError()));
 		return false;
 	}
 
@@ -51,14 +50,18 @@ bool IocpServer::SetListenSocket()
 	int retval = ::bind(_listenSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
 	if (retval == SOCKET_ERROR)
 	{
-		// TODO: logger
+		g_logger.Log(LogLevel::ERR, "IocpServer::SetListenSocket()", "bind() failed with error code: " + std::to_string(WSAGetLastError()));
 		return false;
 	}
 
 	retval = ::listen(_listenSocket, SOMAXCONN);
-	if (retval == SOCKET_ERROR) {
+	if (retval == SOCKET_ERROR)
+	{
+		g_logger.Log(LogLevel::ERR, "IocpServer::SetListenSocket()", "listen() failed with error code: " + std::to_string(WSAGetLastError()));
 		return false;
 	}
+
+	g_logger.Log(LogLevel::INFO, "IocpServer::SetListenSocket()", "SetListenSocket Done");
 	return true;
 }
 
@@ -67,17 +70,17 @@ bool IocpServer::Run()
 	WSAData wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
+		g_logger.Log(LogLevel::ERR, "IocpServer::Run()", "WSAStartup() failed with error code: " + std::to_string(WSAGetLastError()));
 		return false;
 	}
 	_iocpHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	if (_iocpHandle == INVALID_HANDLE_VALUE)
 	{
-		// TODO: logger
+		g_logger.Log(LogLevel::ERR, "IocpServer::Run()", "CreateIoCompletionPort() failed with error code: " + std::to_string(WSAGetLastError()));
 		return false;
 	}
-	if (SetListenSocket() == false)
+	if (SetListenSocket() == false) // already SetListenSocket() log fail info
 	{
-		// TODO: logger
 		return false;
 	}
 	_status = SERVER_STATUS::SERVER_READY;
@@ -86,6 +89,8 @@ bool IocpServer::Run()
 	{
 		_workerThreads.push_back(std::thread(WorkerThreadFunc, this));
 	}
+	
+	g_logger.Log(LogLevel::INFO, "IocpServer::Run()", "IocpServer Run Done");
 	return true;
 }
 
@@ -94,11 +99,11 @@ void IocpServer::SetAcceptedSocket(SOCKET socket, SOCKADDR_IN addrInfo)
 	std::shared_ptr<Session> session = SessionManager::Instance().GetEmptySession();
 	if (session == nullptr)
 	{
-		// TODO: logger
+		g_logger.Log(LogLevel::ERR, "IocpServer::SetAcceptedSocket()", "Not enough session");
 	}
 	else if (session->GetSockType() != SOCK_TYPE::IOCP)
 	{
-		// TODO: logger
+		g_logger.Log(LogLevel::ERR, "IocpServer::SetAcceptedSocket()", "Session type is not IOCP");
 	}
 	IocpSession* iocpSession = dynamic_cast<IocpSession*>(session.get());
 	iocpSession->Clear();
@@ -107,7 +112,7 @@ void IocpServer::SetAcceptedSocket(SOCKET socket, SOCKADDR_IN addrInfo)
 	HANDLE handle = CreateIoCompletionPort((HANDLE)socket, _iocpHandle, (ULONG_PTR)iocpSession, 0);
 	if (handle == INVALID_HANDLE_VALUE)
 	{
-		// TODO: logger
+		g_logger.Log(LogLevel::ERR, "IocpServer::SetAcceptedSocket()", "CreateIoCompletionPort() failed with error code: " + std::to_string(WSAGetLastError()));
 		iocpSession->Close();
 		iocpSession->Clear();
 	}
@@ -126,8 +131,7 @@ DWORD WINAPI  IocpServer::AcceptThreadFunc(LPVOID serverPtr)
 		acceptSocket = WSAAccept(server->_listenSocket, (SOCKADDR*)&recvAddrInfo, &recvAddrInfoSize, NULL, 0);
 		if (acceptSocket == INVALID_SOCKET)
 		{
-			int errorNum = WSAGetLastError();
-			// TODO: logger
+			g_logger.Log(LogLevel::ERR, "IocpServer::AcceptThreadFunc()", "WSAAccept() failed with error code: " + std::to_string(WSAGetLastError()));
 		}
 		//SetAcceptedSocket(acceptSocket, recvAddrInfo); <- 에러.C++ a nonstatic member reference must be relative to a specific object
 		// 1. static이 아닌 멤버함수를 사용하려면, 인스턴스가 필요.
@@ -152,16 +156,16 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 		bool retval = GetQueuedCompletionStatus(server->_iocpHandle, &transferSize, (PULONG_PTR)&iocpSession, (LPOVERLAPPED*)&iocpData, INFINITE);
 		if (retval == false)
 		{
-			// TODO: logger
+			g_logger.Log(LogLevel::ERR, "IocpServer::WorkerThreadFunc()", "GetQueuedCompletionStatus() failed with error code: " + std::to_string(WSAGetLastError()));
 			continue;
 		}
 		if (iocpSession == nullptr)
 		{
+			g_logger.Log(LogLevel::ERR, "IocpServer::WorkerThreadFunc()", "iocpSession is nullptr");
 			continue;
 		}
 		if (transferSize == 0)
 		{
-			//SessionManager::Instance().CloseSession(iocpSession->GetId(), false);
 			SessionManager::Instance().ReleaseSession(iocpSession->GetId(), false);
 			continue;
 		}

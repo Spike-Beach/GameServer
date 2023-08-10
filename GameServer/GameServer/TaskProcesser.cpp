@@ -12,12 +12,6 @@ TaskProcesser::~TaskProcesser()
 	}
 }
 
-//TaskProcesser::TaskProcesser(const TaskProcesser& other)
-//{
-//	_idx = other._idx;
-//	_isShutdown = other._isShutdown.load();
-//}
-
 void TaskProcesser::AddTask(std::unique_ptr<Task> task, INT32 freqMs, INT32 expireMs)
 {
 	std::lock_guard<std::mutex> lock(_taskWaitQueueMutex);

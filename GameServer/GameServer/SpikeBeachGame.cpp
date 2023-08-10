@@ -2,6 +2,7 @@
 #include "SpikeBeachGame.h"
 #include "SessionManager.h"
 #include "SBUserManager.h"
+#include "CloseConnPacket.h"
 
 SpikeBeachGame::SpikeBeachGame()
 :_gameStatus(GameStatus::EMPTY)
@@ -36,6 +37,8 @@ void SpikeBeachGame::Clear()
 	_ball.Reset();
 	_redScore = 0;
 	_blueScore = 0;
+	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::Clear", std::to_string(_gameId) + " Game is cleared");
+	_gameId = -1;
 }
 
 bool SpikeBeachGame::SetGame(INT32 gameId, Team redTeam, Team blueTeam)
@@ -54,6 +57,7 @@ bool SpikeBeachGame::SetGame(INT32 gameId, Team redTeam, Team blueTeam)
 	_blueTeam.insert(std::make_pair(blueTeam[0].id, nullptr));
 	_blueTeam.insert(std::make_pair(blueTeam[1].id, nullptr));
 
+	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::SetGame", std::to_string(_gameId) + " Game is set");
 	return true;
 }
 
@@ -61,7 +65,7 @@ bool SpikeBeachGame::UserIn(SBUser* user)
 {
 	if (_gameStatus != GameStatus::WAITING)
 	{
-		// log
+		g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", std::to_string(_gameId) + " Game is not waiting, user : " + std::to_string(user->GetId()));
 		return false;
 	}
 
@@ -72,17 +76,19 @@ bool SpikeBeachGame::UserIn(SBUser* user)
 		iter = _blueTeam.find(userId);
 		if (iter == _blueTeam.end())
 		{
-			// log
+			g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "Invalid game enter. user : " + std::to_string(user->GetId()));
 			return false;
 		}
 	}
 	
 	if (iter->second != nullptr)
 	{
-		// log
+		g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "User already in game. user : " + std::to_string(user->GetId()));
 		return false;
 	}
+
 	iter->second = user;
+	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::UserIn", "User in " + std::to_string(_gameId) + " game. user : " + std::to_string(user->GetId()));
 	return true;
 }
 
@@ -119,7 +125,8 @@ bool SpikeBeachGame::PlayingSync()
 		{
 			blueUser.second->Reset();
 		}
-		SyncNotice();
+		// TODO : 결과 패킷 공지
+		g_logger.Log(LogLevel::INFO, "SpikeBeachGame::PlayingSync", std::to_string(_gameId) + " Game score is");
 		return true;
 	}
 
@@ -132,7 +139,8 @@ bool SpikeBeachGame::PlayingSync()
 		blueUser.second->Sync();
 	}
 	
-	SyncNotice(); // 유저및 공 정보 포함해서
+	std::vector<char> syncData = GenGameSyncData();
+	NoticeInGame(syncData);
 	return false;
 }
 
@@ -142,11 +150,13 @@ bool SpikeBeachGame::WaitUserSync()
 {
 	if (std::chrono::system_clock::now() > _waitDeadLine)
 	{
+		CloseConnPacket packet;
+		std::vector<char> disConnNtf = packet.Serialize();
+		NoticeInGame(disConnNtf);
 		for (auto redUser : _redTeam)
 		{
 			if (redUser.second != nullptr)
 			{
-				// send notice
 				g_sessionManager.ReleaseSession(redUser.second->GetSessionId(), false);
 			}
 		}
@@ -154,7 +164,6 @@ bool SpikeBeachGame::WaitUserSync()
 		{
 			if (blueUser.second != nullptr)
 			{
-				// send notice
 				g_sessionManager.ReleaseSession(blueUser.second->GetSessionId(), false);
 			}
 		}
@@ -180,7 +189,27 @@ bool SpikeBeachGame::WaitUserSync()
 	return true;
 }
 
-void SpikeBeachGame::SyncNotice()
+void SpikeBeachGame::NoticeInGame(std::vector<char>& notify)
 {
 	// 모든 멤버에세 SyncNotice를 보낸다.
+	for (auto redUser : _redTeam)
+	{
+		if (redUser.second != nullptr)
+		{
+			g_sessionManager.SendData(redUser.second->GetSessionId(), notify);
+		}
+	}
+	for (auto blueUser : _blueTeam)
+	{
+		if (blueUser.second != nullptr)
+		{
+			g_sessionManager.SendData(blueUser.second->GetSessionId(), notify);
+		}
+	}
+}
+
+std::vector<char> SpikeBeachGame::GenGameSyncData()
+{
+	// TODO
+	return std::vector<char>();
 }

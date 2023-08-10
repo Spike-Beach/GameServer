@@ -96,7 +96,9 @@ std::vector<std::string> ParsedRoomInfo::SplitData(const std::string& infoStr)
 	{
 		startPos = startPos = infoStr.find_first_not_of(' ', endPos);
 		if (startPos == std::string::npos)
+		{
 			break;
+		}
 		endPos = infoStr.find(' ', startPos + 1);
 		result.push_back(infoStr.substr(startPos, endPos - startPos));
 	}

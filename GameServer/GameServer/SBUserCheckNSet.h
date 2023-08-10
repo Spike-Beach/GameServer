@@ -18,17 +18,6 @@ public:
 		}
 	};
 
-	//void Init()
-	//{
-	//	_conn = redisConnect("127.0.0.1", 6379);
-	//	if (_conn == NULL || _conn->err)
-	//	{
-	//		// log
-	//		//return false;
-	//		throw std::runtime_error("UserCheckNSet redisConnect error");
-	//	}
-	//	//return true;
-	//}
 	void Do()
 	{
 		GameEnterRes res;
@@ -49,7 +38,7 @@ public:
 			std::istringstream jsonStream(str);
 			if (Json::parseFromStream(builder, jsonStream, &root, &errs) == false)
 			{
-				std::cerr << "Json Error: " << errs << std::endl;
+				g_logger.Log(LogLevel::ERR, "UserCheckNSet::Do", "Json Error: " + errs);
 				res.errorCode = ErrorCode::SessionError;
 				g_sessionManager.SendData(user->GetSessionId(), res.Serialize());
 				return;
@@ -57,31 +46,31 @@ public:
 			
 			if (root["userAssignedId"].empty() || root["token"].empty() || root["userId"].empty())
 			{
-				std::cerr << "Json Error: " << "userAssignedId / token invalid" << std::endl;
+				g_logger.Log(LogLevel::CRITICAL, "UserCheckNSet::Do", "Invalid Session Info: " + str);
 				res.errorCode = ErrorCode::SessionError;
 				g_sessionManager.SendData(user->GetSessionId(), res.Serialize());
 				return;
 			}
-			std::string userAssignedId = root["userAssignedId"].asString();
 			std::string token = root["token"].asString();
 			INT64 userId = root["userId"].asInt64();
+			std::string nickname = root["nickname"].asString();
 
 			if (user->GetToken() == token)
 			{
 				user->SetUserId(userId);
+				user->SetUserNickname(nickname);
 				if (g_SBManager.UserEnterGame(user->GetGameId(), user) == true)
 				{
 					res.errorCode = ErrorCode::GameEnterSuccess;
 				}
-				else
+				else // 이미 로그 남겼음
 				{
-					// log
 					res.errorCode = ErrorCode::InvalidGame;
 				}
 			}
 			else
 			{
-				// log
+				g_logger.Log(LogLevel::ERR, "UserCheckNSet", "Invalid Token : " + std::to_string(userId));
 				res.errorCode = ErrorCode::InvalidToken;
 			}
 			g_sessionManager.SendData(user->GetSessionId(), res.Serialize());

@@ -58,12 +58,6 @@ std::optional<Package> IocpSession::KeepRecvPacket(size_t transferSize)
 {
 	if (_iocpData[IO_TYPE::READ].IsNeedMoreIo(transferSize))
 	{
-		//DWORD recvBytes;
-		//DWORD flags = 0;
-		//WSARecv(
-		//	_socket, &_iocpData[IO_TYPE::READ].GetWSABuf(), 1, &recvBytes,
-		//	&flags, _iocpData[IO_TYPE::READ].GetOverlappedPtr(), nullptr
-		//);
 		RecvTrigger();
 		return std::nullopt;
 	}
@@ -104,7 +98,7 @@ void IocpSession::RecvTrigger()
 	WSABUF wsabuf = _iocpData[IO_TYPE::READ].GetWSABuf();
 	if (wsabuf.buf == nullptr || wsabuf.len == 0)
 	{
-		// Todo: log
+		g_logger.Log(LogLevel::ERR, "IocpSession::RecvTrigger()", "wsabuf.buf == nullptr || wsabuf.len == 0");
 		Close();
 		Clear();
 		return;
@@ -115,9 +109,10 @@ void IocpSession::RecvTrigger()
 		_socket, &wsabuf, 1, &recvBytes,
 		&flags, _iocpData[IO_TYPE::READ].GetOverlappedPtr(), nullptr
 	);
-	if (WSAGetLastError() != ERROR_IO_PENDING && errorCode == SOCKET_ERROR)
+	INT32 errCode = WSAGetLastError();
+	if (errCode != ERROR_IO_PENDING && errorCode == SOCKET_ERROR)
 	{
-		// log
+		g_logger.Log(LogLevel::ERR, "IocpSession::RecvTrigger()", "WSARecv() failed with error: %d" + std::to_string(errCode));
 		Clear();
 		Close();
 		return;
