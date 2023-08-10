@@ -15,18 +15,6 @@
 #include "LoggingTask.h"
 #include "Logger.h"
 
-/*
-* 	shared_ptr<Server> server(new IOCPServer(new LoginProcess()));
-	SystemReport systemReport;
-	const int MONITOR_REPORTING_SEC = 1;
-	TaskManager::getInstance().add(&systemReport, MONITOR_REPORTING_SEC, TICK_INFINTY);
-	if (!server->run()) {
-		SLog(L"! error: server start fail");
-		return;
-	}
-*/
-
-
 int main()
 {
 	IocpServer server(std::make_shared<SpikeBeachHandler>());

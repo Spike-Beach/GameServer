@@ -401,6 +401,4 @@ Libraries
 
 *.exe
 Build/*
-Output*
-Output/x64Debug/GameServer/.d.json
-Output/x64Debug/GameServer/SPIKEBEACHUTILS.H.ifc
+Output/*
