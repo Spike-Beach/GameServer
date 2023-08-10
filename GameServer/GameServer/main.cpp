@@ -12,6 +12,8 @@
 #include "SBUserCheckNSet.h"
 #include "GameSetTask.h"
 #include "GameSyncTask.h"
+#include "LoggingTask.h"
+#include "Logger.h"
 
 /*
 * 	shared_ptr<Server> server(new IOCPServer(new LoginProcess()));
@@ -27,22 +29,15 @@
 
 int main()
 {
-	// TODO : Init()쓸데 없으면 지워라
-
-	//std::shared_ptr<SpikeBeachHandler> spikeBeachContent = std::make_shared<SpikeBeachHandler>();
-	//if (spikeBeachContent->Init() == false)
-	//{
-	//	return 1;
-	//}
-	//IocpServer server(spikeBeachContent);
+	IocpServer server(std::make_shared<SpikeBeachHandler>());
+	server.Init();
+	server.Run();
 	try
 	{
-		IocpServer server(std::make_shared<SpikeBeachHandler>());
-		server.Init();
-		server.Run();
+		g_TaskManager.AddTask(std::move(std::make_unique<LoggingTask>()), 100, 0, LOG_TASK_PROCESSER_ID);
 		//g_TaskManager.AddTask(std::move(std::make_unique<SessionMonitor>()), 10'000, 0, USER_TASK_PROCESSER_ID);
-		g_TaskManager.AddTask(std::move(std::make_unique<UserCheckNSet>()), 10, 0, GAME_TASK_PROCESSER_ID);
-		g_TaskManager.AddTask(std::move(std::make_unique<GameSetTask>()), 10, 0, GAME_TASK_PROCESSER_ID);
+		g_TaskManager.AddTask(std::move(std::make_unique<UserCheckNSet>()), 100, 0, GAME_TASK_PROCESSER_ID);
+		g_TaskManager.AddTask(std::move(std::make_unique<GameSetTask>()), 100, 0, GAME_TASK_PROCESSER_ID);
 		//g_TaskManager.AddTask(std::move(std::make_unique<GameSyncTask>()), 100, 0, GAME_TASK_PROCESSER_ID);
 	}
 	catch (std::exception e)

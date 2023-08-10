@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "SpikeBeachHandler.h"
-//#include "ParsedRoomInfo.h"
 #include "GameSetTask.h"
 #include "GameSyncTask.h"
 #include "GameEnter.h"
@@ -71,7 +70,7 @@ void SpikeBeachHandler::EnterGame(Package package)
 	SBUser* user = g_SBUserManager.GetEmptyUser(package.sessionId);
 	if (user == nullptr)
 	{
-		// log, 
+		g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::EnterGame", "Not enough empty user");
 		res.errorCode = ErrorCode::NotEnoughEmptyUser;
 		g_sessionManager.SendData(package.sessionId, res.Serialize());
 		return;

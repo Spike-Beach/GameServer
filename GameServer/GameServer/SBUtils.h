@@ -1,8 +1,4 @@
 #pragma once
-#include "pch.h"
-
-
-
 struct UserInfo
 {
 	INT64 id = -1;
@@ -29,7 +25,7 @@ class GameObj
 {
 	// 위치 정보 및 속도/가속도 등등..
 public:
-	SyncResult Sync() 
+	SyncResult Sync()
 	{
 		return SyncResult::NONE;
 	};
@@ -50,12 +46,16 @@ public:
 		_assignedId = assignedId;
 		_token = token;
 		_gameId = gameId;
-		//_nickName = nickName;
 	}
 
 	void SetUserId(INT64 id)
 	{
 		_id = id;
+	}
+
+	void SetUserNickname(const std::string& nickname)
+	{
+		_nickName = nickname;
 	}
 
 	void Clear()
@@ -73,15 +73,46 @@ public:
 	INT32 GetGameId() { return _gameId; }
 
 	friend class SBUserManager;
-	SBUser() :_id(-1), _sessionId(-1), _token(""), _assignedId("") {}
+	SBUser() :_id(-1), _sessionId(-1), _token(""), _assignedId(""), _nickName("") {}
 private:
 	INT64 _id;
 	INT64 _sessionId; // Only SBUserManager write
 	std::string _token;
 	std::string _assignedId;
 	INT32 _gameId;
-	//std::string _nickName;
+	std::string _nickName;
+};
 
+template <typename T>
+class ThreadJobQueue
+{
+public:
+	void Push(T data)
+	{
+		std::unique_lock<std::mutex> lock(_inputMutex);
+		_inputQueue->push(data);
+	}
 
-	//Game*
+	std::optional<T> Pop()
+	{
+		if (_outputQueue->empty())
+		{
+			std::unique_lock<std::mutex> lock(_inputMutex);
+			std::swap(_inputQueue, _outputQueue);
+		}
+		if (_outputQueue->empty())
+		{
+			return nullptr;
+		}
+		T output = _outputQueue->front();
+		_outputQueue->pop();
+		return output;
+	}
+
+private:
+	std::mutex _inputMutex;
+	std::queue<T> _queueA;
+	std::queue<T> _queueB;
+	std::queue<T>* _inputQueue;
+	std::queue<T>* _outputQueue;
 };

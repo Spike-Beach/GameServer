@@ -31,6 +31,9 @@
     <Filter Include="jsoncpp">
       <UniqueIdentifier>{596bc5e1-376d-4bd6-9b2a-bd3e72a04505}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{2383e8e1-7fca-4b2c-aa87-314120066b22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Singleton.h" />
@@ -115,6 +118,18 @@
     <ClInclude Include="CloseConnPacket.h">
       <Filter>Packets</Filter>
     </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggingTask.h">
+      <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="GameLeave.h">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="SBUtils.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -170,13 +185,16 @@
     <ClCompile Include="ParsedRoomInfo.cpp">
       <Filter>SpikeBeach</Filter>
     </ClCompile>
-    <ClCompile Include="SpikeBeachUtils.h">
-      <Filter>SpikeBeach</Filter>
-    </ClCompile>
     <ClCompile Include="SBManager.cpp" />
-    <ClCompile Include="UserManager.cpp" />
+    <ClCompile Include="SBUserManager.cpp" />
     <ClCompile Include="jsoncpp\jsoncpp.cpp">
       <Filter>jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="SBUtils.cpp">
+      <Filter>SpikeBeach</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

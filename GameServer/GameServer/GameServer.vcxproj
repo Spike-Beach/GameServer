@@ -140,7 +140,11 @@
     <ClInclude Include="CloseConnPacket.h" />
     <ClInclude Include="GameHandler.h" />
     <ClInclude Include="ErrorCode.h" />
+    <ClInclude Include="GameLeave.h" />
     <ClInclude Include="jsoncpp\json\json.h" />
+    <ClInclude Include="Logger.h" />
+    <ClInclude Include="LoggingTask.h" />
+    <ClInclude Include="SBUtils.h" />
     <ClInclude Include="SpikeBeachGame.h" />
     <ClInclude Include="GameEnter.h" />
     <ClInclude Include="SBManager.h" />
@@ -173,6 +177,8 @@
     <ClCompile Include="jsoncpp\jsoncpp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="SBUtils.cpp" />
     <ClCompile Include="SpikeBeachGame.cpp" />
     <ClCompile Include="SBManager.cpp" />
     <ClCompile Include="HeartBeatTask.cpp" />
@@ -191,11 +197,10 @@
     <ClCompile Include="SessionManager.cpp" />
     <ClCompile Include="SessionMonitor.cpp" />
     <ClCompile Include="SpikeBeachHandler.cpp" />
-    <ClCompile Include="SpikeBeachUtils.h" />
     <ClCompile Include="TaskContainer.cpp" />
     <ClCompile Include="TaskManager.cpp" />
     <ClCompile Include="TaskProcesser.cpp" />
-    <ClCompile Include="UserManager.cpp" />
+    <ClCompile Include="SBUserManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

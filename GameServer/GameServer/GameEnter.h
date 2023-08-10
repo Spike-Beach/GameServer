@@ -12,7 +12,6 @@ public:
 	std::string token;
 	std::string clientVersion;
 	INT32 gameId;
-	INT16 team;
 
 	size_t Deserialize(char* buf, size_t length)
 	{
@@ -35,6 +34,7 @@ public:
 
 		return offset;
 	}
+	
 	std::vector<char> Serialize()
 	{
 		packetId = PacketId::GAME_ENTER_REQ;
