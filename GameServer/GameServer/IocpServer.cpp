@@ -35,7 +35,8 @@ bool IocpServer::SetListenSocket()
 	SOCKADDR_IN serverAddr;
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons((u_short)_port);
-	inet_pton(AF_INET, _ip.c_str(), &(serverAddr.sin_addr));
+	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	//inet_pton(AF_INET, _ip.c_str(), &(serverAddr.sin_addr));
 
 	_listenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (_listenSocket == INVALID_SOCKET)

@@ -2,7 +2,7 @@
 #include "SpikeBeachGame.h"
 #include "SessionManager.h"
 #include "SBUserManager.h"
-#include "CloseConnPacket.h"
+#include "Disconn.h"
 
 SpikeBeachGame::SpikeBeachGame()
 :_gameStatus(GameStatus::EMPTY)
@@ -150,7 +150,7 @@ bool SpikeBeachGame::WaitUserSync()
 {
 	if (std::chrono::system_clock::now() > _waitDeadLine)
 	{
-		CloseConnPacket packet;
+		DisconnNtf packet;
 		std::vector<char> disConnNtf = packet.Serialize();
 		NoticeInGame(disConnNtf);
 		for (auto redUser : _redTeam)

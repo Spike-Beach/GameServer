@@ -1265,11 +1265,11 @@ public:
        const PathArgument& a4 = PathArgument(),
        const PathArgument& a5 = PathArgument());
 
-  const Value& resolve(const Value& root) const;
-  Value resolve(const Value& root, const Value& defaultValue) const;
+  const Value& resolve(const Value& config) const;
+  Value resolve(const Value& config, const Value& defaultValue) const;
   /// Creates the "path" to access the specified node and returns a reference on
   /// the node.
-  Value& make(Value& root) const;
+  Value& make(Value& config) const;
 
 private:
   using InArgs = std::vector<const PathArgument*>;
@@ -1574,7 +1574,7 @@ public:
    * \return \c true if the document was successfully parsed, \c false if an
    * error occurred.
    */
-  bool parse(const std::string& document, Value& root,
+  bool parse(const std::string& document, Value& config,
              bool collectComments = true);
 
   /** \brief Read a Value from a <a HREF="http://www.json.org">JSON</a>
@@ -1593,12 +1593,12 @@ public:
    * \return \c true if the document was successfully parsed, \c false if an
    * error occurred.
    */
-  bool parse(const char* beginDoc, const char* endDoc, Value& root,
+  bool parse(const char* beginDoc, const char* endDoc, Value& config,
              bool collectComments = true);
 
   /// \brief Parse from input stream.
   /// \see Json::operator>>(std::istream&, Json::Value&).
-  bool parse(IStream& is, Value& root, bool collectComments = true);
+  bool parse(IStream& is, Value& config, bool collectComments = true);
 
   /** \brief Returns a user friendly string that list errors in the parsed
    * document.
@@ -1761,7 +1761,7 @@ public:
    * \return \c true if the document was successfully parsed, \c false if an
    * error occurred.
    */
-  virtual bool parse(char const* beginDoc, char const* endDoc, Value* root,
+  virtual bool parse(char const* beginDoc, char const* endDoc, Value* config,
                      String* errs) = 0;
 
   class JSON_API Factory {
@@ -1866,7 +1866,7 @@ public:
  * Someday we might have a real StreamReader, but for now this
  * is convenient.
  */
-bool JSON_API parseFromStream(CharReader::Factory const&, IStream&, Value* root,
+bool JSON_API parseFromStream(CharReader::Factory const&, IStream&, Value* config,
                               String* errs);
 
 /** \brief Read from 'sin' into 'root'.
@@ -1972,7 +1972,7 @@ public:
    *   stream instead.) \throw std::exception possibly, depending on
    * configuration
    */
-  virtual int write(Value const& root, OStream* sout) = 0;
+  virtual int write(Value const& config, OStream* sout) = 0;
 
   /** \brief A simple abstract factory.
    */
@@ -1990,7 +1990,7 @@ public:
  * A StreamWriter will be created from the factory, used, and then deleted.
  */
 String JSON_API writeString(StreamWriter::Factory const& factory,
-                            Value const& root);
+                            Value const& config);
 
 /** \brief Build a StreamWriter implementation.
 
@@ -2072,7 +2072,7 @@ class JSON_API Writer {
 public:
   virtual ~Writer();
 
-  virtual String write(const Value& root) = 0;
+  virtual String write(const Value& config) = 0;
 };
 
 /** \brief Outputs a Value in <a HREF="http://www.json.org">JSON</a> format
@@ -2106,7 +2106,7 @@ public:
   void omitEndingLineFeed();
 
 public: // overridden from Writer
-  String write(const Value& root) override;
+  String write(const Value& config) override;
 
 private:
   void writeValue(const Value& value);
@@ -2159,7 +2159,7 @@ public: // overridden from Writer
    * \param root Value to serialize.
    * \return String containing the JSON document that represents the root value.
    */
-  String write(const Value& root) override;
+  String write(const Value& config) override;
 
 private:
   void writeValue(const Value& value);
@@ -2170,8 +2170,8 @@ private:
   void writeWithIndent(const String& value);
   void indent();
   void unindent();
-  void writeCommentBeforeValue(const Value& root);
-  void writeCommentAfterValueOnSameLine(const Value& root);
+  void writeCommentBeforeValue(const Value& config);
+  void writeCommentAfterValueOnSameLine(const Value& config);
   static bool hasCommentForValue(const Value& value);
   static String normalizeEOL(const String& text);
 
@@ -2233,7 +2233,7 @@ public:
    * \note There is no point in deriving from Writer, since write() should not
    * return a value.
    */
-  void write(OStream& out, const Value& root);
+  void write(OStream& out, const Value& config);
 
 private:
   void writeValue(const Value& value);
@@ -2244,8 +2244,8 @@ private:
   void writeWithIndent(const String& value);
   void indent();
   void unindent();
-  void writeCommentBeforeValue(const Value& root);
-  void writeCommentAfterValueOnSameLine(const Value& root);
+  void writeCommentBeforeValue(const Value& config);
+  void writeCommentAfterValueOnSameLine(const Value& config);
   static bool hasCommentForValue(const Value& value);
   static String normalizeEOL(const String& text);
 
@@ -2277,7 +2277,7 @@ String JSON_API valueToQuotedString(const char* value);
 
 /// \brief Output using the StyledStreamWriter.
 /// \see Json::operator>>()
-JSON_API OStream& operator<<(OStream&, const Value& root);
+JSON_API OStream& operator<<(OStream&, const Value& config);
 
 } // namespace Json
 

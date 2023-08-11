@@ -38,9 +38,7 @@ public:
 	std::vector<char> Serialize()
 	{
 		packetId = PacketId::GAME_ENTER_REQ;
-		packetLength = sizeof(packetId) + sizeof(packetLength) +
-			userAssignedId.size() + token.size() + clientVersion.size() + 3
-			+ sizeof(gameId);
+		packetLength = PACKET_SIZE + userAssignedId.size() + token.size() + clientVersion.size() + 3 + sizeof(gameId);
 		std::vector<char> serialized = Packet::Serialize();
 		serialized.reserve(packetLength);
 

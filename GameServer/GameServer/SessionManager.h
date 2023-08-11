@@ -2,9 +2,9 @@
 #include "Session.h"
 
 #define g_sessionManager SessionManager::Instance()
-#define CLIENT_SESSION_CAPACITY 2000 + 400
-#define OTHER_SESSION_CAPACITY 10
-#define MAX_SESSION_CAPACITY (CLIENT_SESSION_CAPACITY + OTHER_SESSION_CAPACITY)
+//#define CLIENT_SESSION_CAPACITY 2000 + 400
+//#define OTHER_SESSION_CAPACITY 10
+//#define MAX_SESSION_CAPACITY (CLIENT_SESSION_CAPACITY + OTHER_SESSION_CAPACITY)
 
 class SessionManager : public Singleton<SessionManager>
 {
@@ -22,5 +22,6 @@ private:
 	std::vector<std::shared_ptr<Session> > _sessions;
 	std::stack<INT32> _emptySessionIndexStack;
 	std::mutex _mutex;
+	INT32 _sessionNum;
 };
 

@@ -327,15 +327,15 @@ Reader::Reader() : features_(Features::all()) {}
 
 Reader::Reader(const Features& features) : features_(features) {}
 
-bool Reader::parse(const std::string& document, Value& root,
+bool Reader::parse(const std::string& document, Value& config,
                    bool collectComments) {
   document_.assign(document.begin(), document.end());
   const char* begin = document_.c_str();
   const char* end = begin + document_.length();
-  return parse(begin, end, root, collectComments);
+  return parse(begin, end, config, collectComments);
 }
 
-bool Reader::parse(std::istream& is, Value& root, bool collectComments) {
+bool Reader::parse(std::istream& is, Value& config, bool collectComments) {
   // std::istream_iterator<char> begin(is);
   // std::istream_iterator<char> end;
   // Those would allow streamed input from a file, if parse() were a
@@ -344,10 +344,10 @@ bool Reader::parse(std::istream& is, Value& root, bool collectComments) {
   // Since String is reference-counted, this at least does not
   // create an extra copy.
   String doc(std::istreambuf_iterator<char>(is), {});
-  return parse(doc.data(), doc.data() + doc.size(), root, collectComments);
+  return parse(doc.data(), doc.data() + doc.size(), config, collectComments);
 }
 
-bool Reader::parse(const char* beginDoc, const char* endDoc, Value& root,
+bool Reader::parse(const char* beginDoc, const char* endDoc, Value& config,
                    bool collectComments) {
   if (!features_.allowComments_) {
     collectComments = false;
@@ -363,15 +363,15 @@ bool Reader::parse(const char* beginDoc, const char* endDoc, Value& root,
   errors_.clear();
   while (!nodes_.empty())
     nodes_.pop();
-  nodes_.push(&root);
+  nodes_.push(&config);
 
   bool successful = readValue();
   Token token;
   skipCommentTokens(token);
   if (collectComments_ && !commentsBefore_.empty())
-    root.setComment(commentsBefore_, commentAfter);
+    config.setComment(commentsBefore_, commentAfter);
   if (features_.strictRoot_) {
-    if (!root.isArray() && !root.isObject()) {
+    if (!config.isArray() && !config.isObject()) {
       // Set error location to start of doc, ideally should be first token found
       // in doc
       token.type_ = tokenError;
@@ -1135,7 +1135,7 @@ public:
   };
 
   explicit OurReader(OurFeatures const& features);
-  bool parse(const char* beginDoc, const char* endDoc, Value& root,
+  bool parse(const char* beginDoc, const char* endDoc, Value& config,
              bool collectComments = true);
   String getFormattedErrorMessages() const;
   std::vector<StructuredError> getStructuredErrors() const;
@@ -1245,7 +1245,7 @@ bool OurReader::containsNewLine(OurReader::Location begin,
 
 OurReader::OurReader(OurFeatures const& features) : features_(features) {}
 
-bool OurReader::parse(const char* beginDoc, const char* endDoc, Value& root,
+bool OurReader::parse(const char* beginDoc, const char* endDoc, Value& config,
                       bool collectComments) {
   if (!features_.allowComments_) {
     collectComments = false;
@@ -1261,7 +1261,7 @@ bool OurReader::parse(const char* beginDoc, const char* endDoc, Value& root,
   errors_.clear();
   while (!nodes_.empty())
     nodes_.pop();
-  nodes_.push(&root);
+  nodes_.push(&config);
 
   // skip byte order mark if it exists at the beginning of the UTF-8 text.
   skipBom(features_.skipBom_);
@@ -1274,9 +1274,9 @@ bool OurReader::parse(const char* beginDoc, const char* endDoc, Value& root,
     return false;
   }
   if (collectComments_ && !commentsBefore_.empty())
-    root.setComment(commentsBefore_, commentAfter);
+    config.setComment(commentsBefore_, commentAfter);
   if (features_.strictRoot_) {
-    if (!root.isArray() && !root.isObject()) {
+    if (!config.isArray() && !config.isObject()) {
       // Set error location to start of doc, ideally should be first token found
       // in doc
       token.type_ = tokenError;
@@ -2117,9 +2117,9 @@ class OurCharReader : public CharReader {
 public:
   OurCharReader(bool collectComments, OurFeatures const& features)
       : collectComments_(collectComments), reader_(features) {}
-  bool parse(char const* beginDoc, char const* endDoc, Value* root,
+  bool parse(char const* beginDoc, char const* endDoc, Value* config,
              String* errs) override {
-    bool ok = reader_.parse(beginDoc, endDoc, *root, collectComments_);
+    bool ok = reader_.parse(beginDoc, endDoc, *config, collectComments_);
     if (errs) {
       *errs = reader_.getFormattedErrorMessages();
     }
@@ -2217,7 +2217,7 @@ void CharReaderBuilder::setDefaults(Json::Value* settings) {
 //////////////////////////////////
 // global functions
 
-bool parseFromStream(CharReader::Factory const& fact, IStream& sin, Value* root,
+bool parseFromStream(CharReader::Factory const& fact, IStream& sin, Value* config,
                      String* errs) {
   OStringStream ssin;
   ssin << sin.rdbuf();
@@ -2226,13 +2226,13 @@ bool parseFromStream(CharReader::Factory const& fact, IStream& sin, Value* root,
   char const* end = begin + doc.size();
   // Note that we do not actually need a null-terminator.
   CharReaderPtr const reader(fact.newCharReader());
-  return reader->parse(begin, end, root, errs);
+  return reader->parse(begin, end, config, errs);
 }
 
-IStream& operator>>(IStream& sin, Value& root) {
+IStream& operator>>(IStream& sin, Value& config) {
   CharReaderBuilder b;
   String errs;
-  bool ok = parseFromStream(b, sin, &root, &errs);
+  bool ok = parseFromStream(b, sin, &config, &errs);
   if (!ok) {
     throwRuntimeError(errs);
   }
@@ -3996,8 +3996,8 @@ void Path::invalidPath(const String& /*path*/, int /*location*/) {
   // Error: invalid path.
 }
 
-const Value& Path::resolve(const Value& root) const {
-  const Value* node = &root;
+const Value& Path::resolve(const Value& config) const {
+  const Value* node = &config;
   for (const auto& arg : args_) {
     if (arg.kind_ == PathArgument::kindIndex) {
       if (!node->isArray() || !node->isValidIndex(arg.index_)) {
@@ -4021,8 +4021,8 @@ const Value& Path::resolve(const Value& root) const {
   return *node;
 }
 
-Value Path::resolve(const Value& root, const Value& defaultValue) const {
-  const Value* node = &root;
+Value Path::resolve(const Value& config, const Value& defaultValue) const {
+  const Value* node = &config;
   for (const auto& arg : args_) {
     if (arg.kind_ == PathArgument::kindIndex) {
       if (!node->isArray() || !node->isValidIndex(arg.index_))
@@ -4039,8 +4039,8 @@ Value Path::resolve(const Value& root, const Value& defaultValue) const {
   return *node;
 }
 
-Value& Path::make(Value& root) const {
-  Value* node = &root;
+Value& Path::make(Value& config) const {
+  Value* node = &config;
   for (const auto& arg : args_) {
     if (arg.kind_ == PathArgument::kindIndex) {
       if (!node->isArray()) {
@@ -4444,9 +4444,9 @@ void FastWriter::dropNullPlaceholders() { dropNullPlaceholders_ = true; }
 
 void FastWriter::omitEndingLineFeed() { omitEndingLineFeed_ = true; }
 
-String FastWriter::write(const Value& root) {
+String FastWriter::write(const Value& config) {
   document_.clear();
-  writeValue(root);
+  writeValue(config);
   if (!omitEndingLineFeed_)
     document_ += '\n';
   return document_;
@@ -4510,13 +4510,13 @@ void FastWriter::writeValue(const Value& value) {
 
 StyledWriter::StyledWriter() = default;
 
-String StyledWriter::write(const Value& root) {
+String StyledWriter::write(const Value& config) {
   document_.clear();
   addChildValues_ = false;
   indentString_.clear();
-  writeCommentBeforeValue(root);
-  writeValue(root);
-  writeCommentAfterValueOnSameLine(root);
+  writeCommentBeforeValue(config);
+  writeValue(config);
+  writeCommentAfterValueOnSameLine(config);
   document_ += '\n';
   return document_;
 }
@@ -4681,13 +4681,13 @@ void StyledWriter::unindent() {
   indentString_.resize(indentString_.size() - indentSize_);
 }
 
-void StyledWriter::writeCommentBeforeValue(const Value& root) {
-  if (!root.hasComment(commentBefore))
+void StyledWriter::writeCommentBeforeValue(const Value& config) {
+  if (!config.hasComment(commentBefore))
     return;
 
   document_ += '\n';
   writeIndent();
-  const String& comment = root.getComment(commentBefore);
+  const String& comment = config.getComment(commentBefore);
   String::const_iterator iter = comment.begin();
   while (iter != comment.end()) {
     document_ += *iter;
@@ -4700,13 +4700,13 @@ void StyledWriter::writeCommentBeforeValue(const Value& root) {
   document_ += '\n';
 }
 
-void StyledWriter::writeCommentAfterValueOnSameLine(const Value& root) {
-  if (root.hasComment(commentAfterOnSameLine))
-    document_ += " " + root.getComment(commentAfterOnSameLine);
+void StyledWriter::writeCommentAfterValueOnSameLine(const Value& config) {
+  if (config.hasComment(commentAfterOnSameLine))
+    document_ += " " + config.getComment(commentAfterOnSameLine);
 
-  if (root.hasComment(commentAfter)) {
+  if (config.hasComment(commentAfter)) {
     document_ += '\n';
-    document_ += root.getComment(commentAfter);
+    document_ += config.getComment(commentAfter);
     document_ += '\n';
   }
 }
@@ -4724,17 +4724,17 @@ StyledStreamWriter::StyledStreamWriter(String indentation)
     : document_(nullptr), indentation_(std::move(indentation)),
       addChildValues_(), indented_(false) {}
 
-void StyledStreamWriter::write(OStream& out, const Value& root) {
+void StyledStreamWriter::write(OStream& out, const Value& config) {
   document_ = &out;
   addChildValues_ = false;
   indentString_.clear();
   indented_ = true;
-  writeCommentBeforeValue(root);
+  writeCommentBeforeValue(config);
   if (!indented_)
     writeIndent();
   indented_ = true;
-  writeValue(root);
-  writeCommentAfterValueOnSameLine(root);
+  writeValue(config);
+  writeCommentAfterValueOnSameLine(config);
   *document_ << "\n";
   document_ = nullptr; // Forget the stream, for safety.
 }
@@ -4901,13 +4901,13 @@ void StyledStreamWriter::unindent() {
   indentString_.resize(indentString_.size() - indentation_.size());
 }
 
-void StyledStreamWriter::writeCommentBeforeValue(const Value& root) {
-  if (!root.hasComment(commentBefore))
+void StyledStreamWriter::writeCommentBeforeValue(const Value& config) {
+  if (!config.hasComment(commentBefore))
     return;
 
   if (!indented_)
     writeIndent();
-  const String& comment = root.getComment(commentBefore);
+  const String& comment = config.getComment(commentBefore);
   String::const_iterator iter = comment.begin();
   while (iter != comment.end()) {
     *document_ << *iter;
@@ -4919,13 +4919,13 @@ void StyledStreamWriter::writeCommentBeforeValue(const Value& root) {
   indented_ = false;
 }
 
-void StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value& root) {
-  if (root.hasComment(commentAfterOnSameLine))
-    *document_ << ' ' << root.getComment(commentAfterOnSameLine);
+void StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value& config) {
+  if (config.hasComment(commentAfterOnSameLine))
+    *document_ << ' ' << config.getComment(commentAfterOnSameLine);
 
-  if (root.hasComment(commentAfter)) {
+  if (config.hasComment(commentAfter)) {
     writeIndent();
-    *document_ << root.getComment(commentAfter);
+    *document_ << config.getComment(commentAfter);
   }
   indented_ = false;
 }
@@ -4955,7 +4955,7 @@ struct BuiltStyledStreamWriter : public StreamWriter {
                           String endingLineFeedSymbol, bool useSpecialFloats,
                           bool emitUTF8, unsigned int precision,
                           PrecisionType precisionType);
-  int write(Value const& root, OStream* sout) override;
+  int write(Value const& config, OStream* sout) override;
 
 private:
   void writeValue(Value const& value);
@@ -4966,8 +4966,8 @@ private:
   void writeWithIndent(String const& value);
   void indent();
   void unindent();
-  void writeCommentBeforeValue(Value const& root);
-  void writeCommentAfterValueOnSameLine(Value const& root);
+  void writeCommentBeforeValue(Value const& config);
+  void writeCommentAfterValueOnSameLine(Value const& config);
   static bool hasCommentForValue(const Value& value);
 
   using ChildValues = std::vector<String>;
@@ -4997,17 +4997,17 @@ BuiltStyledStreamWriter::BuiltStyledStreamWriter(
       addChildValues_(false), indented_(false),
       useSpecialFloats_(useSpecialFloats), emitUTF8_(emitUTF8),
       precision_(precision), precisionType_(precisionType) {}
-int BuiltStyledStreamWriter::write(Value const& root, OStream* sout) {
+int BuiltStyledStreamWriter::write(Value const& config, OStream* sout) {
   sout_ = sout;
   addChildValues_ = false;
   indented_ = true;
   indentString_.clear();
-  writeCommentBeforeValue(root);
+  writeCommentBeforeValue(config);
   if (!indented_)
     writeIndent();
   indented_ = true;
-  writeValue(root);
-  writeCommentAfterValueOnSameLine(root);
+  writeValue(config);
+  writeCommentAfterValueOnSameLine(config);
   *sout_ << endingLineFeedSymbol_;
   sout_ = nullptr;
   return 0;
@@ -5185,15 +5185,15 @@ void BuiltStyledStreamWriter::unindent() {
   indentString_.resize(indentString_.size() - indentation_.size());
 }
 
-void BuiltStyledStreamWriter::writeCommentBeforeValue(Value const& root) {
+void BuiltStyledStreamWriter::writeCommentBeforeValue(Value const& config) {
   if (cs_ == CommentStyle::None)
     return;
-  if (!root.hasComment(commentBefore))
+  if (!config.hasComment(commentBefore))
     return;
 
   if (!indented_)
     writeIndent();
-  const String& comment = root.getComment(commentBefore);
+  const String& comment = config.getComment(commentBefore);
   String::const_iterator iter = comment.begin();
   while (iter != comment.end()) {
     *sout_ << *iter;
@@ -5206,15 +5206,15 @@ void BuiltStyledStreamWriter::writeCommentBeforeValue(Value const& root) {
 }
 
 void BuiltStyledStreamWriter::writeCommentAfterValueOnSameLine(
-    Value const& root) {
+    Value const& config) {
   if (cs_ == CommentStyle::None)
     return;
-  if (root.hasComment(commentAfterOnSameLine))
-    *sout_ << " " + root.getComment(commentAfterOnSameLine);
+  if (config.hasComment(commentAfterOnSameLine))
+    *sout_ << " " + config.getComment(commentAfterOnSameLine);
 
-  if (root.hasComment(commentAfter)) {
+  if (config.hasComment(commentAfter)) {
     writeIndent();
-    *sout_ << root.getComment(commentAfter);
+    *sout_ << config.getComment(commentAfter);
   }
 }
 
@@ -5316,17 +5316,17 @@ void StreamWriterBuilder::setDefaults(Json::Value* settings) {
   //! [StreamWriterBuilderDefaults]
 }
 
-String writeString(StreamWriter::Factory const& factory, Value const& root) {
+String writeString(StreamWriter::Factory const& factory, Value const& config) {
   OStringStream sout;
   StreamWriterPtr const writer(factory.newStreamWriter());
-  writer->write(root, &sout);
+  writer->write(config, &sout);
   return sout.str();
 }
 
-OStream& operator<<(OStream& sout, Value const& root) {
+OStream& operator<<(OStream& sout, Value const& config) {
   StreamWriterBuilder builder;
   StreamWriterPtr const writer(builder.newStreamWriter());
-  writer->write(root, &sout);
+  writer->write(config, &sout);
   return sout;
 }
 

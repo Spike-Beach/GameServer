@@ -16,11 +16,12 @@ public:
 	bool IsRuning();
 private:
 	std::atomic_bool _isRunning;
-	std::array<SpikeBeachGame, 50> _gamePool;
+	std::vector<SpikeBeachGame> _gamePool;
 	
 	std::stack<SpikeBeachGame*> _emptyGames;
 	// room id 2 game
 	std::unordered_map<INT32, SpikeBeachGame*> _runningGames;
 	std::mutex _managerMutex;
+	INT32 _poolSize;
 };
 

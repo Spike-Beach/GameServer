@@ -21,6 +21,7 @@ class SpikeBeachGame
 {
 public:
 	SpikeBeachGame();
+	SpikeBeachGame(const SpikeBeachGame&) {};
 	GameStatus Status();
 	void Clear();
 	bool SetGame(INT32 gameId, Team redTeam, Team blueTeam);

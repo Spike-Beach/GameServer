@@ -7,7 +7,9 @@ class GameSetTask : public Task
 public:
 	GameSetTask() 
 	{
-		_conn = redisConnect("127.0.0.1", 6380);
+		_ip = g_config.config["ConnectionStrings"]["RoomDb"]["Ip"].asString();
+		_port = g_config.config["ConnectionStrings"]["RoomDb"]["Port"].asInt();
+		_conn = redisConnect(_ip.c_str(), _port);
 		if (_conn == NULL || _conn->err)
 		{
 			throw std::runtime_error("GameSetTask redisConnect error");
@@ -46,7 +48,6 @@ public:
 				|| reply->element[2]->type != REDIS_REPLY_STRING
 				|| reply->element[2]->str == NULL)
 			{
-				g_logger.Log(LogLevel::ERR, "GameSetTask::Do", "Invalid GameInfo: " + std::to_string(reply->element[2]->type));
 				return;
 			}
 
@@ -61,6 +62,9 @@ public:
 private:
 	//std::shared_ptr<SpikeBeachContent> _spikeBeachContent;
 	redisContext* _conn;
+	std::string _ip;
+	INT32 _port;
+
 	INT32 _gameId;
 	Team _redTeam;
 	Team _blueTeam;

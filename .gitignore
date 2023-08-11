@@ -402,3 +402,4 @@ Libraries
 *.exe
 Build/*
 Output/*
+GameServer/GameServer/config/*
