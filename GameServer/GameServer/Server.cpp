@@ -16,9 +16,8 @@ Server::~Server()
 
 void Server::Init()
 {
-	_ip = "127.0.0.1";
-	_port = 8444;
-	_workerThreadCount = 4;
+	_workerThreadCount = g_config.config["ServerSettings"]["Port"].asInt();
+	_workerThreadCount = g_config.config["ServerSettings"]["WorkerThreadCount"].asInt();
 	g_logger.Log(LogLevel::INFO, "Server::Init()", "Server Init Done");
 }
 

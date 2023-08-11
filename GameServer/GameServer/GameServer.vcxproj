@@ -137,7 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CloseConnPacket.h" />
+    <ClInclude Include="Disconn.h" />
     <ClInclude Include="GameHandler.h" />
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="GameLeave.h" />
@@ -145,6 +145,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="LoggingTask.h" />
     <ClInclude Include="SBUtils.h" />
+    <ClInclude Include="ServerConfigManager.h" />
     <ClInclude Include="SpikeBeachGame.h" />
     <ClInclude Include="GameEnter.h" />
     <ClInclude Include="SBManager.h" />
@@ -179,6 +180,7 @@
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="SBUtils.cpp" />
+    <ClCompile Include="ServerConfigManager.cpp" />
     <ClCompile Include="SpikeBeachGame.cpp" />
     <ClCompile Include="SBManager.cpp" />
     <ClCompile Include="HeartBeatTask.cpp" />

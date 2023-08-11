@@ -7,8 +7,9 @@ SBUserManager::SBUserManager()
 }
 void SBUserManager::Init()
 {
-	_userPool.resize(MAX_USER);
-	for (int i = 0; i < MAX_USER; ++i)
+	_userNum = g_config.config["GameSettings"]["GameUserCount"].asInt();
+	_userPool.resize(_userNum);
+	for (int i = 0; i < _userNum; ++i)
 	{
 		_emptyUsers.push(&_userPool[i]);
 	}

@@ -64,6 +64,8 @@ private:
 			return "WARNING";
 		case LogLevel::ERR:
 			return "ERR";
+		case LogLevel::CRITICAL:
+			return "CRITICAL";
 		}
 		return "UNKNOWN";
 	}

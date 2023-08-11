@@ -19,8 +19,10 @@ SessionManager::~SessionManager()
 void SessionManager::Init()
 {
 	size_t sessionIdx = 0;
-	_sessions.reserve(MAX_SESSION_CAPACITY);
-	for (size_t idx = 0; idx < CLIENT_SESSION_CAPACITY; idx++)
+	_sessionNum = g_config.config["SessionSettings"]["MaxSessionNum"].asInt()
+		+ g_config.config["SessionSettings"]["ExtraSessionNum"].asInt();
+	_sessions.reserve(_sessionNum);
+	for (size_t idx = 0; idx < _sessionNum; idx++)
 	{
 		auto session = std::make_shared<IocpSession>(sessionIdx++, SOCK_TYPE::IOCP);
 		_sessions.push_back(session);
@@ -100,5 +102,5 @@ bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 
 INT32 SessionManager::ClientSessionCap()
 {
-	return CLIENT_SESSION_CAPACITY;
+	return _sessionNum;
 }

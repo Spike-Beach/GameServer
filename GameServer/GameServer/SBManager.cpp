@@ -15,14 +15,9 @@ SBManager::~SBManager() {}
 
 bool SBManager::Init()
 {
-	/*auto gameSetTaskPtr = std::make_unique<GameSetTask>(shared_from_this());
-	if (!gameSetTaskPtr->Init())
-	{
-		return false;
-	}
-	g_TaskManager.AddTask(std::move(gameSetTaskPtr), 100, 0, GAME_TASK_PROCESSER_ID);
-	g_TaskManager.AddTask(std::make_unique<GameSyncTask>(shared_from_this()), 100, 0, GAME_TASK_PROCESSER_ID);*/
-	for (size_t i = 0; i < _gamePool.size(); i++)
+	_poolSize = g_config.config["GameSettings"]["GameCount"].asInt();
+	_gamePool.resize(_poolSize);
+	for (size_t i = 0; i < _poolSize; i++)
 	{
 		_emptyGames.push(&_gamePool[i]);
 	}
@@ -36,13 +31,13 @@ bool SBManager::SetGame(std::string infoStr)
 	{
 		if (info.Parse(infoStr) == false)
 		{
-			std::cout << "invalid info" << std::endl;
+			g_logger.Log(LogLevel::CRITICAL, "SBManager::SetGame", "ParsedRoomInfo::Parse failed");
 			return false;
 		}
 	}
 	catch (std::exception e)
 	{
-		std::cout << e.what() << std::endl;
+		g_logger.Log(LogLevel::CRITICAL, "SBManager::SetGame", "ParsedRoomInfo::Parse Exception, " + std::string(e.what()));
 		return false;
 	}
 	

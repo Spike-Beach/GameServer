@@ -11,7 +11,9 @@ class UserCheckNSet : public Task
 public:
 	UserCheckNSet() 
 	{
-		_conn = redisConnect("127.0.0.1", 6379);
+		_ip = g_config.config["ConnectionStrings"]["SessionDb"]["Ip"].asString();
+		_port = g_config.config["ConnectionStrings"]["SessionDb"]["Port"].asInt();
+		_conn = redisConnect(_ip.c_str(), _port);
 		if (_conn == NULL || _conn->err)
 		{
 			throw std::runtime_error("UserCheckNSet redisConnect error");
@@ -22,7 +24,7 @@ public:
 	{
 		GameEnterRes res;
 		Json::CharReaderBuilder builder;
-		Json::Value root;
+		Json::Value config;
 		JSONCPP_STRING errs;
 		SBUser* user = g_SBUserManager.PopAuthWaitingUser();
 		if (user == nullptr)
@@ -36,7 +38,7 @@ public:
 		{
 			std::string str = reply->str;
 			std::istringstream jsonStream(str);
-			if (Json::parseFromStream(builder, jsonStream, &root, &errs) == false)
+			if (Json::parseFromStream(builder, jsonStream, &config, &errs) == false)
 			{
 				g_logger.Log(LogLevel::ERR, "UserCheckNSet::Do", "Json Error: " + errs);
 				res.errorCode = ErrorCode::SessionError;
@@ -44,16 +46,16 @@ public:
 				return;
 			}
 			
-			if (root["userAssignedId"].empty() || root["token"].empty() || root["userId"].empty())
+			if (config["userAssignedId"].empty() || config["token"].empty() || config["userId"].empty())
 			{
 				g_logger.Log(LogLevel::CRITICAL, "UserCheckNSet::Do", "Invalid Session Info: " + str);
 				res.errorCode = ErrorCode::SessionError;
 				g_sessionManager.SendData(user->GetSessionId(), res.Serialize());
 				return;
 			}
-			std::string token = root["token"].asString();
-			INT64 userId = root["userId"].asInt64();
-			std::string nickname = root["nickname"].asString();
+			std::string token = config["token"].asString();
+			INT64 userId = config["userId"].asInt64();
+			std::string nickname = config["nickname"].asString();
 
 			if (user->GetToken() == token)
 			{
@@ -78,4 +80,6 @@ public:
 	}
 private:
 	redisContext* _conn;
+	std::string _ip;
+	INT32 _port;
 };

@@ -16,9 +16,6 @@
     <Filter Include="ServerCore">
       <UniqueIdentifier>{31eaea85-cfbc-483b-985a-c87b11a7e293}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PacketBases">
-      <UniqueIdentifier>{2df5c8aa-e1c1-4ba9-8fea-f44c116ff14a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Packets">
       <UniqueIdentifier>{86b01c6c-199c-4c5f-bfa7-1dbfac2cc0be}</UniqueIdentifier>
     </Filter>
@@ -33,6 +30,12 @@
     </Filter>
     <Filter Include="Logger">
       <UniqueIdentifier>{2383e8e1-7fca-4b2c-aa87-314120066b22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Configer">
+      <UniqueIdentifier>{80b33145-ad04-49a9-9d90-7ba8ec75b603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packets\PacketBases">
+      <UniqueIdentifier>{2df5c8aa-e1c1-4ba9-8fea-f44c116ff14a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -81,19 +84,19 @@
       <Filter>ServerCore</Filter>
     </ClInclude>
     <ClInclude Include="PacketId.h">
-      <Filter>PacketBases</Filter>
+      <Filter>Packets\PacketBases</Filter>
     </ClInclude>
     <ClInclude Include="Package.h">
-      <Filter>PacketBases</Filter>
+      <Filter>Packets\PacketBases</Filter>
     </ClInclude>
     <ClInclude Include="Packet.h">
-      <Filter>PacketBases</Filter>
+      <Filter>Packets\PacketBases</Filter>
     </ClInclude>
     <ClInclude Include="GameEnter.h">
       <Filter>Packets</Filter>
     </ClInclude>
     <ClInclude Include="ErrorCode.h">
-      <Filter>PacketBases</Filter>
+      <Filter>Packets\PacketBases</Filter>
     </ClInclude>
     <ClInclude Include="SpikeBeachGame.h">
       <Filter>SpikeBeach\Game</Filter>
@@ -115,7 +118,7 @@
     <ClInclude Include="jsoncpp\json\json.h">
       <Filter>jsoncpp</Filter>
     </ClInclude>
-    <ClInclude Include="CloseConnPacket.h">
+    <ClInclude Include="Disconn.h">
       <Filter>Packets</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h">
@@ -129,6 +132,9 @@
     </ClInclude>
     <ClInclude Include="SBUtils.h">
       <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerConfigManager.h">
+      <Filter>Configer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -174,10 +180,10 @@
       <Filter>ServerCore</Filter>
     </ClCompile>
     <ClCompile Include="Package.cpp">
-      <Filter>PacketBases</Filter>
+      <Filter>Packets\PacketBases</Filter>
     </ClCompile>
     <ClCompile Include="Packet.cpp">
-      <Filter>PacketBases</Filter>
+      <Filter>Packets\PacketBases</Filter>
     </ClCompile>
     <ClCompile Include="SpikeBeachGame.cpp">
       <Filter>SpikeBeach\Game</Filter>
@@ -195,6 +201,9 @@
     </ClCompile>
     <ClCompile Include="SBUtils.cpp">
       <Filter>SpikeBeach</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerConfigManager.cpp">
+      <Filter>Configer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

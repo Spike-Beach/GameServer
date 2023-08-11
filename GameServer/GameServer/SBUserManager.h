@@ -1,7 +1,7 @@
 #pragma once
 #include "SBUtils.h"
 
-#define MAX_USER 200
+//#define MAX_USER 200
 #define g_SBUserManager SBUserManager::Instance()
 
 class SBUserManager : public Singleton<SBUserManager>
@@ -16,6 +16,7 @@ public:
 	SBUser* PopAuthWaitingUser();
 
 private:
+	INT32 _userNum;
 	std::vector<SBUser> _userPool;
 	std::stack<SBUser*> _emptyUsers;
 	std::shared_timed_mutex _managerMutex;
