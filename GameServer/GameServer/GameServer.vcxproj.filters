@@ -136,6 +136,7 @@
     <ClInclude Include="ServerConfigManager.h">
       <Filter>Configer</Filter>
     </ClInclude>
+    <ClInclude Include="GameResultWriteTask.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -205,5 +206,6 @@
     <ClCompile Include="ServerConfigManager.cpp">
       <Filter>Configer</Filter>
     </ClCompile>
+    <ClCompile Include="GameResultWriteTask.cpp" />
   </ItemGroup>
 </Project>

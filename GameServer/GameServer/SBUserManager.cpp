@@ -17,7 +17,7 @@ void SBUserManager::Init()
 
 SBUser* SBUserManager::GetEmptyUser(INT64 sessionId)
 {
-	std::unique_lock<std::shared_timed_mutex> lock(_managerMutex);
+	std::unique_lock<std::shared_timed_mutex> lock(_runningGameMutex);
 	if (_emptyUsers.empty() == false)
 	{
 		SBUser* emptyUser = _emptyUsers.top();
@@ -32,7 +32,7 @@ SBUser* SBUserManager::GetEmptyUser(INT64 sessionId)
 
 SBUser* SBUserManager::GetUserBySessionId(INT64 sessionId)
 {
-	std::shared_lock<std::shared_timed_mutex> lock(_managerMutex);
+	std::shared_lock<std::shared_timed_mutex> lock(_runningGameMutex);
 	auto iter = _sessionId2UserMap.find(sessionId);
 	if (iter != _sessionId2UserMap.end())
 	{
@@ -56,7 +56,7 @@ void SBUserManager::ReleaseUser(SBUser* user)
 		g_logger.Log(LogLevel::ERR, "SBUserManager::ReleaseUser", "sessionId is invalid. sessionId : " + std::to_string(sessionId));
 		return;
 	}
-	std::unique_lock<std::shared_timed_mutex> lock(_managerMutex);
+	std::unique_lock<std::shared_timed_mutex> lock(_runningGameMutex);
 	_sessionId2UserMap.erase(sessionId);
 	_emptyUsers.push(user);
 }
