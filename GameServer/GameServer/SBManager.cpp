@@ -41,7 +41,7 @@ bool SBManager::SetGame(std::string infoStr)
 		return false;
 	}
 	
-	std::unique_lock<std::mutex> lock(_managerMutex);
+	std::unique_lock<std::mutex> lock(_runningGameMutex);
 	if (_emptyGames.empty() == false)
 	{
 		SpikeBeachGame* emptyGame = _emptyGames.top();
@@ -57,7 +57,7 @@ bool SBManager::SetGame(std::string infoStr)
 // content단에서 입장 못할시 처리.
 bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 {
-	std::unique_lock<std::mutex> lock(_managerMutex);
+	std::unique_lock<std::mutex> lock(_runningGameMutex);
 	auto iter = _runningGames.find(roomId);
 	if (iter != _runningGames.end())
 	{
@@ -94,4 +94,25 @@ void SBManager::SyncGames()
 bool SBManager::IsRuning()
 {
 	return _isRunning.load();
+}
+
+void SBManager::SetGameResult(const GameResult& result)
+{
+	std::unique_lock<std::shared_mutex> lock(_gameResultMutex);
+	_gameResultWaitingQueue.push(result);
+}
+
+std::optional<GameResult> SBManager::GetGameResult()
+{
+	std::shared_lock<std::shared_mutex> sharedLock(_gameResultMutex);
+	if (_gameResultWaitingQueue.empty() == false)
+	{
+		sharedLock.unlock();
+
+		std::unique_lock<std::shared_mutex> uniqueLock(_gameResultMutex);
+		GameResult result = _gameResultWaitingQueue.front();
+		_gameResultWaitingQueue.pop();
+		return result;
+	}
+	return std::nullopt;
 }

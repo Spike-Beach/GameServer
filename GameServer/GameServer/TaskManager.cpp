@@ -18,6 +18,7 @@ void TaskManager::Init()
 	_taskProcessers.insert(std::make_pair(USER_TASK_PROCESSER_ID, std::make_unique<TaskProcesser>(USER_TASK_PROCESSER_ID)));
 	_taskProcessers.insert(std::make_pair(GAME_TASK_PROCESSER_ID, std::make_unique<TaskProcesser>(GAME_TASK_PROCESSER_ID)));
 	_taskProcessers.insert(std::make_pair(LOG_TASK_PROCESSER_ID, std::make_unique<TaskProcesser>(LOG_TASK_PROCESSER_ID)));
+	_taskProcessers.insert(std::make_pair(DB_TASK_PROCESSER_ID, std::make_unique<TaskProcesser>(DB_TASK_PROCESSER_ID)));
 	;
 	for (auto iter = _taskProcessers.begin(); iter != _taskProcessers.end(); iter++)
 	{
