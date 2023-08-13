@@ -30,15 +30,6 @@ int main()
 	{
 		g_logger.Log(LogLevel::CRITICAL, "main()", e.what());
 	}
-	//GameResult 테스트용
-	GameResult testResult;
-	testResult.winner[0].id = 1;
-	testResult.winner[1].id = 2;
-	testResult.loser[0].id = 3;
-	testResult.loser[1].id = 4;
-	testResult.startTime = std::chrono::system_clock::now();
-	testResult.finishTime = std::chrono::system_clock::now();
-	g_SBManager.SetGameResult(testResult);
 	while (1)
 	{
 		std::cin >> line;
