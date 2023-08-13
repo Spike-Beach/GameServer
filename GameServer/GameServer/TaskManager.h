@@ -6,6 +6,7 @@
 #define USER_TASK_PROCESSER_ID 0
 #define GAME_TASK_PROCESSER_ID 1
 #define LOG_TASK_PROCESSER_ID 2
+#define DB_TASK_PROCESSER_ID 3
 
 class TaskManager : public Singleton<TaskManager>
 {

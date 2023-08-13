@@ -6,6 +6,14 @@ struct UserInfo
 };
 using Team = std::array<UserInfo, 2>;
 
+struct GameResult
+{
+	Team winner;
+	Team loser;
+	std::chrono::system_clock::time_point startTime;
+	std::chrono::system_clock::time_point finishTime;
+};
+
 enum class GameStatus : UINT16
 {
 	EMPTY = 0,

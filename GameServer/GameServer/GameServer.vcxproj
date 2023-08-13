@@ -141,6 +141,7 @@
     <ClInclude Include="GameHandler.h" />
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="GameLeave.h" />
+    <ClInclude Include="GameResultWriteTask.h" />
     <ClInclude Include="jsoncpp\json\json.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="LoggingTask.h" />
@@ -175,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameHandler.cpp" />
+    <ClCompile Include="GameResultWriteTask.cpp" />
     <ClCompile Include="jsoncpp\jsoncpp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
