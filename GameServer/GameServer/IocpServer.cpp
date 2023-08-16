@@ -26,7 +26,7 @@ IocpServer::~IocpServer()
 void IocpServer::Init()
 {
 	Server::Init();
-	_workerThreadCount = 4;
+	_workerThreadCount = g_config.config["ServerSettings"]["WorkerThreadCount"].asInt();
 	g_logger.Log(LogLevel::INFO, "IocpServer::Init()", "IocpServer Init Done");
 }
 
@@ -158,6 +158,10 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 		if (retval == false)
 		{
 			g_logger.Log(LogLevel::ERR, "IocpServer::WorkerThreadFunc()", "GetQueuedCompletionStatus() failed with error code: " + std::to_string(WSAGetLastError()));
+			if (iocpSession != nullptr)
+			{
+				SessionManager::Instance().ReleaseSession(iocpSession->GetId(), true);
+			}
 			continue;
 		}
 		if (iocpSession == nullptr)

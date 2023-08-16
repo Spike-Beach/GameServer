@@ -23,6 +23,7 @@ public:
 	void Do()
 	{
 		GameEnterRes res;
+		res.errorCode = ErrorCode::SessionError;
 		Json::CharReaderBuilder builder;
 		Json::Value config;
 		JSONCPP_STRING errs;
@@ -56,9 +57,9 @@ public:
 			std::string token = config["token"].asString();
 			INT64 userId = config["userId"].asInt64();
 			std::string nickname = config["nickname"].asString();
-
-			if (user->GetToken() == token)
-			{
+			
+			//if (user->GetToken() == token)
+			//{
 				user->SetUserId(userId);
 				user->SetUserNickname(nickname);
 				if (g_SBManager.UserEnterGame(user->GetGameId(), user) == true)
@@ -69,15 +70,19 @@ public:
 				{
 					res.errorCode = ErrorCode::InvalidGame;
 				}
-			}
+			/*}
 			else
 			{
 				g_logger.Log(LogLevel::ERR, "UserCheckNSet", "Invalid Token : " + std::to_string(userId));
 				res.errorCode = ErrorCode::InvalidToken;
-			}
+			}*/
 			g_sessionManager.SendData(user->GetSessionId(), res.Serialize());
+				return;
 		}
+		g_logger.Log(LogLevel::ERR, "UserCheckNSet", "Invalid userId: " + user->GetAssignedId());
+		g_sessionManager.SendData(user->GetSessionId(), res.Serialize());
 	}
+
 private:
 	redisContext* _conn;
 	std::string _ip;

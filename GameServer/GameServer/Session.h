@@ -45,6 +45,7 @@ public:
 		_socket = INVALID_SOCKET;
 		ZeroMemory(&_addrIn, sizeof(_addrIn));
 		_status.store(SESSION_STATUS::EMPTY);
+		
 	}
 
 	virtual void SendData(std::vector<char>&& serializedPacket) = 0;

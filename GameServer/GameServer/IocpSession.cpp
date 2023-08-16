@@ -35,7 +35,7 @@ INT32 IocpSession::GetId()
 
 void IocpSession::KeepSendData(size_t transferSize)
 {
-	if (_iocpData[IO_TYPE::WRITE].IsNeedMoreIo(transferSize))
+	if (_iocpData[IO_TYPE::WRITE].IsNeedMoreIo(transferSize) == true)
 	{
 		WSABUF wsabuf = _iocpData[IO_TYPE::WRITE].GetWSABuf();
 		if (wsabuf.buf == nullptr || wsabuf.len == 0)

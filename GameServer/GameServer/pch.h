@@ -47,4 +47,7 @@
 #include "TaskManager.h"
 #include "ServerConfigManager.h"
 
+//#define UTC_NOW std::chrono::system_clock::now()
+//using UtcTimepoint = std::chrono::system_clock::time_point;
 
+//#define UTC_NOW std::chrono::system_clock::now()

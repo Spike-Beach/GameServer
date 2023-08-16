@@ -61,11 +61,16 @@ void SessionManager::SendData(INT32 idx, std::vector<char>&& serializedPacket)
 {
 	if (idx < 0 || idx > _sessions.size())
 	{
-		g_logger.Log(LogLevel::ERR, "SessionManager::SendData", "SessionManager::SendData() : Invalid session index - " + std::to_string(idx));
+		g_logger.Log(LogLevel::ERR, "SessionManager::SendData", "Invalid session index - " + std::to_string(idx));
 		return;
 	}
 	else if (_sessions[idx]->GetStatus() != SESSION_STATUS::CONN)
 	{
+		return;
+	}
+	if (serializedPacket.size() == 0)
+	{
+		g_logger.Log(LogLevel::ERR, "SessionManager::SendData", "serializedPacket.size() == 0");
 		return;
 	}
 	_sessions[idx]->SendData(std::move(serializedPacket));
@@ -79,14 +84,23 @@ void SessionManager::SendData(INT32 idx, std::vector<char>& serializedPacket)
 
 bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 {
+	SBUser* user = g_SBUserManager.GetUserBySessionId(sessionIdx);
+	if (user != nullptr)
+	{
+		INT32 gameId = user->GetGameId();
+		if (gameId > 0)
+		{
+			g_SBManager.UserLeaveGame(gameId, user);
+			g_logger.Log(LogLevel::INFO, "SessionManager::ReleaseSession", "user " + std::to_string(user->GetId()) + " leave " + std::to_string(gameId) + "Game");
+		}
+	}
+
 	std::unique_lock<std::mutex> lock(_mutex);
 	if (sessionIdx < 0 && sessionIdx > _sessions.size())
 	{
 		g_logger.Log(LogLevel::ERR, "SessionManager::ReleaseSession", "SessionManager::ReleaseSession() : Invalid session index - " + std::to_string(sessionIdx));
 		return false;
 	}
-	// TODO : 게임에 유저 나갔다는 신호?
-	//return _sessions[sessionId]->Close(isForse);
 	if (isForse == true)
 	{
 		_sessions[sessionIdx]->Close();
@@ -97,6 +111,7 @@ bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 	{
 		_sessions[sessionIdx]->WaitSelfDisconnect();
 	}
+
 	return true;
 }
 

@@ -57,7 +57,6 @@ bool SBManager::SetGame(std::string infoStr)
 // content단에서 입장 못할시 처리.
 bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 {
-	std::unique_lock<std::mutex> lock(_runningGameMutex);
 	auto iter = _runningGames.find(roomId);
 	if (iter != _runningGames.end())
 	{
@@ -67,11 +66,25 @@ bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 	return false;
 }
 
+bool SBManager::UserLeaveGame(INT32 roomId, SBUser* user)
+{
+	auto iter = _runningGames.find(roomId);
+	if (iter != _runningGames.end())
+	{
+		iter->second->UserOut(user);
+		return true;
+	}
+	g_logger.Log(LogLevel::ERR, "SBManager::UserLeaveGame", "Not found roomId : " + std::to_string(roomId));
+	return false;
+}
+
 // 게임 싱크. 
 //   대기중인 게임 : 게임인원 싱크 및 타임오버시 게임 초기화 및 통보
 void SBManager::SyncGames()
 {
 	GameStatus status;
+	std::stack<INT32> makeEmptyGameStack;
+
 	for (auto runningGame : _runningGames)
 	{
 		status = runningGame.second->Status();
@@ -80,14 +93,31 @@ void SBManager::SyncGames()
 			if (runningGame.second->WaitUserSync() == false)
 			{
 				runningGame.second->Clear();
-				_runningGames.erase(runningGame.first);
-				_emptyGames.push(runningGame.second);
+				makeEmptyGameStack.push(runningGame.first);
 			}
 		}
 		else if (status == GameStatus::PLAYING)
 		{
-			runningGame.second->PlayingSync();
+			if (runningGame.second->PlayingSync() == true) // 게임이 끝났다면
+			{
+				runningGame.second->Clear();
+				makeEmptyGameStack.push(runningGame.first);
+			}
 		}
+		else if (status == GameStatus::SOMEONE_LEANVE)
+		{
+			runningGame.second->LeaveSync();
+			runningGame.second->Clear();
+			makeEmptyGameStack.push(runningGame.first);
+		}
+	}
+	while (makeEmptyGameStack.empty() == false)
+	{
+		INT32 roomId = makeEmptyGameStack.top();
+		makeEmptyGameStack.pop();
+		std::unique_lock<std::mutex> lock(_runningGameMutex);
+		_emptyGames.push(_runningGames[roomId]);
+		_runningGames.erase(roomId);
 	}
 }
 

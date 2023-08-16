@@ -20,13 +20,14 @@ enum class GameStatus : UINT16
 	WAITING = 1,
 	PLAYING = 2,
 	FINISHING = 3,
+	SOMEONE_LEANVE = 4,
 };
 
 enum class SyncResult : UINT16
 {
 	NONE = 0,
-	RED_WIN = 1,
-	BLUE_WIN = 2,
+	RED_SCORE = 1,
+	BLUE_SCORE = 2,
 };
 
 class GameObj

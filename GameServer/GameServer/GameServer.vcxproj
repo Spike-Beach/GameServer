@@ -142,6 +142,8 @@
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="GameLeave.h" />
     <ClInclude Include="GameResultWriteTask.h" />
+    <ClInclude Include="GameStartNtf.h" />
+    <ClInclude Include="GameTimeoutNtf.h" />
     <ClInclude Include="jsoncpp\json\json.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="LoggingTask.h" />

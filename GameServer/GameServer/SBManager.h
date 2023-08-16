@@ -11,7 +11,9 @@ public:
 	bool Init();
 
 	bool SetGame(std::string gameInfoStr);
+	//bool ReleasGame(INT32 roomId);
 	bool UserEnterGame(INT32 roomId, SBUser* user);
+	bool UserLeaveGame(INT32 roomId, SBUser* user);
 	void SyncGames();
 	bool IsRuning();
 

@@ -51,7 +51,12 @@ WSABUF IocpData::GetWSABuf()
 			wsabuf.buf = _buffer.data() + _currentLength;
 		}
 	}
-
+	if (wsabuf.buf == NULL || wsabuf.len == 0)
+	{
+		g_logger.Log(LogLevel::ERR, "IocpData::GetWSABuf", "Invalid wsabuf. \
+			wsabuf.buf : " + std::to_string((size_t)wsabuf.buf)
+					+ ", wsabuf.len : " + std::to_string(wsabuf.len));
+	}
 	return wsabuf;
 }
 
@@ -73,7 +78,8 @@ bool IocpData::IsNeedMoreIo(size_t transferSize)
 		SetdesiredLength();
 	}
 
-	if (_currentLength < _desiredLength || _desiredLength == 0)
+	//if (_currentLength < _desiredLength || _desiredLength == 0)
+	if (_currentLength < _desiredLength)
 	{
 		return true;
 	}
@@ -121,5 +127,6 @@ bool IocpData::WriteToBuf(std::vector<char>&& serializedPacket)
 {
 	std::copy(serializedPacket.begin(), serializedPacket.end(), _buffer.begin());
 	_desiredLength = serializedPacket.size();
+	_currentLength = 0; // 다른 환경에서는?
 	return true;
 }
