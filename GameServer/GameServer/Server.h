@@ -26,7 +26,6 @@ public:
 
 protected:
 	INT32 _port;
-	INT32 _workerThreadCount;
 	SERVER_STATUS _status;
 	std::shared_ptr<GameHandler> _gameHandler;
 

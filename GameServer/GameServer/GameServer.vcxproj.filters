@@ -137,6 +137,12 @@
       <Filter>Configer</Filter>
     </ClInclude>
     <ClInclude Include="GameResultWriteTask.h" />
+    <ClInclude Include="GameStartNtf.h">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimeoutNtf.h">
+      <Filter>Packets\PacketBases</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

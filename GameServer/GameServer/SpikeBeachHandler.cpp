@@ -43,7 +43,6 @@ SpikeBeachHandler::SpikeBeachHandler()
 
 void SpikeBeachHandler::EnterGame(Package package)
 {
-	std::cout << "test" << std::endl;
 	GameEnterReq req;
 	GameEnterRes res;
 	try
@@ -51,6 +50,7 @@ void SpikeBeachHandler::EnterGame(Package package)
 		req.Deserialize(&package._buffer[0], package._buffer.size());
 		if (req.packetId == PacketId::ERROR_OCCUR)
 		{
+			g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::EnterGame", "PacketId::ERROR_OCCUR");
 			res.errorCode = ErrorCode::InvalidPacketForm;
 			g_sessionManager.SendData(package.sessionId, res.Serialize());
 			g_sessionManager.ReleaseSession(package.sessionId, true);
@@ -59,7 +59,7 @@ void SpikeBeachHandler::EnterGame(Package package)
 	}
 	catch (std::exception e)
 	{
-		//log
+		g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::EnterGame", "GameEnterReq::Deserialize Exception, " + std::string(e.what()));
 		res.errorCode = ErrorCode::InvalidPacketForm;
 		g_sessionManager.SendData(package.sessionId, res.Serialize());
 		g_sessionManager.ReleaseSession(package.sessionId, true);

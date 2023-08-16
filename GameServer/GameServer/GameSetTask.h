@@ -9,12 +9,13 @@ public:
 	{
 		_ip = g_config.config["ConnectionStrings"]["RoomDb"]["Ip"].asString();
 		_port = g_config.config["ConnectionStrings"]["RoomDb"]["Port"].asInt();
+		_password = g_config.config["ConnectionStrings"]["RoomDb"]["Password"].asString();
 		_conn = redisConnect(_ip.c_str(), _port);
 		if (_conn == NULL || _conn->err)
 		{
 			throw std::runtime_error("GameSetTask redisConnect error");
 		}
-		redisReply* reply = (redisReply*)redisCommand(_conn, "AUTH %s", "1q2w3e4r");
+		redisReply* reply = (redisReply*)redisCommand(_conn, "AUTH %s", _password.c_str());
 		if (reply->type == REDIS_REPLY_ERROR)
 		{
 			throw std::runtime_error("GameSetTask redis AUTH error");
@@ -64,6 +65,7 @@ private:
 	redisContext* _conn;
 	std::string _ip;
 	INT32 _port;
+	std::string _password;
 
 	INT32 _gameId;
 	Team _redTeam;

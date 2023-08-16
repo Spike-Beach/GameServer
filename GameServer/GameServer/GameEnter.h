@@ -74,6 +74,15 @@ public:
 		
 		return serialized;
 	}
+
+	size_t Deserialize(char* buf, size_t length)
+	{
+		size_t offset = Packet::Deserialize(buf, length);
+		
+		errorCode = *reinterpret_cast<ErrorCode*>(buf + offset);
+		offset += sizeof(errorCode);
+		return offset;
+	}
 };
 
 #pragma pack(pop)

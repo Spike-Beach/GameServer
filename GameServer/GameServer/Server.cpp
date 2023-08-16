@@ -16,16 +16,9 @@ Server::~Server()
 
 void Server::Init()
 {
-	_workerThreadCount = g_config.config["ServerSettings"]["Port"].asInt();
-	_workerThreadCount = g_config.config["ServerSettings"]["WorkerThreadCount"].asInt();
+	_port = g_config.config["ServerSettings"]["Port"].asInt();
 	g_logger.Log(LogLevel::INFO, "Server::Init()", "Server Init Done");
 }
-
-//void Server::PutPackage(Package package)
-//{
-//	//_contentsProcess.get()->process(package);
-//	return;
-//}
 
 SERVER_STATUS& Server::getStatus()
 {

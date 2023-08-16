@@ -21,26 +21,31 @@ public:
 		std::string logLevelStr = GetLogLevelStr(level);
 
 		std::unique_lock<std::mutex> lock(_queueMutex);
-		messageQueue.push("[" + timeStr + "](" + logLevelStr + ") " + callLocation + " " + msg);
+		waitingLogQueue.push("[" + timeStr + "](" + logLevelStr + ") " + callLocation + " " + msg);
 	}
 
 	void PrintLogMsg()
 	{
 		std::string msg;
 		std::unique_lock<std::mutex> lock(_queueMutex);
-		if (!messageQueue.empty())
+		while (waitingLogQueue.empty() == false)
 		{
-			msg = messageQueue.front();
-			messageQueue.pop();
-			lock.unlock();
-			std::cout << msg << std::endl;
+			writingLogQueue.push(std::move(waitingLogQueue.front()));
+			waitingLogQueue.pop();
+		}
+		lock.unlock();
+		while (writingLogQueue.empty() == false)
+		{
+			std::cout << writingLogQueue.front() << std::endl;
+			writingLogQueue.pop();
 		}
 	}
 
 private:
 	std::mutex _queueMutex;
 	std::condition_variable condition;
-	std::queue<std::string> messageQueue;
+	std::queue<std::string> waitingLogQueue;
+	std::queue<std::string> writingLogQueue;
 
 	std::string GenTimeStr()
 	{
