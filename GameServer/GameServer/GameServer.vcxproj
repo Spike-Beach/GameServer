@@ -137,16 +137,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Acceleration.h" />
+    <ClInclude Include="Controll.h" />
     <ClInclude Include="Disconn.h" />
     <ClInclude Include="GameHandler.h" />
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="GameLeave.h" />
+    <ClInclude Include="GameObj.h" />
     <ClInclude Include="GameResultWriteTask.h" />
     <ClInclude Include="GameStartNtf.h" />
     <ClInclude Include="GameTimeoutNtf.h" />
     <ClInclude Include="jsoncpp\json\json.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="LoggingTask.h" />
+    <ClInclude Include="Position.h" />
+    <ClInclude Include="SBUser.h" />
+    <ClInclude Include="SBUserCheckNSet.h" />
     <ClInclude Include="SBUtils.h" />
     <ClInclude Include="ServerConfigManager.h" />
     <ClInclude Include="SpikeBeachGame.h" />
@@ -154,7 +160,6 @@
     <ClInclude Include="SBManager.h" />
     <ClInclude Include="GameSetTask.h" />
     <ClInclude Include="GameSyncTask.h" />
-    <ClInclude Include="HeartBeatTask.h" />
     <ClInclude Include="IocpData.h" />
     <ClInclude Include="IocpServer.h" />
     <ClInclude Include="IocpSession.h" />
@@ -169,25 +174,31 @@
     <ClInclude Include="SessionMonitor.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SpikeBeachHandler.h" />
+    <ClInclude Include="Sync.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="TaskContainer.h" />
     <ClInclude Include="TaskManager.h" />
     <ClInclude Include="TaskProcesser.h" />
-    <ClInclude Include="SBUserCheckNSet.h" />
     <ClInclude Include="SBUserManager.h" />
+    <ClInclude Include="ThreeValues.h" />
+    <ClInclude Include="Velocity.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Acceleration.cpp" />
     <ClCompile Include="GameHandler.cpp" />
+    <ClCompile Include="GameObj.cpp" />
     <ClCompile Include="GameResultWriteTask.cpp" />
     <ClCompile Include="jsoncpp\jsoncpp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="Position.cpp" />
+    <ClCompile Include="SBUser.cpp" />
+    <ClCompile Include="SBUserCheckNSet.cpp" />
     <ClCompile Include="SBUtils.cpp" />
     <ClCompile Include="ServerConfigManager.cpp" />
     <ClCompile Include="SpikeBeachGame.cpp" />
     <ClCompile Include="SBManager.cpp" />
-    <ClCompile Include="HeartBeatTask.cpp" />
     <ClCompile Include="IocpData.cpp" />
     <ClCompile Include="IocpServer.cpp" />
     <ClCompile Include="IocpSession.cpp" />
@@ -207,6 +218,8 @@
     <ClCompile Include="TaskManager.cpp" />
     <ClCompile Include="TaskProcesser.cpp" />
     <ClCompile Include="SBUserManager.cpp" />
+    <ClCompile Include="ThreeValues.cpp" />
+    <ClCompile Include="Velocity.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

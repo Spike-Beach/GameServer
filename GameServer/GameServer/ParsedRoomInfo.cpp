@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ParsedRoomInfo.h"
+#include "SBUtils.h"
 
 bool  ParsedRoomInfo::Parse(const std::string& infoStr)
 {
@@ -70,14 +71,10 @@ bool  ParsedRoomInfo::Parse(const std::string& infoStr)
 		}
 	}
 
-	//redTeam[0] = UserInfo{ findUserId(allUserNicks, allUserIds, redTeamNicks[0]), redTeamNicks[0] };
-	//redTeam[1] = UserInfo{ findUserId(allUserNicks, allUserIds, redTeamNicks[1]), redTeamNicks[1] };
 	for (size_t i = 0; i < redTeamNicks.size(); i++)
 	{
 		redTeam[i] = UserInfo{ findUserId(allUserNicks, allUserIds, redTeamNicks[i]), redTeamNicks[i] };
 	}
-	/*blueTeam[0] = UserInfo{ findUserId(allUserNicks, allUserIds, blueTeamNicks[0]), blueTeamNicks[0] };
-	blueTeam[1] = UserInfo{ findUserId(allUserNicks, allUserIds, blueTeamNicks[1]), blueTeamNicks[1] };*/
 	for (size_t i = 0; i < blueTeamNicks.size(); i++)
 	{
 		blueTeam[i] = UserInfo{ findUserId(allUserNicks, allUserIds, blueTeamNicks[i]), blueTeamNicks[i] };

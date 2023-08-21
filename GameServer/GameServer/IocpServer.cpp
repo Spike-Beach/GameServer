@@ -1,14 +1,13 @@
 
 #include "pch.h"
 #include "IocpServer.h"
+#include "ServerConfigManager.h"
 
 std::atomic<bool> IocpServer::_isShutdown = false;
 
-//IocpServer::IocpServer(std::unique_ptr<ContentsProcess> contentsProcess)
 IocpServer::IocpServer(std::shared_ptr<GameHandler> gameHandler)
 	: Server(std::move(gameHandler))
 {
-	//_isShutdown.store(false);
 }
 
 IocpServer::~IocpServer()
@@ -36,7 +35,6 @@ bool IocpServer::SetListenSocket()
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons((u_short)_port);
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	//inet_pton(AF_INET, _ip.c_str(), &(serverAddr.sin_addr));
 
 	_listenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (_listenSocket == INVALID_SOCKET)
@@ -46,7 +44,7 @@ bool IocpServer::SetListenSocket()
 	}
 
 	int reUseAddr = 1;
-	setsockopt(_listenSocket , SOL_SOCKET, SO_REUSEADDR, (char*)&reUseAddr, (int)sizeof(reUseAddr));
+	setsockopt(_listenSocket , SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reUseAddr), (int)sizeof(reUseAddr));
 
 	int retval = ::bind(_listenSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
 	if (retval == SOCKET_ERROR)
@@ -188,7 +186,6 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 				if (receivedPackage.has_value() == true)
 				{
 					// package.pakcetId = PacketId::PARSE_ERROR인 경우 map에서 걸러지게.
-					//server->PutPackage(receivedPackage.value());
 					server->_gameHandler->Mapping(receivedPackage.value());
 				}
 				break;

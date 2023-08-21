@@ -1,6 +1,5 @@
 #pragma once
 #include "Task.h"
-#include "SessionManager.h"
 
 class SessionMonitor : public Task
 {

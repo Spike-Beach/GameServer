@@ -1,7 +1,5 @@
 #pragma once
-#include "pch.h"
 
-#pragma pack(push,1)
 class DicconnReq : public Packet
 {
 public:
@@ -39,4 +37,4 @@ public:
 		return offset;
 	}
 };
-#pragma pack(pop)
+

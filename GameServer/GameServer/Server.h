@@ -3,9 +3,7 @@
 #include <string>
 #include <memory>
 #include "GameHandler.h"
-#include "Package.h"
 
-struct Package;
 class GameHandler;
 
 enum SERVER_STATUS

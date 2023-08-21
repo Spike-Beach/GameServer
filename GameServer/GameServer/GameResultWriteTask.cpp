@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "GameResultWriteTask.h"
+#include "ServerConfigManager.h"
+#include "SBManager.h"
+#include "SBUtils.h"
 
 GameResultWriteTask::GameResultWriteTask()
 {
@@ -26,7 +29,7 @@ GameResultWriteTask::~GameResultWriteTask()
 
 void GameResultWriteTask::Do()
 {
-	auto gameResult = g_SBManager.GetGameResult();
+	std::optional<GameResult> gameResult = g_SBManager.GetGameResult();
 	if (gameResult.has_value() == false)
 	{
 		return;

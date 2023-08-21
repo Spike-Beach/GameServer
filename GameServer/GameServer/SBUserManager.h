@@ -1,7 +1,6 @@
 #pragma once
-#include "SBUtils.h"
+#include "SBUser.h"
 
-//#define MAX_USER 200
 #define g_SBUserManager SBUserManager::Instance()
 
 class SBUserManager : public Singleton<SBUserManager>

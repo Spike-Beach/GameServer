@@ -1,17 +1,21 @@
 #pragma once
+#include "ThreeValues.h"
 #include "Velocity.h"
 
 class Position : public ThreeValues
 {
-	public:
-	Position(coordType setX, coordType setY, coordType setZ) : ThreeValues(setX, setY, setZ) {}
+public:
+	Position() : ThreeValues() {}
+	Position(float setX, float setY, float setZ) : ThreeValues(setX, setY, setZ) {}
 	
-	void  CalPosition(Velocity vel, float elapsedSec)
-	{
-		x += vel.x * elapsedSec;
-		y += vel.y * elapsedSec;
-		z += vel.z * elapsedSec;
-	}
+	Position& operator=(const Position& other);
+	Position operator+(const Position& other) const;
+	Position operator-(const Position& other) const;
+	Position& operator+=(const Position& other);
+	Position& operator-=(const Position& other);
+	void CalPosition(Velocity vel, float elapsedSec);
+	std::vector<char> Serialize();
+	size_t Deserialize(char* buf, size_t len);
 };
 
 

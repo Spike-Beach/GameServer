@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "SBUserManager.h"
+#include "SBUser.h"
+#include "ServerConfigManager.h"
 
 SBUserManager::SBUserManager()
 {

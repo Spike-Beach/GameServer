@@ -1,6 +1,7 @@
 #pragma once
-//#include "SpikeBeachHandler.h"
+#include "ServerConfigManager.h"
 #include "SBManager.h"
+#include "SBUtils.h"
 
 class GameSetTask : public Task
 {
@@ -23,22 +24,6 @@ public:
 		freeReplyObject(reply);
 	};
 
-	//bool Init()
-	//{
-	//	_conn = redisConnect("127.0.0.1", 6380);
-	//	if (_conn == NULL || _conn->err)
-	//	{
-	//		// log
-	//		return false;
-	//	}
-	//	redisReply* reply = (redisReply*)redisCommand(_conn, "AUTH %s", "1q2w3e4r");
-	//	if (reply->type == REDIS_REPLY_ERROR)
-	//	{
-	//		// log
-	//		return false;
-	//	}
-	//	return true;
-	//}
 
 	void Do()
 	{
@@ -61,7 +46,6 @@ public:
 	}
 
 private:
-	//std::shared_ptr<SpikeBeachContent> _spikeBeachContent;
 	redisContext* _conn;
 	std::string _ip;
 	INT32 _port;

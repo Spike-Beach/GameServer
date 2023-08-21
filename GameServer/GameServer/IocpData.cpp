@@ -3,8 +3,7 @@
 
 
 IocpData::IocpData()
-: _desiredLength(0), _currentLength(0), _ioType(IO_TYPE::NONE)//,
-//_buffer({0})
+: _desiredLength(0), _currentLength(0), _ioType(IO_TYPE::NONE)
 {
 	ZeroMemory(&_overlapped, sizeof(_overlapped));
 }

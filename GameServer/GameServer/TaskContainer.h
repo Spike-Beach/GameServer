@@ -1,10 +1,8 @@
 #pragma once
-#include <chrono>
 #include "Task.h"
 
 using MilliDuration = std::chrono::duration<int, std::milli>;
-using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
-using SystemClock = std::chrono::system_clock;
+//using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 class TaskContainer
 {
@@ -24,7 +22,9 @@ private:
 	std::unique_ptr<Task> _task;
 	MilliDuration _freqMs;
 	bool _isRepeat;
-	TimePoint _expireTime;
-	TimePoint _nextTaskTime;
+	/*TimePoint _expireTime;
+	TimePoint _nextTaskTime;*/
+	std::chrono::system_clock::time_point _expireTime;
+	std::chrono::system_clock::time_point _nextTaskTime;
 };
 

@@ -1,11 +1,9 @@
 #pragma once
 
-//#include "Packet.h"
 #include "IocpData.h"
 #include "Session.h"
 
 #define IO_KIND_MAX 2
-
 
 class IocpSession : public Session
 {

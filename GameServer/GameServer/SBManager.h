@@ -1,5 +1,6 @@
 #pragma once
 #include "SpikeBeachGame.h"
+#include "SBUtils.h"
 
 #define g_SBManager SBManager::Instance()
 
@@ -11,9 +12,9 @@ public:
 	bool Init();
 
 	bool SetGame(std::string gameInfoStr);
-	//bool ReleasGame(INT32 roomId);
 	bool UserEnterGame(INT32 roomId, SBUser* user);
 	bool UserLeaveGame(INT32 roomId, SBUser* user);
+	SpikeBeachGame* GetGame(INT32 roomId);
 	void SyncGames();
 	bool IsRuning();
 

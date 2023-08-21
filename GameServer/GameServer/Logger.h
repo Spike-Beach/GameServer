@@ -49,8 +49,7 @@ private:
 
 	std::string GenTimeStr()
 	{
-		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-		std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
+		std::time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		struct tm localTime;
 		std::ostringstream oss;
 		localtime_s(&localTime, &currentTime);
