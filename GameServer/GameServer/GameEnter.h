@@ -1,8 +1,4 @@
 #pragma once
-#include "pch.h"
-#include "Packet.h"
-
-#pragma pack(push,1)
 
 class GameEnterReq : public Packet
 {
@@ -85,4 +81,3 @@ public:
 	}
 };
 
-#pragma pack(pop)

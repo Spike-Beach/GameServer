@@ -37,6 +37,9 @@
     <Filter Include="Packets\PacketBases">
       <UniqueIdentifier>{2df5c8aa-e1c1-4ba9-8fea-f44c116ff14a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SpikeBeach\utils">
+      <UniqueIdentifier>{05af5cb6-3f62-4150-8e05-f8379cb5bc46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Singleton.h" />
@@ -51,9 +54,6 @@
     </ClInclude>
     <ClInclude Include="TaskProcesser.h">
       <Filter>TaskCore</Filter>
-    </ClInclude>
-    <ClInclude Include="HeartBeatTask.h">
-      <Filter>Tasks</Filter>
     </ClInclude>
     <ClInclude Include="SessionMonitor.h">
       <Filter>Tasks</Filter>
@@ -110,9 +110,6 @@
     <ClInclude Include="GameSetTask.h">
       <Filter>SpikeBeach</Filter>
     </ClInclude>
-    <ClInclude Include="SBUserCheckNSet.h">
-      <Filter>SpikeBeach</Filter>
-    </ClInclude>
     <ClInclude Include="SBManager.h" />
     <ClInclude Include="SBUserManager.h" />
     <ClInclude Include="jsoncpp\json\json.h">
@@ -140,9 +137,34 @@
     <ClInclude Include="GameStartNtf.h">
       <Filter>Packets</Filter>
     </ClInclude>
-    <ClInclude Include="GameTimeoutNtf.h">
-      <Filter>Packets\PacketBases</Filter>
+    <ClInclude Include="ThreeValues.h">
+      <Filter>SpikeBeach\utils</Filter>
     </ClInclude>
+    <ClInclude Include="Acceleration.h">
+      <Filter>SpikeBeach\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Velocity.h">
+      <Filter>SpikeBeach\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Position.h">
+      <Filter>SpikeBeach\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Sync.h">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="Controll.h">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimeoutNtf.h">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObj.h">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SBUser.h">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SBUserCheckNSet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -154,9 +176,6 @@
     </ClCompile>
     <ClCompile Include="TaskProcesser.cpp">
       <Filter>TaskCore</Filter>
-    </ClCompile>
-    <ClCompile Include="HeartBeatTask.cpp">
-      <Filter>Tasks</Filter>
     </ClCompile>
     <ClCompile Include="SessionMonitor.cpp">
       <Filter>Tasks</Filter>
@@ -213,5 +232,24 @@
       <Filter>Configer</Filter>
     </ClCompile>
     <ClCompile Include="GameResultWriteTask.cpp" />
+    <ClCompile Include="ThreeValues.cpp">
+      <Filter>SpikeBeach\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Acceleration.cpp">
+      <Filter>SpikeBeach\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Velocity.cpp">
+      <Filter>SpikeBeach\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Position.cpp">
+      <Filter>SpikeBeach\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObj.cpp">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SBUser.cpp">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SBUserCheckNSet.cpp" />
   </ItemGroup>
 </Project>

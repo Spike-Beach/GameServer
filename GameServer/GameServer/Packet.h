@@ -2,7 +2,7 @@
 
 //#include "IocpData.h" 순환참조
 #define PACKET_SIZE 2 * sizeof(INT32)
-#pragma pack(push,1)
+
 class Packet
 {
 public:
@@ -16,6 +16,6 @@ public:
 	static PacketId GetPacketId(char* base, size_t bufSize);
 };
 
-#pragma pack(pop)
+
 
 

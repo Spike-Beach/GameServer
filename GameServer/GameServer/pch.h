@@ -41,14 +41,20 @@
 #include "Logger.h"
 #include "Package.h"
 #include "Packet.h"
-#include "SBManager.h"
-#include "SBUserManager.h"
-#include "SessionManager.h"
-#include "TaskManager.h"
-#include "ServerConfigManager.h"
-#include "ThreeValues.h"
-
+//#include "SBManager.h"
+//#include "SBUserManager.h"
+//#include "SessionManager.h"
+//#include "TaskManager.h"
+//#include "ServerConfigManager.h"
+//#include "ThreeValues.h"
+//#include "Acceleration.h"
+//#include "Position.h"
+//#include "Velocity.h"
+//#include "SBUtils.h"
+//typedef float coordType;
 //#define UTC_NOW std::chrono::system_clock::now()
-//using UtcTimepoint = std::chrono::system_clock::time_point;
-
+//using SysClock = std::chrono::system_clock;
+//using SysTp = std::chrono::system_clock::time_point;
+//using UserMotionData = std::tuple<Position, Velocity, Acceleration>;
+//typedef UserMotionData std::tuple<Position, Velocity, Acceleration>;
 //#define UTC_NOW std::chrono::system_clock::now()

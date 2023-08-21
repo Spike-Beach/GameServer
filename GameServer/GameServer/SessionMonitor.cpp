@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "SessionManager.h"
 #include "SessionMonitor.h"
 
 void SessionMonitor::Do()

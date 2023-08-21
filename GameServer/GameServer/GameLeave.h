@@ -1,13 +1,17 @@
 #pragma once
 #include "pch.h"
 
-class GameLeaveReq : public Packet {};
+class GameLeaveReq : public Packet
+{
+public:
+	GameLeaveReq() : Packet(PacketId::GAME_LEAVE_REQ) {}
+};
 
 class GameLeaveRes : public Packet
 {
 public:
 	ErrorCode errorCode;
-
+	GameLeaveRes() : Packet(PacketId::GAME_LEAVE_RES) {}
 	std::vector<char> Serialize()
 	{
 		std::vector<char> serialized = Packet::Serialize();
@@ -37,7 +41,7 @@ class GameLeaveNtf : public Packet
 {
 public:
 	INT16 userIdx;
-
+	GameLeaveNtf() : Packet(PacketId::GAME_LEAVE_NTF) {}
 	std::vector<char> Serialize()
 	{
 		std::vector<char> serialized = Packet::Serialize();

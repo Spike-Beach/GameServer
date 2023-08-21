@@ -1,14 +1,12 @@
 #include "pch.h"
 #include "SBManager.h"
-#include "TaskManager.h"
-#include "GameSetTask.h"
-#include "GameSyncTask.h"
+#include "ServerConfigManager.h"
+#include "SBUtils.h"
 #include "ParsedRoomInfo.h"
-#include "SBUserManager.h"
 
 SBManager::SBManager()
-	: _isRunning(true)
 {
+	_isRunning.store(true);
 	Init();
 }
 SBManager::~SBManager() {}
@@ -78,6 +76,16 @@ bool SBManager::UserLeaveGame(INT32 roomId, SBUser* user)
 	return false;
 }
 
+SpikeBeachGame* SBManager::GetGame(INT32 roomId)
+{
+	if (_runningGames.contains(roomId))
+	{
+		return _runningGames[roomId];
+	}
+	g_logger.Log(LogLevel::ERR, "SBManager::GetGame", "Not found roomId : " + std::to_string(roomId));
+	return nullptr;
+}
+
 // 게임 싱크. 
 //   대기중인 게임 : 게임인원 싱크 및 타임오버시 게임 초기화 및 통보
 void SBManager::SyncGames()
@@ -87,7 +95,7 @@ void SBManager::SyncGames()
 
 	for (auto runningGame : _runningGames)
 	{
-		status = runningGame.second->Status();
+		status = runningGame.second->GetStatus();
 		if (status == GameStatus::WAITING)
 		{
 			if (runningGame.second->WaitUserSync() == false)

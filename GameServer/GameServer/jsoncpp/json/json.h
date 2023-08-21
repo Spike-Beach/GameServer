@@ -210,7 +210,7 @@ bool operator!=(const SecureAllocator<T>&, const SecureAllocator<U>&) {
 
 } // namespace Json
 
-#pragma pack(pop)
+
 
 #endif // JSON_ALLOCATOR_H_INCLUDED
 
@@ -507,7 +507,7 @@ public:
 
 } // namespace Json
 
-#pragma pack(pop)
+
 
 #endif // JSON_FEATURES_H_INCLUDED
 
@@ -1477,7 +1477,7 @@ inline Value& Value::back() { return *(--end()); }
 
 } // namespace Json
 
-#pragma pack(pop)
+
 
 #if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 #pragma warning(pop)
@@ -1897,7 +1897,7 @@ JSON_API IStream& operator>>(IStream&, Value&);
 
 } // namespace Json
 
-#pragma pack(pop)
+
 
 #if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 #pragma warning(pop)
@@ -2281,7 +2281,7 @@ JSON_API OStream& operator<<(OStream&, const Value& config);
 
 } // namespace Json
 
-#pragma pack(pop)
+
 
 #if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 #pragma warning(pop)
