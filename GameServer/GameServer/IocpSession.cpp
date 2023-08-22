@@ -69,9 +69,9 @@ std::optional<Package> IocpSession::KeepRecvPacket(size_t transferSize)
 
 // WSASend 완료 이전에 WSASend가 들어오는 경우 문제 발생할 듯.
 // TODO: 문제 발생시 해결.
-void IocpSession::SendData(std::vector<char>&& serializedPacket)
+void IocpSession::SendData(std::vector<char> serializedPacket)
 {
-	_iocpData[IO_TYPE::WRITE].WriteToBuf(std::move(serializedPacket));
+	_iocpData[IO_TYPE::WRITE].WriteToBuf(serializedPacket);
 
 	DWORD sendBytes;
 	DWORD flags = 0;

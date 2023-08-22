@@ -15,15 +15,6 @@ void GameObj::Reset()
 void GameObj::Reset(float posX, float posY, float posZ)
 {
 	_motionData = { { posX, posY, posZ }, { 0, 0, 0 }, { 0, 0, 0 } };
-	/*std::get<0>(_motionData).x = posX;
-	std::get<0>(_motionData).y = posY;
-	std::get<0>(_motionData).z = posZ;
-	std::get<1>(_motionData).x = 0;
-	std::get<1>(_motionData).y = 0;
-	std::get<1>(_motionData).z = 0;
-	std::get<2>(_motionData).x = 0;
-	std::get<2>(_motionData).y = 0;
-	std::get<2>(_motionData).z = 0;*/
 };
 
 //void GameObj::setPosition(const Position& position)

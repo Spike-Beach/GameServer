@@ -18,7 +18,7 @@ public:
     void KeepSendData(size_t transferSize);
     std::optional<Package> KeepRecvPacket(size_t transferSize);
     
-    void SendData(std::vector<char>&& serializedPacket);
+    void SendData(std::vector<char> serializedPacket);
   
     // use to trig
     void RecvTrigger();

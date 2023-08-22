@@ -41,6 +41,7 @@ public:
 	INT64 GetSessionId() { return _sessionId; }
 	std::string GetToken() { return _token; }
 	std::string GetAssignedId() { return _assignedId; }
+	std::string GetNickName() { return _nickName; }
 	INT32 GetGameId() { return _gameId; }
 
 	friend class SBUserManager;

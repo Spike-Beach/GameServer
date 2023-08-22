@@ -48,7 +48,7 @@ public:
 		
 	}
 
-	virtual void SendData(std::vector<char>&& serializedPacket) = 0;
+	virtual void SendData(std::vector<char> serializedPacket) = 0;
 	virtual void KeepSendData(size_t transferSize) = 0;
 	virtual std::optional<Package> KeepRecvPacket(size_t transferSize) = 0;
 	

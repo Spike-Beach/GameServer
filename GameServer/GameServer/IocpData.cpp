@@ -122,7 +122,7 @@ Package IocpData::ReadPacketFromBuf()
 	return package;
 }
 
-bool IocpData::WriteToBuf(std::vector<char>&& serializedPacket)
+bool IocpData::WriteToBuf(std::vector<char> serializedPacket)
 {
 	std::copy(serializedPacket.begin(), serializedPacket.end(), _buffer.begin());
 	_desiredLength = serializedPacket.size();

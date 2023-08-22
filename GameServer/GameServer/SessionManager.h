@@ -11,8 +11,7 @@ public:
 	void Init();
 	std::shared_ptr<Session> GetEmptySession();
 	std::list<INT32> GetTimeOverSessionList();
-	void SendData(INT32 idx, std::vector<char>&& serializedPacket);
-	void SendData(INT32 idx, std::vector<char>& serializedPacket);
+	void SendData(INT32 idx, std::vector<char> serializedPacket);
 	bool ReleaseSession(INT32 idx, bool isForse);
 	INT32 ClientSessionCap();
 private:

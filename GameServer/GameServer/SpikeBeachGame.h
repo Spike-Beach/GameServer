@@ -5,12 +5,12 @@
 #define WAIT_SEC 3000
 #define ROUND_COUNT_DOWN_SEC 5
 
-enum class TeamKind : INT16
-{
-	EMPTY,
-	RED,
-	BLUE
-};
+//enum class TeamKind : INT16
+//{
+//	EMPTY,
+//	RED,
+//	BLUE
+//};
 
 class Map
 {
@@ -52,15 +52,19 @@ private:
 
 	/*std::unordered_map<INT64, SBUser*> _redTeam;
 	std::unordered_map<INT64, SBUser*> _blueTeam;*/
-	std::map<INT64, SBUser* > _redTeam;
-	std::map<INT64, SBUser* > _blueTeam;
+	//std::map<INT64, SBUser* > _redTeam;
+	//std::map<INT64, SBUser* > _blueTeam;
+	// 0 : red1, 1 : red2, 2 : blue1, 3 : blue2
+	std::array<std::pair<INT64, SBUser* >, 4> _users;
+	//std::array<std::pair<INT64, SBUser* >, 2> _blueTeam;
 	std::chrono::system_clock::time_point _gameStartTime;
 	std::chrono::system_clock::time_point _roundStartTime;
 
 	Ball _ball;
 	INT16 _redScore;
 	INT16 _blueScore;
-	std::pair<TeamKind, SBUser*> _leaveUser;
+	//std::pair<TeamKind, SBUser*> _leaveUser;
+	size_t _leaveUserIdx;
 	std::chrono::system_clock::time_point _lastSyncTime; // 패킷의 synctime이 _lastSyncTime보다 과거이면 새로 패킷을 만들고 갱신.
 	//SyncReq _syncPacket;
 	std::shared_mutex _syncPacketMutex;
