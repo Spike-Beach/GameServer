@@ -60,8 +60,15 @@ std::list<INT32> SessionManager::GetTimeOverSessionList()
 	return timeOverSessionList;
 }
 
-void SessionManager::SendData(INT32 idx, std::vector<char>&& serializedPacket)
+void SessionManager::SendData(INT32 idx, std::vector<char> serializedPacket)
 {
+	// !!!!!!!FOR TEST!!!!!!!
+	if (idx < 0)
+	{
+		return;
+	}
+	// !!!!!!!FOR TEST!!!!!!!
+
 	if (idx < 0 || idx > _sessions.size())
 	{
 		g_logger.Log(LogLevel::ERR, "SessionManager::SendData", "Invalid session index - " + std::to_string(idx));
@@ -76,14 +83,14 @@ void SessionManager::SendData(INT32 idx, std::vector<char>&& serializedPacket)
 		g_logger.Log(LogLevel::ERR, "SessionManager::SendData", "serializedPacket.size() == 0");
 		return;
 	}
-	_sessions[idx]->SendData(std::move(serializedPacket));
+	_sessions[idx]->SendData(serializedPacket);
 }
 
-void SessionManager::SendData(INT32 idx, std::vector<char>& serializedPacket)
-{
-	std::vector<char> temp(serializedPacket);
-	SendData(idx, std::move(temp));
-}
+//void SessionManager::SendData(INT32 idx, std::vector<char>& serializedPacket)
+//{
+//	std::vector<char> temp(serializedPacket);
+//	SendData(idx, std::move(temp));
+//}
 
 bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 {
@@ -97,6 +104,13 @@ bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 			g_logger.Log(LogLevel::INFO, "SessionManager::ReleaseSession", "user " + std::to_string(user->GetId()) + " leave " + std::to_string(gameId) + "Game");
 		}
 	}
+
+	// !!!!!!!FOR TEST!!!!!!!
+	if (sessionIdx < 0)
+	{
+		return true;
+	}
+	// !!!!!!!FOR TEST!!!!!!!
 
 	std::unique_lock<std::mutex> lock(_mutex);
 	if (sessionIdx < 0 && sessionIdx > _sessions.size())

@@ -18,10 +18,11 @@ public:
 	SyncRes() : Packet(PacketId::SYNC_RES) {}
 	INT64 milSec;
 	std::array<INT64, 4> delay;
-	std::tuple<Position, Velocity, Acceleration> red1;
-	std::tuple<Position, Velocity, Acceleration> red2;
-	std::tuple<Position, Velocity, Acceleration> blue1;
-	std::tuple<Position, Velocity, Acceleration> blue2;
+	std::array<std::tuple<Position, Velocity, Acceleration>, 4> users;
+	//std::tuple<Position, Velocity, Acceleration> red1;
+	//std::tuple<Position, Velocity, Acceleration> red2;
+	//std::tuple<Position, Velocity, Acceleration> blue1;
+	//std::tuple<Position, Velocity, Acceleration> blue2;
 
 	virtual std::vector<char> Serialize()
 	{
@@ -31,10 +32,14 @@ public:
 		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&milSec), reinterpret_cast<char*>(&milSec) + sizeof(milSec));
 		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&delay), reinterpret_cast<char*>(&delay) + sizeof(delay));
 
-		SerializeTuple(red1, serializeVec);
-		SerializeTuple(red2, serializeVec);
-		SerializeTuple(blue1, serializeVec);
-		SerializeTuple(blue2, serializeVec);
+		//SerializeTuple(red1, serializeVec);
+		//SerializeTuple(red2, serializeVec);
+		//SerializeTuple(blue1, serializeVec);
+		//SerializeTuple(blue2, serializeVec);
+		for (size_t i = 0; i < 4; i++)
+		{
+			SerializeTuple(users[i], serializeVec);
+		}
 
 		return serializeVec;
 	}
@@ -48,10 +53,14 @@ public:
 		std::copy(buf + offset, buf + sizeof(delay), reinterpret_cast<char*>(&delay));
 		offset += sizeof(delay);
 		
-		offset += DeserializeTuple(buf, len, red1);
-		offset += DeserializeTuple(buf, len, red2);
-		offset += DeserializeTuple(buf, len, blue1);
-		offset += DeserializeTuple(buf, len, blue2);
+		//offset += DeserializeTuple(buf, len, red1);
+		//offset += DeserializeTuple(buf, len, red2);
+		//offset += DeserializeTuple(buf, len, blue1);
+		//offset += DeserializeTuple(buf, len, blue2);
+		for (size_t i = 0; i < 4; i++)
+		{
+			offset += DeserializeTuple(buf, len, users[i]);
+		}
 
 		return offset;
 	}

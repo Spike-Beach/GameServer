@@ -58,3 +58,5 @@
 //using UserMotionData = std::tuple<Position, Velocity, Acceleration>;
 //typedef UserMotionData std::tuple<Position, Velocity, Acceleration>;
 //#define UTC_NOW std::chrono::system_clock::now()
+
+#define TEST_SESSION_ID -10

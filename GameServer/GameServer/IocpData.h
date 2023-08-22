@@ -27,7 +27,7 @@ public:
     //std::optional<Packet> ReadPacketFromBuf();
     Package ReadPacketFromBuf();
     // for send
-    bool WriteToBuf(std::vector<char>&& serializedPacket);
+    bool WriteToBuf(std::vector<char> serializedPacket);
 private:   
     OVERLAPPED _overlapped;
     IO_TYPE _ioType;

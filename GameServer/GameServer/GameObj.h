@@ -12,7 +12,6 @@ enum class SyncResult : UINT16
 
 class GameObj
 {
-	// 위치 정보 및 속도/가속도 등등..
 public:
 	virtual SyncResult Sync();
 
@@ -34,7 +33,4 @@ private:
 	std::shared_mutex _objMutex;
 	std::tuple<Position, Velocity, Acceleration> _motionData;
 	Acceleration _stopAccel;
-	//Position _position;
-	//Velocity _velocity;
-	//Acceleration _acceleration;
 };

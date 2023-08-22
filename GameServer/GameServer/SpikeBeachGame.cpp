@@ -14,11 +14,15 @@
 #include "Sync.h"
 
 SpikeBeachGame::SpikeBeachGame()
-:_gameStatus(GameStatus::EMPTY)
+	:_gameStatus(GameStatus::EMPTY), _gameId(-1), _redScore(0), _blueScore(0), _leaveUserIdx(-1)
 {
-	_gameId = -1;
-	_leaveUser.first = TeamKind::EMPTY;
-	_leaveUser.second = nullptr;
+	for (size_t i = 0; i < 4; i++)
+	{
+		_users[i].first = -1;
+		_users[i].second = nullptr;
+	}
+	//_leaveUser.first = TeamKind::EMPTY;
+	//_leaveUser.second = nullptr;
 }
 
 GameStatus SpikeBeachGame::GetStatus()
@@ -30,28 +34,20 @@ void SpikeBeachGame::Clear()
 {
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
 	_gameStatus = GameStatus::EMPTY;
-	for (auto redUser : _redTeam)
+	for (size_t i = 0; i < 4 ; i++)
 	{
-		if (redUser.second != nullptr)
+		if (_users[i].second != nullptr)
 		{
-			g_SBUserManager.ReleaseUser(redUser.second);
+			g_SBUserManager.ReleaseUser(_users[i].second);
 		}
+		_users[i].first = -1;
+		_users[i].second = nullptr;
 	}
-	for (auto blueUser : _blueTeam)
-	{
-		if (blueUser.second != nullptr)
-		{
-			g_SBUserManager.ReleaseUser(blueUser.second);
-		}
-	}
-	_redTeam.clear();
-	_blueTeam.clear();
 	_ball.Reset();
 	_redScore = 0;
 	_blueScore = 0;
 	_gameId = -1;
-	_leaveUser.first = TeamKind::EMPTY;
-	_leaveUser.second = nullptr;
+	_leaveUserIdx = -1;
 	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::Clear", std::to_string(_gameId) + " Game is cleared");
 }
 
@@ -65,10 +61,10 @@ void SpikeBeachGame::Clear()
 void SpikeBeachGame::ResetToNewGame()
 {
 	_ball.Reset();
-	_redTeam[0]->Reset(1860.006355, 292.065717, 20);
-	_redTeam[1]->Reset(2112.010027, 269.346001, 20);
-	_blueTeam[0]->Reset(1860.005797, 1350.856280, 20);
-	_blueTeam[1]->Reset(2112.010468, 1337.891186, 20);
+	_users[0].second->Reset(1860.006355, 292.065717, 20);
+	_users[1].second->Reset(2112.010027, 269.346001, 20);
+	_users[2].second->Reset(1860.005797, 1350.856280, 20);
+	_users[3].second->Reset(2112.010468, 1337.891186, 20);
 }
 
 std::vector<char> SpikeBeachGame::GetSerialiedSyncPacket()
@@ -94,11 +90,10 @@ bool SpikeBeachGame::SetGame(INT32 gameId, Team redTeam, Team blueTeam)
 	_gameStatus = GameStatus::WAITING;
 	_waitDeadLine = std::chrono::system_clock::now() + std::chrono::seconds(WAIT_SEC);
 	
-	_redTeam.insert(std::make_pair(redTeam[0].id, nullptr));
-	_redTeam.insert(std::make_pair(redTeam[1].id, nullptr));
-	
-	_blueTeam.insert(std::make_pair(blueTeam[0].id, nullptr));
-	_blueTeam.insert(std::make_pair(blueTeam[1].id, nullptr));
+	_users[0] = std::make_pair(redTeam[0].id, nullptr);
+	_users[1] = std::make_pair(redTeam[1].id, nullptr);
+	_users[2] = std::make_pair(blueTeam[0].id, nullptr);
+	_users[3] = std::make_pair(blueTeam[1].id, nullptr);
 
 	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::SetGame", std::to_string(_gameId) + " Game is set");
 	return true;
@@ -114,25 +109,24 @@ bool SpikeBeachGame::UserIn(SBUser* user)
 
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
 	INT64 userId = user->GetId();
-	auto iter = _redTeam.find(userId);
-	if (iter == _redTeam.end())
+
+	for (size_t idx = 0; idx < 4; idx++)
 	{
-		iter = _blueTeam.find(userId);
-		if (iter == _blueTeam.end())
+		if (_users[idx].first == userId)
 		{
-			g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "Invalid game enter. user : " + std::to_string(user->GetId()));
-			return false;
+			if (_users[idx].second != nullptr)
+			{
+				g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "User already in game. user : " + std::to_string(user->GetId()));
+				return false;
+			}
+			_users[idx].second = user;
+			g_logger.Log(LogLevel::INFO, "SpikeBeachGame::UserIn", "User in " + std::to_string(_gameId) + " game. user : " + std::to_string(_users[idx].second->GetId()));
+			return true;
 		}
 	}
-	if (iter->second != nullptr)
-	{
-		g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "User already in game. user : " + std::to_string(user->GetId()));
-		return false;
-	}
 
-	iter->second = user;
-	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::UserIn", "User in " + std::to_string(_gameId) + " game. user : " + std::to_string(iter->second->GetId()));
-	return true;
+	g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "Invalid game enter. user : " + std::to_string(user->GetId()));
+	return false;
 }
 
 bool SpikeBeachGame::UserOut(SBUser* user)
@@ -143,27 +137,24 @@ bool SpikeBeachGame::UserOut(SBUser* user)
 	}
 
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
-	auto iter = _redTeam.find(user->GetId());
-	_leaveUser.first = TeamKind::RED;
-	if (iter == _redTeam.end())
+	for (size_t i = 0; i < 4; i++)
 	{
-		iter = _blueTeam.find(user->GetId());
-		_leaveUser.first = TeamKind::BLUE;
-		if (iter == _blueTeam.end())
+		if (_users[i].second != NULL
+			&& _users[i].second->GetId() == user->GetId())
 		{
-			g_logger.Log(LogLevel::CRITICAL, "SpikeBeachGame::UserOut", "Invalid game enter. user : " + std::to_string(user->GetId()));
-			return false;
+			_leaveUserIdx = i;
+			_users[i].second = nullptr;
+			g_SBUserManager.ReleaseUser(user);
+			if (_gameStatus == GameStatus::PLAYING)
+			{
+				_gameStatus = GameStatus::SOMEONE_LEANVE;
+			}
+			return true;
 		}
 	}
-	_leaveUser.second = iter->second;
 
-	if (_gameStatus == GameStatus::PLAYING)
-	{
-		_gameStatus = GameStatus::SOMEONE_LEANVE;
-	}
-	iter->second = nullptr;
-	g_SBUserManager.ReleaseUser(user);
-	return true;
+	g_logger.Log(LogLevel::CRITICAL, "SpikeBeachGame::UserOut", "Invalid game enter. user : " + std::to_string(user->GetId()));
+	return false;
 }
 
 bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc, Acceleration stopAcc)
@@ -198,14 +189,16 @@ bool SpikeBeachGame::PlayingSync()
 		return true;
 	}
 
-	for (auto redUser : _redTeam)
+	for (size_t idx = 0; idx < 4; idx++)
 	{
-		redUser.second->Sync();
+		if (_users[idx].second == nullptr)
+		{
+			g_logger.Log(LogLevel::ERR, "SpikeBeachGame::PlayingSync", "User is nullptr. user : " + std::to_string(_users[idx].first));
+			return false;
+		}
+		_users[idx].second->Sync();
 	}
-	for (auto blueUser : _blueTeam)
-	{
-		blueUser.second->Sync();
-	}
+
 	_lastSyncTime = std::chrono::system_clock::now();
 	return false;
 }
@@ -219,32 +212,21 @@ bool SpikeBeachGame::WaitUserSync()
 		std::unique_lock<std::shared_mutex> lock(_gameMutex);
 		GameTimeoutNtf timeoutPacket;
 		NoticeInGame(timeoutPacket.Serialize());
-		for (auto redUser : _redTeam)
+		         
+		for (size_t i = 0; i < 4; i++)
 		{
-			if (redUser.second != nullptr)
+			if (_users[i].second != nullptr)
 			{
-				g_sessionManager.ReleaseSession(redUser.second->GetSessionId(), false);
+				g_sessionManager.ReleaseSession(_users[i].second->GetSessionId(), false);
 			}
 		}
-		for (auto blueUser : _blueTeam)
-		{
-			if (blueUser.second != nullptr)
-			{
-				g_sessionManager.ReleaseSession(blueUser.second->GetSessionId(), false);
-			}
-		}
+
 		return false;
 	}
-	for (auto redUser : _redTeam)
+
+	for (size_t i = 0; i < 4; i++)
 	{
-		if (redUser.second == nullptr)
-		{
-			return true;
-		}
-	}
-	for (auto blueUser : _blueTeam)
-	{
-		if (blueUser.second == nullptr)
+		if (_users[i].second == nullptr)
 		{
 			return true;
 		}
@@ -266,8 +248,12 @@ bool SpikeBeachGame::WaitUserSync()
 
 bool SpikeBeachGame::LeaveSync()
 {
+	if (_leaveUserIdx < 0)
+	{
+		return true;
+	}
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
-	if (_leaveUser.first == TeamKind::RED)
+	if (_leaveUserIdx < 2)
 	{
 		RedWin();
 	}
@@ -280,19 +266,11 @@ bool SpikeBeachGame::LeaveSync()
 
 void SpikeBeachGame::NoticeInGame(std::vector<char>&& notify)
 {
-	// 모든 멤버에세 SyncNotice를 보낸다.
-	for (auto redUser : _redTeam)
+	for (size_t i = 0; i < 4; i++)
 	{
-		if (redUser.second != nullptr)
+		if (_users[i].second != nullptr)
 		{
-			g_sessionManager.SendData(redUser.second->GetSessionId(), notify);
-		}
-	}
-	for (auto blueUser : _blueTeam)
-	{
-		if (blueUser.second != nullptr)
-		{
-			g_sessionManager.SendData(blueUser.second->GetSessionId(), notify);
+			g_sessionManager.SendData(_users[i].second->GetSessionId(), notify);
 		}
 	}
 }
@@ -318,13 +296,9 @@ bool SpikeBeachGame::Score(SyncResult scoreResult)
 		}
 	}
 
-	for (auto redUser : _redTeam)
+	for (size_t i = 0; i < 4; i++)
 	{
-		redUser.second->Reset();
-	}
-	for (auto blueUser : _blueTeam)
-	{
-		blueUser.second->Reset();
+		_users[i].second->Reset();
 	}
 	_ball.Reset();
 	_roundStartTime = std::chrono::system_clock::now() + std::chrono::seconds(ROUND_COUNT_DOWN_SEC);
@@ -337,10 +311,16 @@ void SpikeBeachGame::RedWin()
 {
 	GameResult result;
 	_gameStatus = GameStatus::FINISHING;
-	result.winner[0].id = _redTeam.begin()->first;
-	result.winner[1].id = (++_redTeam.begin())->first;
-	result.loser[0].id = _blueTeam.begin()->first;
-	result.loser[1].id = (++_blueTeam.begin())->first;
+
+	size_t i = 0;
+	for (; i < 2; i++)
+	{
+		result.winner[i].id = _users[i].first;
+	}
+	for (; i < 4; i++)
+	{
+		result.loser[i - 2].id = _users[i].first;
+	}
 	result.startTime = _gameStartTime;
 	result.finishTime = std::chrono::system_clock::now();
 	g_SBManager.SetGameResult(result);
@@ -352,10 +332,16 @@ void SpikeBeachGame::BlueWin()
 {
 	GameResult result;
 	_gameStatus = GameStatus::FINISHING;
-	result.winner[0].id = _blueTeam.begin()->first;
-	result.winner[1].id = (++_blueTeam.begin())->first;
-	result.loser[0].id = _redTeam.begin()->first;
-	result.loser[1].id = (++_redTeam.begin())->first;
+
+	size_t i = 0;
+	for (; i < 2; i++)
+	{
+		result.winner[i].id = _users[i + 2].first;
+	}
+	for (; i < 4; i++)
+	{
+		result.loser[i - 2].id = _users[i - 2].first;
+	}
 	result.startTime = _gameStartTime;
 	result.finishTime = std::chrono::system_clock::now();
 	g_SBManager.SetGameResult(result);
@@ -365,24 +351,13 @@ void SpikeBeachGame::BlueWin()
 
 INT16 SpikeBeachGame::FindUser(INT64 userId, SBUser** userPtr)
 {
-	INT16 idx = 0;
-	for (const auto& red : _redTeam)
+	for (size_t i = 0; i < 4; i++)
 	{
-		if (red.first == userId)
+		if (_users[i].first == userId)
 		{
-			*userPtr = red.second;
-			return idx;
+			*userPtr = _users[i].second;
+			return i;
 		}
-		++idx;
-	}
-	for (const auto& blue : _blueTeam)
-	{
-		if (blue.first == userId)
-		{
-			*userPtr = blue.second;
-			return idx;
-		}
-		++idx;
 	}
 	g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "Invalid game enter. user : " + std::to_string(userId));
 	*userPtr = nullptr;
@@ -397,11 +372,10 @@ std::vector<char> SpikeBeachGame::GenSerializedSyncPacket()
 	std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
 	syncRes.milSec = us.count();
 	syncRes.delay = {-1, -1, -1, -1}; // TODO
-	syncRes.red1 = _redTeam[0]->GetMotionData();
-	syncRes.red2 = _redTeam[1]->GetMotionData();
-	syncRes.blue1 = _blueTeam[0]->GetMotionData();
-	syncRes.blue2 = _blueTeam[1]->GetMotionData();
-
+	for (size_t i = 0; i < 4; i++)
+	{
+		syncRes.users[i] = _users[i].second->GetMotionData();
+	}
 	_packetGenTime = _lastSyncTime;
 	_serializedSyncPacket = syncRes.Serialize();
 	return _serializedSyncPacket;
