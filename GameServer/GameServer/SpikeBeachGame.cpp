@@ -21,8 +21,6 @@ SpikeBeachGame::SpikeBeachGame()
 		_users[i].first = -1;
 		_users[i].second = nullptr;
 	}
-	//_leaveUser.first = TeamKind::EMPTY;
-	//_leaveUser.second = nullptr;
 }
 
 GameStatus SpikeBeachGame::GetStatus()
@@ -157,7 +155,7 @@ bool SpikeBeachGame::UserOut(SBUser* user)
 	return false;
 }
 
-bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc, Acceleration stopAcc)
+bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc)
 {
 	SBUser* userPtr = nullptr;
 	INT16 userIdx = FindUser(userId, &userPtr);
@@ -168,12 +166,11 @@ bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc, Acc
 
 	// INT64 to std::chrono::system_clock::time_point
 	std::chrono::system_clock::time_point ctlTimePoint = std::chrono::system_clock::from_time_t(ctlTime / 1000);
-	userPtr->Controll(ctlTimePoint, acc, stopAcc);
+	userPtr->Controll(ctlTimePoint, acc);
 	ControllNtf ntf;
 	ntf.userIdx = userIdx;
 	ntf.controllTime = ctlTime;
 	ntf.contollAcc = acc;
-	ntf.stopAcc = stopAcc;
 	NoticeInGame(ntf.Serialize()); // TODO move check
 	return true;
 }

@@ -15,7 +15,6 @@ public:
     ~IocpData();
     IO_TYPE GetIoType();
     WSABUF GetWSABuf();
-    //WSABUF GetWSABuf();
     OVERLAPPED* GetOverlappedPtr();
     char* GetBufPtr();
     void Clear();
@@ -24,7 +23,6 @@ public:
     bool IsNeedMoreIo(size_t transferSize);
 
     // for recv
-    //std::optional<Packet> ReadPacketFromBuf();
     Package ReadPacketFromBuf();
     // for send
     bool WriteToBuf(std::vector<char> serializedPacket);
@@ -32,7 +30,6 @@ private:
     OVERLAPPED _overlapped;
     IO_TYPE _ioType;
     std::array<char, BUFSIZE> _buffer;
-    //std::vector<char> _buffer;
     size_t _desiredLength; // Packet에 기입된 길이.
     size_t _currentLength; // GetQueuedCompletionStatus로 받은 길이.
     

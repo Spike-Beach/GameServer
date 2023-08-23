@@ -37,7 +37,7 @@ public:
 	bool UserIn(SBUser* UserId);
 	bool UserOut(SBUser* UserId);
 	
-	bool Controll(INT64 userId, INT64 ctlTime, Acceleration acc, Acceleration stopAcc);
+	bool Controll(INT64 userId, INT64 ctlTime, Acceleration acc);
 	bool PlayingSync();
 	bool WaitUserSync();
 	bool LeaveSync();

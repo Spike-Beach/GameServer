@@ -89,7 +89,7 @@ void SpikeBeachHandler::ControllGame(Package package)
 		return;
 	}
 	req.Deserialize(&package._buffer[0], package._buffer.size());
-	game->Controll(user->GetId(), req.controllTime, req.contollAcc, req.stopAcc);
+	game->Controll(user->GetId(), req.controllTime, req.contollAcc);
 }
 
 bool SpikeBeachHandler::IsRuning()

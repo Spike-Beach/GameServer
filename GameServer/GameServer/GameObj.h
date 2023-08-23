@@ -23,7 +23,7 @@ public:
 	//void setVelocity(float x, float y, float z);
 	//void setAcceleration(const Acceleration& acceleration);
 	//void setAcceleration(float x, float y, float z);
-	void Controll(std::chrono::system_clock::time_point ctlTime, const Acceleration& acceleration, const Acceleration& stopAccel);
+	void Controll(std::chrono::system_clock::time_point ctlTime, const Acceleration& acceleration);
 	std::tuple<Position, Velocity, Acceleration> GetMotionData();
 	Position getPosition();
 	Velocity getVelocity();
@@ -32,5 +32,4 @@ public:
 private:
 	std::shared_mutex _objMutex;
 	std::tuple<Position, Velocity, Acceleration> _motionData;
-	Acceleration _stopAccel;
 };

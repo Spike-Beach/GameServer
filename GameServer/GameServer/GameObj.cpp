@@ -62,12 +62,11 @@ void GameObj::Reset(float posX, float posY, float posZ)
 //	std::get<2>(_motionData).z = z;
 //}
 
-void GameObj::Controll(std::chrono::system_clock::time_point ctlTime, const Acceleration& acceleration, const Acceleration& stopAccel)
+void GameObj::Controll(std::chrono::system_clock::time_point ctlTime, const Acceleration& acceleration)
 {
 	// TODO 시간 지연에 따라, 속도와 위치 이미 반영된 값들 적용.
 	std::unique_lock<std::shared_mutex> lock(_objMutex);
 	std::get<2>(_motionData) = acceleration;
-	_stopAccel = stopAccel;
 }
 
 std::tuple<Position, Velocity, Acceleration> GameObj::GetMotionData()
