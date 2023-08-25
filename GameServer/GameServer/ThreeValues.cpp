@@ -33,6 +33,26 @@ ThreeValues& ThreeValues::operator-=(const ThreeValues& other)
 	return *this;
 }
 
+ThreeValues ThreeValues::operator/(const float& scalar) const
+{
+	ThreeValues temp;
+	if (scalar == 0)
+	{
+		g_logger.Log(LogLevel::ERR, "ThreeValues::operator/", "Divide 0");
+		throw std::exception("Divide 0");
+	}
+	temp.x /= scalar;
+	temp.y /= scalar;
+	temp.z /= scalar;
+	return true;
+}
+
+ThreeValues ThreeValues::operator*(const float& scalar) const
+{
+	ThreeValues temp(x * scalar, y * scalar, z * scalar);
+	return temp;
+}
+
 void ThreeValues::ScalarAdd(const float scalar)
 {
 	x += scalar;
@@ -65,6 +85,16 @@ bool ThreeValues::ScalarDiv(const float scalar)
 	y /= scalar;
 	z /= scalar;
 	return true;
+}
+
+float ThreeValues::GetMagnitude()
+{
+	return std::sqrtf(std::powf(x, 2) + std::powf(y, 2) + std::powf(z, 2));
+}
+
+bool ThreeValues::IsZero()
+{
+	return (x == 0 && y == 0 && z == 0);
 }
 
 std::vector<char> ThreeValues::Serialize()

@@ -1,25 +1,12 @@
 #pragma once
 #include "SBUser.h"
 #include "SBUtils.h"
+#include "Ball.h"
 
 #define WAIT_SEC 3000
 #define ROUND_COUNT_DOWN_SEC 5
 
-//enum class TeamKind : INT16
-//{
-//	EMPTY,
-//	RED,
-//	BLUE
-//};
-
 class Map
-{
-
-};
-
-
-
-class Ball : public GameObj
 {
 
 };
@@ -38,6 +25,8 @@ public:
 	bool UserOut(SBUser* UserId);
 	
 	bool Controll(INT64 userId, INT64 ctlTime, Acceleration acc);
+	bool UpdateLatency(INT64 userId, INT64 clientTime);
+
 	bool PlayingSync();
 	bool WaitUserSync();
 	bool LeaveSync();

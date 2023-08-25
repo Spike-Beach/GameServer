@@ -20,6 +20,8 @@
 #include <memory>
 #include <sstream>
 #include <fstream>
+#include <math.h>
+#include <format>
 
 //https://kyungpyo-kim.github.io/study/thread-safety-of-unordered_map/
 #include <shared_mutex>

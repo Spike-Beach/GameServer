@@ -31,7 +31,7 @@ Position& Position::operator-=(const Position& other)
 	return *this;
 }
 
-void Position::CalPosition(Velocity vel, float elapsedSec)
+void Position::CalNewPosition(Velocity vel, float elapsedSec)
 {
 	x += vel.x * elapsedSec;
 	y += vel.y * elapsedSec;

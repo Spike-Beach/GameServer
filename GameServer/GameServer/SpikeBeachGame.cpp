@@ -13,6 +13,7 @@
 #include "Controll.h"
 #include "Sync.h"
 
+
 SpikeBeachGame::SpikeBeachGame()
 	:_gameStatus(GameStatus::EMPTY), _gameId(-1), _redScore(0), _blueScore(0), _leaveUserIdx(-1)
 {
@@ -159,13 +160,19 @@ bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc)
 {
 	SBUser* userPtr = nullptr;
 	INT16 userIdx = FindUser(userId, &userPtr);
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	if (userIdx == -1 || userPtr == nullptr)
 	{
 		return false;
 	}
-
-	// INT64 to std::chrono::system_clock::time_point
-	std::chrono::system_clock::time_point ctlTimePoint = std::chrono::system_clock::from_time_t(ctlTime / 1000);
+	if (_roundStartTime > now)
+	{
+		return false;
+	}
+	// https://stackoverflow.com/questions/31255486/how-do-i-convert-a-stdchronotime-point-to-long-and-back
+	// 1970년 1월 1일 00:00:00 UTC (UNIX epoch)부터의 시간. 약 292,271 년 후 오버플로우 발생.
+	std::chrono::milliseconds dur(ctlTime);
+	std::chrono::system_clock::time_point ctlTimePoint(dur);
 	userPtr->Controll(ctlTimePoint, acc);
 	ControllNtf ntf;
 	ntf.userIdx = userIdx;
@@ -175,11 +182,26 @@ bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc)
 	return true;
 }
 
+bool SpikeBeachGame::UpdateLatency(INT64 userId, INT64 clientTime)
+{
+	for (size_t i = 0; i < 4; i++)
+	{
+		if (_users[i].first == userId)
+		{
+			_users[i].second->UpdateLatency(clientTime);
+			return true;
+		}
+	}
+	g_logger.Log(LogLevel::ERR, "SpikeBeachGame::SetLaytency", "Invalid userId user : " + std::to_string(userId));
+	return false;
+}
+
 // true : score / false : no score
 bool SpikeBeachGame::PlayingSync()
 {
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
-	SyncResult result = _ball.Sync();
+	SyncResult result = _ball.Sync(now);
 	if (result != SyncResult::NONE)
 	{
 		Score(result);
@@ -193,7 +215,7 @@ bool SpikeBeachGame::PlayingSync()
 			g_logger.Log(LogLevel::ERR, "SpikeBeachGame::PlayingSync", "User is nullptr. user : " + std::to_string(_users[idx].first));
 			return false;
 		}
-		_users[idx].second->Sync();
+		_users[idx].second->Sync(now);
 	}
 
 	_lastSyncTime = std::chrono::system_clock::now();
@@ -234,8 +256,14 @@ bool SpikeBeachGame::WaitUserSync()
 	
 	GameStartNtf startNtf;
 	// _roundStartTime를 INT64로 변환하여 startNtf.gameStartTime에 저장
-	std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(_roundStartTime.time_since_epoch());
-	startNtf.gameStartTime = us.count();
+	auto roundStartMs = std::chrono::time_point_cast<std::chrono::milliseconds>(_roundStartTime);
+	//std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(_roundStartTime.time_since_epoch());
+	//startNtf.gameStartTime = us.count();
+	startNtf.gameStartTime = roundStartMs.time_since_epoch().count();
+	for (size_t i = 0; i < 4; i++)
+	{
+		startNtf.nickNames[i] = _users[i].second->GetNickName();
+	}
 	NoticeInGame(startNtf.Serialize());
 
 	ResetToNewGame();
@@ -367,8 +395,8 @@ std::vector<char> SpikeBeachGame::GenSerializedSyncPacket()
 
 	std::unique_lock<std::shared_mutex> uniqueLock(_syncPacketMutex);
 	std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-	syncRes.milSec = us.count();
-	syncRes.delay = {-1, -1, -1, -1}; // TODO
+	syncRes.mSec = us.count();
+	syncRes.latency = {-1, -1, -1, -1}; // TODO
 	for (size_t i = 0; i < 4; i++)
 	{
 		syncRes.users[i] = _users[i].second->GetMotionData();

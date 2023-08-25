@@ -13,7 +13,7 @@ public:
 	Position operator-(const Position& other) const;
 	Position& operator+=(const Position& other);
 	Position& operator-=(const Position& other);
-	void CalPosition(Velocity vel, float elapsedSec);
+	void CalNewPosition(Velocity vel, float elapsedSec);
 	std::vector<char> Serialize();
 	size_t Deserialize(char* buf, size_t len);
 };

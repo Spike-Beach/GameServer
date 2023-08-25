@@ -48,6 +48,7 @@ public:
 private:
 	INT64 _id;
 	INT64 _sessionId; // Only SBUserManager write
+
 	std::string _token;
 	std::string _assignedId;
 	INT32 _gameId;
