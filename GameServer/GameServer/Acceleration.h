@@ -9,6 +9,7 @@ public:
 	Acceleration(float scalar) : ThreeValues(scalar) {}
 
 	Acceleration& operator=(const Acceleration& other);
+	Acceleration& operator=(const ThreeValues& tv);
 	Acceleration operator+(const Acceleration& other) const;
 	Acceleration operator-(const Acceleration& other) const;
 	Acceleration& operator+=(const Acceleration& other);

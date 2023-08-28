@@ -1,23 +1,27 @@
 #pragma once
-
+#include "Packet.h"
 #include "Position.h"
 #include "Velocity.h"
 #include "Acceleration.h"
 
-#define USER_SYNC_DATA_SIZE 5 * sizeof(INT64) + 4 * (sizeof(Position) + sizeof(Velocity) + sizeof(Acceleration))
+#define POS_SIZE 3 * sizeof(float)
+#define VEL_SIZE 3 * sizeof(float)
+#define ACC_SIZE 3 * sizeof(float)
+#define USER_SYNC_DATA_SIZE 5 * sizeof(INT64) + 4 * (POS_SIZE + VEL_SIZE + ACC_SIZE)
 
 class SyncReq : public Packet
 {
 public:
 	SyncReq() : Packet(PacketId::SYNC_REQ) {}
-	INT64 mSec;
+	INT64 syncReqTime;
 
 	virtual std::vector<char> Serialize()
 	{
+		packetLength = PACKET_SIZE + sizeof(syncReqTime);
 		std::vector<char> serializeVec = Packet::Serialize();
-		serializeVec.reserve(PACKET_SIZE + sizeof(mSec));
+		serializeVec.reserve(packetLength);
 
-		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&mSec), reinterpret_cast<char*>(&mSec) + sizeof(mSec));
+		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&syncReqTime), reinterpret_cast<char*>(&syncReqTime) + sizeof(syncReqTime));
 		return serializeVec;
 	}
 
@@ -25,8 +29,8 @@ public:
 	{
 		size_t offset = Packet::Deserialize(buf, len);
 
-		std::copy(buf + offset, buf + sizeof(mSec), &mSec);
-		offset += sizeof(mSec);
+		std::copy(buf + offset, buf + sizeof(syncReqTime), &syncReqTime);
+		offset += sizeof(syncReqTime);
 		return offset;
 	}
 };
@@ -35,16 +39,17 @@ class SyncRes : public Packet
 {
 public:
 	SyncRes() : Packet(PacketId::SYNC_RES) {}
-	INT64 mSec;
+	INT64 syncTime;
 	std::array<INT64, 4> latency;
 	std::array<std::tuple<Position, Velocity, Acceleration>, 4> users;
 
 	virtual std::vector<char> Serialize()
 	{
+		packetLength = PACKET_SIZE + USER_SYNC_DATA_SIZE;
 		std::vector<char> serializeVec = Packet::Serialize();
-		serializeVec.reserve(PACKET_SIZE + USER_SYNC_DATA_SIZE);
+		serializeVec.reserve(packetLength);
 
-		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&mSec), reinterpret_cast<char*>(&mSec) + sizeof(mSec));
+		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&syncTime), reinterpret_cast<char*>(&syncTime) + sizeof(syncTime));
 		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&latency), reinterpret_cast<char*>(&latency) + sizeof(latency));
 
 		for (size_t i = 0; i < 4; i++)
@@ -59,14 +64,18 @@ public:
 	{
 		size_t offset = Packet::Deserialize(buf, len);
 
-		std::copy(buf + offset, buf + sizeof(mSec), &mSec);
-		offset += sizeof(mSec);
-		std::copy(buf + offset, buf + sizeof(latency), reinterpret_cast<char*>(&latency));
-		offset += sizeof(latency);
-		
+		syncTime = *reinterpret_cast<INT64*>(buf + offset);
+		offset += sizeof(syncTime);
+
 		for (size_t i = 0; i < 4; i++)
 		{
-			offset += DeserializeTuple(buf, len, users[i]);
+			latency[i] = *reinterpret_cast<INT64*>(buf + offset);
+			offset += sizeof(latency[i]);
+		}
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			offset += DeserializeTuple(buf + offset, len - offset, users[i]);
 		}
 
 		return offset;
@@ -75,26 +84,38 @@ public:
 	void SerializeTuple(std::tuple<Position, Velocity, Acceleration>& userData, std::vector<char>& dst)
 	{
 		std::vector<char> tempSerializeVec1(std::get<0>(userData).Serialize());
-		dst.insert(tempSerializeVec1.begin(), tempSerializeVec1.size());
+		dst.insert(dst.end(), tempSerializeVec1.begin(), tempSerializeVec1.end());
 		std::vector<char> tempSerializeVec2(std::get<1>(userData).Serialize());
-		dst.insert(tempSerializeVec2.begin(), tempSerializeVec2.size());
+		dst.insert(dst.end(), tempSerializeVec2.begin(), tempSerializeVec2.end());
 		std::vector<char> tempSerializeVec3(std::get<2>(userData).Serialize());
-		dst.insert(tempSerializeVec3.begin(), tempSerializeVec3.size());
+		dst.insert(dst.end(), tempSerializeVec3.begin(), tempSerializeVec3.end());
 	}
 
 	size_t DeserializeTuple(char* buf, size_t len, std::tuple<Position, Velocity, Acceleration>& dst)
 	{
 		size_t offset = 0;
 
-		std::copy(buf, buf + sizeof(Position), reinterpret_cast<char*>(&std::get<0>(dst)));
-		offset += sizeof(Position);
-		std::copy(buf + offset, buf + sizeof(Velocity), reinterpret_cast<char*>(&std::get<1>(dst)));
-		offset += sizeof(Velocity);
-		std::copy(buf + offset, buf + sizeof(Acceleration), reinterpret_cast<char*>(&std::get<1>(dst)));
-		offset += sizeof(Acceleration);
+		std::get<0>(dst).x = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<0>(dst).y = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<0>(dst).z = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<1>(dst).x = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<1>(dst).y = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<1>(dst).z = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<2>(dst).x = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<2>(dst).y = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+		std::get<2>(dst).z = *reinterpret_cast<float*>(buf + offset);
+		offset += sizeof(float);
+
 		return offset;
 	}
 };
-
 
 

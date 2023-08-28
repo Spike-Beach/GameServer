@@ -17,12 +17,12 @@ public:
 	Velocity operator*(const float& scalar) const;
 	Velocity operator/(const float& scalar) const;
 
-	std::optional<Velocity> GetNomalVel();
+	//std::optional<Velocity> GetNomalVel();
 	void ApplyBrakes(float decelerate, float elapsedSec);
 	float CalMaxVelApprochElapseSec(Acceleration acc, float maxVelMagnitude);
-	void AdjustToMaxMagnitude(float Magnitude);
+	void AdjustToMaxMagnitude(float Magnitude, const Velocity& oldVel);
 	std::vector<char> Serialize();
 	size_t Deserialize(char* buf, size_t len);
-	static Velocity CalNewVelocity(Acceleration acc, float elapsedSec);
+	void UpdateVelocity(Acceleration acc, float elapsedSec);
 };
 

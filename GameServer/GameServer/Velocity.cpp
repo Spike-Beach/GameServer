@@ -51,19 +51,19 @@ Velocity Velocity::operator/(const float& scalar) const
 	return true;
 }
 
-std::optional<Velocity> Velocity::GetNomalVel()
-{
-	Velocity temp(*this);
-	if (x == 0 && y == 0 && z == 0)
-	{
-		return std::nullopt;
-	}
-	else
-	{
-		temp.ScalarDiv(GetMagnitude());
-		return temp;
-	}
-}
+//std::optional<Velocity> Velocity::GetNomalVel()
+//{
+//	Velocity temp(*this);
+//	if (x == 0 && y == 0 && z == 0)
+//	{
+//		return std::nullopt;
+//	}
+//	else
+//	{
+//		temp.ScalarDiv(GetMagnitude());
+//		return temp;
+//	}
+//}
 
 void Velocity::ApplyBrakes(float decelerate, float elapsedSec)
 {
@@ -75,27 +75,26 @@ void Velocity::ApplyBrakes(float decelerate, float elapsedSec)
 	if (z < 0) { z = 0; }
 }
 
-Velocity Velocity::CalNewVelocity(Acceleration acc, float elapsedSec)
+void Velocity::UpdateVelocity(Acceleration acc, float elapsedSec)
 {
 	Velocity temp(acc.x * elapsedSec, acc.y * elapsedSec, acc.z * elapsedSec);
-	return temp;
+	*this += temp;
 }
 
-void Velocity::AdjustToMaxMagnitude(float maxVelMagnitude)
+void Velocity::AdjustToMaxMagnitude(float maxVelMagnitude, const Velocity& oldVel)
 {
-	if (ThreeValues::GetMagnitude() > maxVelMagnitude)
+	if (maxVelMagnitude == 0)
 	{
-		if (maxVelMagnitude == 0)
-		{
-			x = 0;
-			y = 0;
-			z = 0;
-		}
-
-		auto optNomal = GetNomalVel();
+		if (oldVel.x * x < 0) { x = 0; }
+		if (oldVel.y * y < 0) { y = 0; }
+		if (oldVel.z * z < 0) { z = 0; }
+	}
+	else if (ThreeValues::GetMagnitude() > maxVelMagnitude)
+	{
+		auto optNomal = GetNomal();
 		if (optNomal.has_value())
 		{
-			Velocity nomal = GetNomalVel().value();
+			Velocity nomal = optNomal.value();
 			nomal.ScalarMul(maxVelMagnitude);
 			this->operator=(nomal);
 		}

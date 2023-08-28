@@ -7,6 +7,12 @@ Acceleration& Acceleration::operator=(const Acceleration& other)
 	return *this;
 }
 
+Acceleration& Acceleration::operator=(const ThreeValues& tv)
+{
+	ThreeValues::operator=(tv);
+	return *this;
+}
+
 Acceleration Acceleration::operator+(const Acceleration& other) const
 {
 	Acceleration temp(x + other.x, y + other.y, z + other.z);

@@ -41,6 +41,7 @@ void SpikeBeachGame::Clear()
 		}
 		_users[i].first = -1;
 		_users[i].second = nullptr;
+		_users[i].second->clear();
 	}
 	_ball.Reset();
 	_redScore = 0;
@@ -69,10 +70,10 @@ void SpikeBeachGame::ResetToNewGame()
 std::vector<char> SpikeBeachGame::GetSerialiedSyncPacket()
 {
 	std::shared_lock<std::shared_mutex> sharedLock(_syncPacketMutex);
-	if (_lastSyncTime > _packetGenTime)
+	if (_serializedSyncPacket.empty() || _lastSyncTime > _packetGenTime)
 	{
 		sharedLock.unlock();
-		return GenSerializedSyncPacket();
+		GenSerializedSyncPacket();
 	}
 	return _serializedSyncPacket;
 }
@@ -178,7 +179,7 @@ bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc)
 	ntf.userIdx = userIdx;
 	ntf.controllTime = ctlTime;
 	ntf.contollAcc = acc;
-	NoticeInGame(ntf.Serialize()); // TODO move check
+	NoticeInGame(ntf.Serialize());
 	return true;
 }
 
@@ -239,7 +240,6 @@ bool SpikeBeachGame::WaitUserSync()
 				g_sessionManager.ReleaseSession(_users[i].second->GetSessionId(), false);
 			}
 		}
-
 		return false;
 	}
 
@@ -256,22 +256,21 @@ bool SpikeBeachGame::WaitUserSync()
 	
 	GameStartNtf startNtf;
 	// _roundStartTime를 INT64로 변환하여 startNtf.gameStartTime에 저장
-	auto roundStartMs = std::chrono::time_point_cast<std::chrono::milliseconds>(_roundStartTime);
-	//std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(_roundStartTime.time_since_epoch());
-	//startNtf.gameStartTime = us.count();
-	startNtf.gameStartTime = roundStartMs.time_since_epoch().count();
-	for (size_t i = 0; i < 4; i++)
+	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(_roundStartTime.time_since_epoch());
+	startNtf.gameStartTime = ms.count();
+	for (size_t i = 0; i < startNtf.nickNames.size(); i++)
 	{
 		startNtf.nickNames[i] = _users[i].second->GetNickName();
 	}
 	NoticeInGame(startNtf.Serialize());
-
 	ResetToNewGame();
+
 	g_logger.Log(LogLevel::INFO, "WaitUserSync", std::to_string(_gameId) + "Game Start");
 	return true;
 }
 
-bool SpikeBeachGame::LeaveSync()
+bool SpikeBeachGame::LeaveSync
+()
 {
 	if (_leaveUserIdx < 0)
 	{
@@ -394,11 +393,11 @@ std::vector<char> SpikeBeachGame::GenSerializedSyncPacket()
 	SyncRes syncRes;
 
 	std::unique_lock<std::shared_mutex> uniqueLock(_syncPacketMutex);
-	std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-	syncRes.mSec = us.count();
-	syncRes.latency = {-1, -1, -1, -1}; // TODO
+	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	syncRes.syncTime = ms.count();
 	for (size_t i = 0; i < 4; i++)
 	{
+		syncRes.latency[i] = _users[i].second->GetLatency();
 		syncRes.users[i] = _users[i].second->GetMotionData();
 	}
 	_packetGenTime = _lastSyncTime;

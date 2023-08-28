@@ -43,6 +43,9 @@
 #include "Logger.h"
 #include "Package.h"
 #include "Packet.h"
+
+#define EPSILON std::numeric_limits<float>::epsilon()
+
 //#include "SBManager.h"
 //#include "SBUserManager.h"
 //#include "SessionManager.h"

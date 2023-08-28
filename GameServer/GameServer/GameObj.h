@@ -6,7 +6,6 @@
 #define MAX_ACC 2048.0f
 #define MAX_VEL 400.0f
 #define STOP_ACC_SCAL -2000.0f
-#define EPSILON std::numeric_limits<float>::epsilon()
 //#define POS(d) std::get<1>(d)
 //#define VEL(d) std::get<2>(d)
 //#define ACC(d) std::get<3>(d)
@@ -22,7 +21,7 @@ class GameObj
 {
 public:
 	virtual SyncResult Sync(std::chrono::system_clock::time_point syncTime);
-
+	void clear();
 	void Reset();
 	void Reset(float posX, float posY, float posZ);
 	//void setPosition(const Position& position);
@@ -37,6 +36,7 @@ public:
 	Velocity getVelocity();
 	Acceleration getAcceleration();
 	void UpdateLatency(INT64 clientTime);
+	void SetLastSyncTime(std::chrono::system_clock::time_point syncTime);
 	INT64 GetLatency();
 
 private:
