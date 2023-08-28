@@ -20,6 +20,8 @@
 #include <memory>
 #include <sstream>
 #include <fstream>
+#include <math.h>
+#include <format>
 
 //https://kyungpyo-kim.github.io/study/thread-safety-of-unordered_map/
 #include <shared_mutex>
@@ -41,6 +43,9 @@
 #include "Logger.h"
 #include "Package.h"
 #include "Packet.h"
+
+#define EPSILON std::numeric_limits<float>::epsilon()
+
 //#include "SBManager.h"
 //#include "SBUserManager.h"
 //#include "SessionManager.h"

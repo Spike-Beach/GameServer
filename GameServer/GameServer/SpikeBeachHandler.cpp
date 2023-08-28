@@ -3,6 +3,7 @@
 #include "SBUserManager.h"
 #include "SBManager.h"
 #include "GameEnter.h"
+#include "Sync.h"
 #include "Controll.h"
 
 SpikeBeachHandler::SpikeBeachHandler()
@@ -63,13 +64,31 @@ void SpikeBeachHandler::SyncGame(Package package)
 		g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::SyncGame", "User is not exist");
 		return;
 	}
+	SyncReq req;
+	try
+	{
+		req.Deserialize(&package._buffer[0], package._buffer.size());
+		if (req.packetId == PacketId::ERROR_OCCUR)
+		{
+			g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::EnterGame", "PacketId::ERROR_OCCUR");
+			g_sessionManager.ReleaseSession(package.sessionId, true);
+			return;
+		}
+	}
+	catch (std::exception e)
+	{
+		g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::EnterGame", "GameEnterReq::Deserialize Exception, " + std::string(e.what()));
+		g_sessionManager.ReleaseSession(package.sessionId, true);
+		return;
+	}
+
 	SpikeBeachGame* game = g_SBManager.GetGame(user->GetGameId());
 	if (game == nullptr)
 	{
 		g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::SyncGame", "Game is not exist");
 		return;
 	}
-
+	game->UpdateLatency(user->GetGameId(), req.syncReqTime);
 	g_sessionManager.SendData(package.sessionId, game->GetSerialiedSyncPacket());
 }
 

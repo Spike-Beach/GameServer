@@ -165,6 +165,9 @@
       <Filter>SpikeBeach\Game</Filter>
     </ClInclude>
     <ClInclude Include="SBUserCheckNSet.h" />
+    <ClInclude Include="Ball.h">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -251,5 +254,8 @@
       <Filter>SpikeBeach\Game</Filter>
     </ClCompile>
     <ClCompile Include="SBUserCheckNSet.cpp" />
+    <ClCompile Include="Ball.cpp">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

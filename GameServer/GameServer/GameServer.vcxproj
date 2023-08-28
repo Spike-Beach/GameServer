@@ -117,7 +117,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\hiredis-master\Debug;$(SolutionDir)Libraries\mysql-8.1.0-debug\lib64\vs14\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hiredisd.lib;ws2_32.lib;mysqlcppconn-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;hiredisd.lib;mysqlcppconn-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,6 +138,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Acceleration.h" />
+    <ClInclude Include="Ball.h" />
     <ClInclude Include="Controll.h" />
     <ClInclude Include="Disconn.h" />
     <ClInclude Include="GameHandler.h" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acceleration.cpp" />
+    <ClCompile Include="Ball.cpp" />
     <ClCompile Include="GameHandler.cpp" />
     <ClCompile Include="GameObj.cpp" />
     <ClCompile Include="GameResultWriteTask.cpp" />

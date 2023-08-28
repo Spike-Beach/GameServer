@@ -11,10 +11,10 @@ public:
 	~IocpServer();
 	void Init();
 	bool Run();
+
 private:
 	bool SetListenSocket();
 	void SetAcceptedSocket(SOCKET accepter, SOCKADDR_IN addrInfo);
-	//void PutPackage(Package package);
 
 	// 전역 싱글턴을 사용하기 위해 static으로 선언
 	static DWORD WINAPI AcceptThreadFunc(LPVOID serverPtr);
@@ -23,6 +23,7 @@ private:
 	SOCKET _listenSocket;
 	HANDLE _iocpHandle;
 	INT32 _workerThreadCount;
+	SOCKADDR_IN _serverAddr;
 	std::vector<std::thread> _workerThreads;
 	std::thread _acceptThread;
 	static std::atomic<bool> _isShutdown;

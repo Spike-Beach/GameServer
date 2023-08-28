@@ -7,6 +7,12 @@ Acceleration& Acceleration::operator=(const Acceleration& other)
 	return *this;
 }
 
+Acceleration& Acceleration::operator=(const ThreeValues& tv)
+{
+	ThreeValues::operator=(tv);
+	return *this;
+}
+
 Acceleration Acceleration::operator+(const Acceleration& other) const
 {
 	Acceleration temp(x + other.x, y + other.y, z + other.z);
@@ -29,6 +35,13 @@ Acceleration& Acceleration::operator-=(const Acceleration& other)
 {
 	(*this) = (*this) - other;
 	return *this;
+}
+
+Acceleration Acceleration::GetNomalAcc()
+{
+	Acceleration temp(*this);
+	temp.ScalarDiv(std::sqrtf(std::powf(x, 2) + std::powf(y, 2) + std::powf(z, 2)));
+	return temp;
 }
 
 std::vector<char> Acceleration::Serialize()

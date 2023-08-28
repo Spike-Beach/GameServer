@@ -6,9 +6,7 @@
 std::atomic<bool> IocpServer::_isShutdown = false;
 
 IocpServer::IocpServer(std::shared_ptr<GameHandler> gameHandler)
-	: Server(std::move(gameHandler))
-{
-}
+	: Server(std::move(gameHandler)) {}
 
 IocpServer::~IocpServer()
 {
@@ -36,7 +34,7 @@ bool IocpServer::SetListenSocket()
 	serverAddr.sin_port = htons((u_short)_port);
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	_listenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	_listenSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, NULL, WSA_FLAG_OVERLAPPED);
 	if (_listenSocket == INVALID_SOCKET)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpServer::SetListenSocket()", "WSASocket() failed with error code: " + std::to_string(WSAGetLastError()));
@@ -72,17 +70,20 @@ bool IocpServer::Run()
 		g_logger.Log(LogLevel::ERR, "IocpServer::Run()", "WSAStartup() failed with error code: " + std::to_string(WSAGetLastError()));
 		return false;
 	}
-	_iocpHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+
+	_iocpHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, _workerThreadCount);
 	if (_iocpHandle == INVALID_HANDLE_VALUE)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpServer::Run()", "CreateIoCompletionPort() failed with error code: " + std::to_string(WSAGetLastError()));
 		return false;
 	}
+
 	if (SetListenSocket() == false) // already SetListenSocket() log fail info
 	{
 		return false;
 	}
 	_status = SERVER_STATUS::SERVER_READY;
+
 	_acceptThread = std::thread(AcceptThreadFunc, this);
 	for (int i = 0; i < _workerThreadCount; ++i)
 	{
@@ -108,13 +109,14 @@ void IocpServer::SetAcceptedSocket(SOCKET socket, SOCKADDR_IN addrInfo)
 	iocpSession->Clear();
 	iocpSession->Accept(socket, addrInfo);
 
-	HANDLE handle = CreateIoCompletionPort((HANDLE)socket, _iocpHandle, (ULONG_PTR)iocpSession, 0);
+	HANDLE handle = CreateIoCompletionPort((HANDLE)socket, _iocpHandle, (ULONG_PTR)iocpSession, NULL);
 	if (handle == INVALID_HANDLE_VALUE)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpServer::SetAcceptedSocket()", "CreateIoCompletionPort() failed with error code: " + std::to_string(WSAGetLastError()));
 		iocpSession->Close();
 		iocpSession->Clear();
 	}
+	g_logger.Log(LogLevel::INFO, "IocpServer::SetAcceptedSocket()", "cient conn. sessionId: " + std::to_string(iocpSession->GetId()));
 	iocpSession->RecvTrigger();
 }
 
@@ -127,11 +129,12 @@ DWORD WINAPI  IocpServer::AcceptThreadFunc(LPVOID serverPtr)
 	int recvAddrInfoSize = sizeof(recvAddrInfo);
 	while (_isShutdown == false)
 	{
-		acceptSocket = WSAAccept(server->_listenSocket, (SOCKADDR*)&recvAddrInfo, &recvAddrInfoSize, NULL, 0);
+		acceptSocket = WSAAccept(server->_listenSocket, (SOCKADDR*)&recvAddrInfo, &recvAddrInfoSize, NULL, NULL);
 		if (acceptSocket == INVALID_SOCKET)
 		{
 			g_logger.Log(LogLevel::ERR, "IocpServer::AcceptThreadFunc()", "WSAAccept() failed with error code: " + std::to_string(WSAGetLastError()));
 		}
+
 		//SetAcceptedSocket(acceptSocket, recvAddrInfo); <- 에러.C++ a nonstatic member reference must be relative to a specific object
 		// 1. static이 아닌 멤버함수를 사용하려면, 인스턴스가 필요.
 		// 2. 지금 이 함수가 호출되는 시점은 static이므로 인스턴스 생성 이전임
@@ -181,7 +184,6 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 				std::optional<Package> receivedPackage = iocpSession->KeepRecvPacket(transferSize);
 				if (receivedPackage.has_value() == true)
 				{
-					// package.pakcetId = PacketId::PARSE_ERROR인 경우 map에서 걸러지게.
 					server->_gameHandler->Mapping(receivedPackage.value());
 				}
 				break;
