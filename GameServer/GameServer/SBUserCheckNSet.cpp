@@ -24,7 +24,7 @@ void SBUserCheckNSet::Do()
 {
 	// FOT TEST
 	static INT64 XXX_TEST_ID_XXX = 0;
-	static INT32 XXX_ROOM_ID_XXX = 0;
+	//static INT32 XXX_ROOM_ID_XXX = 0;
 
 	GameEnterRes res;
 	res.errorCode = ErrorCode::SessionError;
@@ -90,13 +90,15 @@ void SBUserCheckNSet::Do()
 			{
 				userArray[i]->SetUserId(XXX_TEST_ID_XXX);
 				userArray[i]->SetUserNickname(std::string("TEST_NICK") + std::to_string(XXX_TEST_ID_XXX));
-				userArray[i]->SetUser(std::string("TEST_ASSIGNED_ID") + std::to_string(XXX_TEST_ID_XXX), "token", XXX_ROOM_ID_XXX);
+				//userArray[i]->SetUser(std::string("TEST_ASSIGNED_ID") + std::to_string(XXX_TEST_ID_XXX), "token", XXX_ROOM_ID_XXX);
+				userArray[i]->SetUser(std::string("TEST_ASSIGNED_ID") + std::to_string(XXX_TEST_ID_XXX), "token", user->GetGameId());
 				++XXX_TEST_ID_XXX;
 			}
 
 			//"\tI 4326\tT TestRoom\tU gyeon2 gyeon4 gyeon gyeon3\tA gyeon4 gyeon2\tB gyeon3 gyeon\tu 2 4 1 3"
-			std::string testRoomInfoStr = std::string("\tI ") + std::to_string(XXX_ROOM_ID_XXX) + "\tT TestRoom" + std::to_string(XXX_ROOM_ID_XXX) + "\tU ";
-			++XXX_ROOM_ID_XXX;
+			//std::string testRoomInfoStr = std::string("\tI ") + std::to_string(XXX_ROOM_ID_XXX) + "\tT TestRoom" + std::to_string(XXX_ROOM_ID_XXX) + "\tU ";
+			std::string testRoomInfoStr = std::string("\tI ") + std::to_string(user->GetGameId()) + "\tT TestRoom" + std::to_string(user->GetGameId()) + "\tU ";
+			//++XXX_ROOM_ID_XXX;
 			for (int i = 0; i < 4; i++)
 			{
 				testRoomInfoStr += userArray[i]->GetNickName() + " ";

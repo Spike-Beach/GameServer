@@ -88,7 +88,7 @@ void SpikeBeachHandler::SyncGame(Package package)
 		g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::SyncGame", "Game is not exist");
 		return;
 	}
-	game->UpdateLatency(user->GetGameId(), req.syncReqTime);
+	game->UpdateLatency(user->GetId(), req.syncReqTime);
 	g_sessionManager.SendData(package.sessionId, game->GetSerialiedSyncPacket());
 }
 

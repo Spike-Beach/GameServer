@@ -112,7 +112,8 @@ void GameObj::Reset(float posX, float posY, float posZ)
 //	std::get<2>(_motionData).x = x;
 //	std::get<2>(_motionData).y = y;
 //	std::get<2>(_motionData).z = z;
-//}
+//} 공 : 전달받는 값 - 시간, 위치, 속도 / 가지고 있을 값 : 각 모션이 가능한 시간 계산.
+// 가지고 있는 값을 바탕으로 공을 칠 수 있는 지 판단. + 서버가 스파이크, ~~할 수 있는 시간대 인지 파악
 
 void GameObj::Controll(std::chrono::system_clock::time_point ctlTime, const Acceleration& acceleration)
 {
