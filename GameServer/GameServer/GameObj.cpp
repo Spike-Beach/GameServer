@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GameObj.h"
 
-SyncResult GameObj::Sync(std::chrono::system_clock::time_point syncTime)
+void GameObj::Sync(std::chrono::system_clock::time_point syncTime)
 {
 	Acceleration applyAcc(0);
 	float applyMaxVelMagnitude;
@@ -18,7 +18,7 @@ SyncResult GameObj::Sync(std::chrono::system_clock::time_point syncTime)
 		else
 		{
 			_lastSyncTime = syncTime;
-			return SyncResult::NONE;
+			return ;
 		}
 	}
 	else
@@ -50,7 +50,7 @@ SyncResult GameObj::Sync(std::chrono::system_clock::time_point syncTime)
 
 	_lastSyncTime = syncTime;
 	lock.unlock();
-	return SyncResult::NONE;
+	return ;
 };
 
 void GameObj::clear()
@@ -145,6 +145,11 @@ Acceleration GameObj::getAcceleration()
 {
 	std::shared_lock<std::shared_mutex> lock(_objMutex);
 	return std::get<2>(_motionData);
+}
+
+SysTp GameObj::GetLastSyncTime()
+{
+	return _lastSyncTime;
 }
 
 void GameObj::UpdateLatency(INT64 clientTime)

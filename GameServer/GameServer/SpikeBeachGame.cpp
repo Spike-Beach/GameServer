@@ -202,8 +202,9 @@ bool SpikeBeachGame::PlayingSync()
 {
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
-	SyncResult result = _ball.Sync(now);
-	if (result != SyncResult::NONE)
+	//SyncResult result = _ball.AnalyzeBallTrajectory(now);
+	BallResult result = _ball.Sync(now);
+	if (_ball.Sync(now) != BallResult::NONE)
 	{
 		Score(result);
 		return true;
@@ -299,9 +300,9 @@ void SpikeBeachGame::NoticeInGame(std::vector<char>&& notify)
 	}
 }
 
-bool SpikeBeachGame::Score(SyncResult scoreResult)
+bool SpikeBeachGame::Score(BallResult ballResult)
 {
-	if (scoreResult == SyncResult::RED_SCORE)
+	if (ballResult == BallResult::SCORE_RED)
 	{ 
 		_redScore++; 
 		if (_redScore >= 3) // TODO
@@ -310,7 +311,7 @@ bool SpikeBeachGame::Score(SyncResult scoreResult)
 			return true;
 		}
 	}
-	else if (scoreResult == SyncResult::BLUE_SCORE)
+	else if (ballResult == BallResult::SCORE_BLUE)
 	{ 
 		_blueScore++; 
 		if(_blueScore >= 3) // TODO

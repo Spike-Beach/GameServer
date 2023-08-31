@@ -159,6 +159,10 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 		if (retval == false)
 		{
 			g_logger.Log(LogLevel::ERR, "IocpServer::WorkerThreadFunc()", "GetQueuedCompletionStatus() failed with error code: " + std::to_string(WSAGetLastError()));
+			if (iocpSession != NULL)
+			{
+				g_sessionManager.ReleaseSession(iocpSession->GetId(), true);
+			}
 			continue;
 		}
 		if (iocpSession == nullptr)

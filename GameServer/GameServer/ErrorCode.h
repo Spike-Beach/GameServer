@@ -36,5 +36,9 @@ enum ErrorCode : INT16
     GameEnterSuccess = 500,
     NotEnoughEmptyGame = 501,
     NotEnoughEmptyUser = 502,
-    InvalidGame = 503
+    InvalidGame = 503,
+
+    // Hit
+    CanHit = 600,
+    CanNotHit = 601
 };

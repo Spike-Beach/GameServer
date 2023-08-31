@@ -140,6 +140,7 @@
     <ClInclude Include="Acceleration.h" />
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Controll.h" />
+    <ClInclude Include="Court.h" />
     <ClInclude Include="Disconn.h" />
     <ClInclude Include="GameHandler.h" />
     <ClInclude Include="ErrorCode.h" />
@@ -183,10 +184,12 @@
     <ClInclude Include="SBUserManager.h" />
     <ClInclude Include="ThreeValues.h" />
     <ClInclude Include="Velocity.h" />
+    <ClInclude Include="Hit.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acceleration.cpp" />
     <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="Court.cpp" />
     <ClCompile Include="GameHandler.cpp" />
     <ClCompile Include="GameObj.cpp" />
     <ClCompile Include="GameResultWriteTask.cpp" />
