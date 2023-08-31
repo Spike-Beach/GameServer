@@ -10,17 +10,17 @@
 //#define VEL(d) std::get<2>(d)
 //#define ACC(d) std::get<3>(d)
 
-enum class SyncResult : UINT16
-{
-	NONE = 0,
-	RED_SCORE = 1,
-	BLUE_SCORE = 2
-};
+//enum class SyncResult : UINT16
+//{
+//	NONE = 0,
+//	RED_SCORE = 1,
+//	BLUE_SCORE = 2
+//};
 
 class GameObj
 {
 public:
-	virtual SyncResult Sync(std::chrono::system_clock::time_point syncTime);
+	virtual void Sync(std::chrono::system_clock::time_point syncTime);
 	void clear();
 	void Reset();
 	void Reset(float posX, float posY, float posZ);
@@ -35,6 +35,7 @@ public:
 	Position getPosition();
 	Velocity getVelocity();
 	Acceleration getAcceleration();
+	SysTp GetLastSyncTime();
 	void UpdateLatency(INT64 clientTime);
 	void SetLastSyncTime(std::chrono::system_clock::time_point syncTime);
 	INT64 GetLatency();

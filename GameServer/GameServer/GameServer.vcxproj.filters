@@ -104,14 +104,6 @@
     <ClInclude Include="ParsedRoomInfo.h">
       <Filter>SpikeBeach</Filter>
     </ClInclude>
-    <ClInclude Include="GameSyncTask.h">
-      <Filter>SpikeBeach</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSetTask.h">
-      <Filter>SpikeBeach</Filter>
-    </ClInclude>
-    <ClInclude Include="SBManager.h" />
-    <ClInclude Include="SBUserManager.h" />
     <ClInclude Include="jsoncpp\json\json.h">
       <Filter>jsoncpp</Filter>
     </ClInclude>
@@ -133,7 +125,6 @@
     <ClInclude Include="ServerConfigManager.h">
       <Filter>Configer</Filter>
     </ClInclude>
-    <ClInclude Include="GameResultWriteTask.h" />
     <ClInclude Include="GameStartNtf.h">
       <Filter>Packets</Filter>
     </ClInclude>
@@ -164,9 +155,32 @@
     <ClInclude Include="SBUser.h">
       <Filter>SpikeBeach\Game</Filter>
     </ClInclude>
-    <ClInclude Include="SBUserCheckNSet.h" />
     <ClInclude Include="Ball.h">
       <Filter>SpikeBeach\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Court.h">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SBManager.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="SBUserManager.h">
+      <Filter>SpikeBeach</Filter>
+    </ClInclude>
+    <ClInclude Include="SBUserCheckNSet.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameResultWriteTask.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSetTask.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSyncTask.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="Hit.h">
+      <Filter>Packets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -220,8 +234,6 @@
     <ClCompile Include="ParsedRoomInfo.cpp">
       <Filter>SpikeBeach</Filter>
     </ClCompile>
-    <ClCompile Include="SBManager.cpp" />
-    <ClCompile Include="SBUserManager.cpp" />
     <ClCompile Include="jsoncpp\jsoncpp.cpp">
       <Filter>jsoncpp</Filter>
     </ClCompile>
@@ -234,7 +246,6 @@
     <ClCompile Include="ServerConfigManager.cpp">
       <Filter>Configer</Filter>
     </ClCompile>
-    <ClCompile Include="GameResultWriteTask.cpp" />
     <ClCompile Include="ThreeValues.cpp">
       <Filter>SpikeBeach\utils</Filter>
     </ClCompile>
@@ -253,9 +264,23 @@
     <ClCompile Include="SBUser.cpp">
       <Filter>SpikeBeach\Game</Filter>
     </ClCompile>
-    <ClCompile Include="SBUserCheckNSet.cpp" />
     <ClCompile Include="Ball.cpp">
       <Filter>SpikeBeach\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Court.cpp">
+      <Filter>SpikeBeach\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SBManager.cpp">
+      <Filter>SpikeBeach</Filter>
+    </ClCompile>
+    <ClCompile Include="SBUserManager.cpp">
+      <Filter>SpikeBeach</Filter>
+    </ClCompile>
+    <ClCompile Include="SBUserCheckNSet.cpp">
+      <Filter>Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="GameResultWriteTask.cpp">
+      <Filter>Tasks</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

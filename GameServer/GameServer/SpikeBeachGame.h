@@ -3,7 +3,7 @@
 #include "SBUtils.h"
 #include "Ball.h"
 
-#define WAIT_SEC 3000
+#define WAIT_SEC 30
 #define ROUND_COUNT_DOWN_SEC 1
 
 class Map
@@ -54,7 +54,7 @@ private:
 	size_t _leaveUserIdx;
 	std::chrono::system_clock::time_point _lastSyncTime; // 패킷의 synctime이 _lastSyncTime보다 과거이면 새로 패킷을 만들고 갱신.
 
-	bool Score(SyncResult scoreResult);
+	bool Score(BallResult scoreResult);
 	void RedWin();
 	void BlueWin();
 	INT16 FindUser(INT64 userId, SBUser** userPtr);

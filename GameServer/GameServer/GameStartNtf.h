@@ -9,7 +9,11 @@ public:
 
 	std::vector<char> Serialize()
 	{
-		Packet::packetLength = PACKET_SIZE + sizeof(gameStartTime) + nickNames.size();
+		Packet::packetLength = PACKET_SIZE + sizeof(gameStartTime);
+		for (size_t i = 0; i < nickNames.size(); i++)
+		{
+			Packet::packetLength += nickNames[i].length() + 1;
+		}
 		std::vector<char> serialized = Packet::Serialize();
 		serialized.reserve(Packet::packetLength);
 		

@@ -45,6 +45,8 @@
 #include "Packet.h"
 
 #define EPSILON std::numeric_limits<float>::epsilon()
+#define G 9.8
+using SysTp = std::chrono::system_clock::time_point;
 
 //#include "SBManager.h"
 //#include "SBUserManager.h"

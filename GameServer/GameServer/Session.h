@@ -3,7 +3,7 @@
 #include "Packet.h"
 #include "Package.h"
 
-#define TIME_OVER_SEC 5
+#define TIME_OVER_SEC 10
 
 enum SESSION_STATUS : INT16
 {
