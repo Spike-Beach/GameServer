@@ -28,8 +28,8 @@ public:
 	virtual size_t Deserialize(char* buf, size_t len)
 	{
 		size_t offset = Packet::Deserialize(buf, len);
-
-		std::copy(buf + offset, buf + sizeof(syncReqTime), &syncReqTime);
+		//std::copy(buf + offset, buf + offset + sizeof(syncReqTime), &syncReqTime);
+		syncReqTime = *reinterpret_cast<INT64*>(buf + offset);
 		offset += sizeof(syncReqTime);
 		return offset;
 	}
@@ -50,7 +50,10 @@ public:
 		serializeVec.reserve(packetLength);
 
 		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&syncTime), reinterpret_cast<char*>(&syncTime) + sizeof(syncTime));
-		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&latency), reinterpret_cast<char*>(&latency) + sizeof(latency));
+		for (size_t i = 0; i < latency.size(); i++)
+		{
+			serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&latency[i]), reinterpret_cast<char*>(&latency[i]) + sizeof(latency[i]));
+		}
 
 		for (size_t i = 0; i < 4; i++)
 		{
@@ -67,7 +70,7 @@ public:
 		syncTime = *reinterpret_cast<INT64*>(buf + offset);
 		offset += sizeof(syncTime);
 
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < latency.size(); i++)
 		{
 			latency[i] = *reinterpret_cast<INT64*>(buf + offset);
 			offset += sizeof(latency[i]);
