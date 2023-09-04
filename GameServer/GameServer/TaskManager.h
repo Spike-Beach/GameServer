@@ -2,7 +2,7 @@
 #include "TaskProcesser.h"
 
 #define g_TaskManager TaskManager::Instance()
-#define TASK_PROCESSER_COUNT 5
+
 #define USER_TASK_PROCESSER_ID 0
 #define GAME_TASK_PROCESSER_ID 1
 #define LOG_TASK_PROCESSER_ID 2

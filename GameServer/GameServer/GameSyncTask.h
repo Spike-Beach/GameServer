@@ -11,6 +11,5 @@ public:
 	{
 		g_SBManager.SyncGames();
 	}
-private:
 };
 
