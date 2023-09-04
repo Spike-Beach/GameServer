@@ -42,6 +42,8 @@ public:
 
 private:
 	std::chrono::system_clock::time_point _lastSyncTime;
+	std::chrono::system_clock::time_point _reqControllTime;
+	std::optional<std::pair<SysTp, Acceleration>> _reservedControll;
 	std::shared_mutex _objMutex;
 	std::tuple<Position, Velocity, Acceleration> _motionData;
 	INT64 _latency;

@@ -38,17 +38,17 @@ void SpikeBeachGame::Clear()
 		if (_users[i].second != nullptr)
 		{
 			g_SBUserManager.ReleaseUser(_users[i].second);
+			_users[i].second->clear();
+			_users[i].second = nullptr;
 		}
 		_users[i].first = -1;
-		_users[i].second = nullptr;
-		_users[i].second->clear();
 	}
+	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::Clear", std::to_string(_gameId) + " Game is cleared");
 	_ball.Reset();
 	_redScore = 0;
 	_blueScore = 0;
 	_gameId = -1;
 	_leaveUserIdx = -1;
-	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::Clear", std::to_string(_gameId) + " Game is cleared");
 }
 
 /*
