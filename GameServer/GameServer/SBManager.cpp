@@ -98,7 +98,7 @@ void SBManager::SyncGames()
 		status = runningGame.second->GetStatus();
 		if (status == GameStatus::WAITING)
 		{
-			if (runningGame.second->WaitUserSync() == false)
+			if (runningGame.second->WaitUserSync() != SyncResult::NONE)
 			{
 				runningGame.second->Clear();
 				makeEmptyGameStack.push(runningGame.first);
@@ -106,7 +106,7 @@ void SBManager::SyncGames()
 		}
 		else if (status == GameStatus::PLAYING)
 		{
-			if (runningGame.second->PlayingSync() == true) // 게임이 끝났다면
+			if (runningGame.second->PlayingSync() != SyncResult::NONE)
 			{
 				runningGame.second->Clear();
 				makeEmptyGameStack.push(runningGame.first);

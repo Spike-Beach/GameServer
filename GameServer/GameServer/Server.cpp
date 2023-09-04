@@ -3,7 +3,6 @@
 #include "ServerConfigManager.h"
 
 Server::Server(std::shared_ptr<GameHandler> gameHandler)
-	//: _contentsProcess(std::move(contentsProcess))
 	: _gameHandler(std::move(gameHandler))
 {
 	_status = SERVER_STATUS::SERVER_INITIALZE;

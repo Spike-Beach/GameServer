@@ -2,36 +2,6 @@
 #include "pch.h"
 #include "IocpSession.h"
 
-IocpSession::IocpSession(INT16 sessionId, SOCK_TYPE sessionType)
-: Session(sessionId, sessionType)
-{
-	_sockType = SOCK_TYPE::IOCP;
-	_iocpData[IO_TYPE::READ].SetIoType(IO_TYPE::READ);
-	_iocpData[IO_TYPE::WRITE].SetIoType(IO_TYPE::WRITE);
-
-}
-
-IocpSession::~IocpSession()
-{
-	Close();
-}
-
-void IocpSession::Close()
-{
-	Session::Close();
-}
-
-void IocpSession::Clear()
-{
-	Session::Clear();
-	_iocpData[IO_TYPE::READ].Clear();
-	_iocpData[IO_TYPE::WRITE].Clear();
-}
-
-INT32 IocpSession::GetId()
-{
-	return _idx;
-}
 
 void IocpSession::KeepSendData(size_t transferSize)
 {
@@ -40,6 +10,7 @@ void IocpSession::KeepSendData(size_t transferSize)
 		WSABUF wsabuf = _iocpData[IO_TYPE::WRITE].GetWSABuf();
 		if (wsabuf.buf == nullptr || wsabuf.len == 0)
 		{
+			g_logger.Log(LogLevel::ERR, "IocpSession::KeepSendData()", "wsabuf.buf == nullptr || wsabuf.len == 0");
 			Close();
 			Clear();
 			return;
@@ -47,10 +18,7 @@ void IocpSession::KeepSendData(size_t transferSize)
 
 		DWORD sendBytes;
 		DWORD flags = 0;
-		WSASend(
-			_socket, &wsabuf, 1, &sendBytes,
-			flags, _iocpData[IO_TYPE::WRITE].GetOverlappedPtr(), nullptr
-		);
+		WSASend(_socket, &wsabuf, 1, &sendBytes, flags, _iocpData[IO_TYPE::WRITE].GetOverlappedPtr(), nullptr);
 	}
 }
 
@@ -78,19 +46,17 @@ void IocpSession::SendData(std::vector<char> serializedPacket)
 	WSABUF wsabuf = _iocpData[IO_TYPE::WRITE].GetWSABuf();
 	if (wsabuf.buf == nullptr || wsabuf.len == 0)
 	{
+		g_logger.Log(LogLevel::ERR, "IocpSession::SendData()", "wsabuf.buf == nullptr || wsabuf.len == 0");
 		Close();
 		Clear();
 		return;
 	}
 
-	WSASend (
-		_socket, &wsabuf, 1, &sendBytes,
-		flags, _iocpData[IO_TYPE::WRITE].GetOverlappedPtr(), nullptr
-	);
-	
+	WSASend (_socket, &wsabuf, 1, &sendBytes, flags, _iocpData[IO_TYPE::WRITE].GetOverlappedPtr(), nullptr);
 	RecvTrigger();
 }
 
+// io처리 후, 다시 recv io를 걸어주는 함수.
 void IocpSession::RecvTrigger()
 {
 	DWORD flags = 0;
@@ -105,10 +71,7 @@ void IocpSession::RecvTrigger()
 	}
 
 	_lastHeartBeat.store(time(nullptr));
-	DWORD errorCode = WSARecv(
-		_socket, &wsabuf, 1, &recvBytes,
-		&flags, _iocpData[IO_TYPE::READ].GetOverlappedPtr(), nullptr
-	);
+	DWORD errorCode = WSARecv(_socket, &wsabuf, 1, &recvBytes, &flags, _iocpData[IO_TYPE::READ].GetOverlappedPtr(), nullptr);
 	INT32 errCode = WSAGetLastError();
 	if (errCode != ERROR_IO_PENDING && errorCode == SOCKET_ERROR)
 	{
@@ -117,4 +80,34 @@ void IocpSession::RecvTrigger()
 		Close();
 		return;
 	}
+}
+
+IocpSession::IocpSession(INT16 sessionId, SOCK_TYPE sessionType)
+: Session(sessionId, sessionType)
+{
+	_sockType = SOCK_TYPE::IOCP;
+	_iocpData[IO_TYPE::READ].SetIoType(IO_TYPE::READ);
+	_iocpData[IO_TYPE::WRITE].SetIoType(IO_TYPE::WRITE);
+}
+
+IocpSession::~IocpSession()
+{
+	Close();
+}
+
+void IocpSession::Close()
+{
+	Session::Close();
+}
+
+void IocpSession::Clear()
+{
+	Session::Clear();
+	_iocpData[IO_TYPE::READ].Clear();
+	_iocpData[IO_TYPE::WRITE].Clear();
+}
+
+INT32 IocpSession::GetId()
+{
+	return _idx;
 }

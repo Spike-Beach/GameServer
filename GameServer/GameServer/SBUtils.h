@@ -28,42 +28,7 @@ enum class GameStatus : UINT16
 };
 
 
-template <typename T>
-class ThreadJobQueue
-{
-public:
-	void Push(T data)
-	{
-		std::unique_lock<std::mutex> lock(_inputMutex);
-		_inputQueue->push(data);
-	}
-
-	std::optional<T> Pop()
-	{
-		if (_outputQueue->empty())
-		{
-			std::unique_lock<std::mutex> lock(_inputMutex);
-			std::swap(_inputQueue, _outputQueue);
-		}
-		if (_outputQueue->empty())
-		{
-			return nullptr;
-		}
-		T output = _outputQueue->front();
-		_outputQueue->pop();
-		return output;
-	}
-
-private:
-	std::mutex _inputMutex;
-	std::queue<T> _queueA;
-	std::queue<T> _queueB;
-	std::queue<T>* _inputQueue;
-	std::queue<T>* _outputQueue;
-};
-
 #define HIT_RADIUS_SQUAR 225 // HIT_RADIUS : 15
-
 class HitChecker
 {
 public:

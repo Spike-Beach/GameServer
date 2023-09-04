@@ -11,6 +11,7 @@ class GameLeaveRes : public Packet
 {
 public:
 	ErrorCode errorCode;
+
 	GameLeaveRes() : Packet(PacketId::GAME_LEAVE_RES) {}
 	std::vector<char> Serialize()
 	{
@@ -41,6 +42,7 @@ class GameLeaveNtf : public Packet
 {
 public:
 	INT16 userIdx;
+
 	GameLeaveNtf() : Packet(PacketId::GAME_LEAVE_NTF) {}
 	std::vector<char> Serialize()
 	{

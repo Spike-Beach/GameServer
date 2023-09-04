@@ -14,17 +14,14 @@ public:
 		size_t offset = Packet::Deserialize(buf, length);
 		
 		userAssignedId = std::string(buf + offset);
-		offset += userAssignedId.size() + 1; // +1 to skip the '\0' delimiter
+		offset += userAssignedId.size() + 1; // '\0'구분자 때문에 +1
 
-		// Parse token
 		token = std::string(buf + offset);
 		offset += token.size() + 1;
 
-		// Parse clientVersion
 		clientVersion = std::string(buf + offset);
 		offset += clientVersion.size() + 1;
 
-		// Parse gameId
 		gameId = *reinterpret_cast<INT32*>(buf + offset);
 		offset += sizeof(gameId);
 

@@ -1,4 +1,3 @@
-
 #include "pch.h"
 #include "IocpServer.h"
 #include "ServerConfigManager.h"
@@ -6,7 +5,10 @@
 std::atomic<bool> IocpServer::_isShutdown = false;
 
 IocpServer::IocpServer(std::shared_ptr<GameHandler> gameHandler)
-	: Server(std::move(gameHandler)) {}
+	: Server(std::move(gameHandler))
+{
+	_isShutdown.store(false);
+}
 
 IocpServer::~IocpServer()
 {
@@ -96,36 +98,31 @@ bool IocpServer::Run()
 
 void IocpServer::SetAcceptedSocket(SOCKET socket, SOCKADDR_IN addrInfo)
 {
-	std::shared_ptr<Session> session = SessionManager::Instance().GetEmptySession();
+	IocpSession* session = SessionManager::Instance().GetEmptySession();
 	if (session == nullptr)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpServer::SetAcceptedSocket()", "Not enough session");
 	}
-	else if (session->GetSockType() != SOCK_TYPE::IOCP)
-	{
-		g_logger.Log(LogLevel::ERR, "IocpServer::SetAcceptedSocket()", "Session type is not IOCP");
-	}
-	IocpSession* iocpSession = dynamic_cast<IocpSession*>(session.get());
-	iocpSession->Clear();
+	IocpSession* iocpSession = dynamic_cast<IocpSession*>(session);
 	iocpSession->Accept(socket, addrInfo);
 
 	HANDLE handle = CreateIoCompletionPort((HANDLE)socket, _iocpHandle, (ULONG_PTR)iocpSession, NULL);
 	if (handle == INVALID_HANDLE_VALUE)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpServer::SetAcceptedSocket()", "CreateIoCompletionPort() failed with error code: " + std::to_string(WSAGetLastError()));
-		iocpSession->Close();
-		iocpSession->Clear();
+		g_sessionManager.ReleaseSession(iocpSession->GetId(), true);
 	}
+
 	g_logger.Log(LogLevel::INFO, "IocpServer::SetAcceptedSocket()", "cient conn. sessionId: " + std::to_string(iocpSession->GetId()));
 	iocpSession->RecvTrigger();
 }
 
-DWORD WINAPI  IocpServer::AcceptThreadFunc(LPVOID serverPtr)
+DWORD WINAPI IocpServer::AcceptThreadFunc(LPVOID serverPtr)
 {
 	IocpServer* server = static_cast<IocpServer*>(serverPtr);
 	SOCKET acceptSocket;
 	SOCKADDR_IN recvAddrInfo;
-	_isShutdown.store(false);
+
 	int recvAddrInfoSize = sizeof(recvAddrInfo);
 	while (_isShutdown == false)
 	{
@@ -192,7 +189,6 @@ DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
 				}
 				break;
 			}
-
 		}
 	}
 	return 0;

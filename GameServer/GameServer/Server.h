@@ -1,10 +1,7 @@
 #pragma once
-
 #include <string>
 #include <memory>
 #include "GameHandler.h"
-
-class GameHandler;
 
 enum SERVER_STATUS
 {

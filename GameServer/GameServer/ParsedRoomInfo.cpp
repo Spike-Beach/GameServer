@@ -42,9 +42,6 @@ bool  ParsedRoomInfo::Parse(const std::string& infoStr)
 				allUserNicks = SplitData(infoStr.substr(startPos, endPos - startPos));
 				break;
 			}
-			/*case 'H':
-				hostUser = splitData(infoStr.substr(startPos, endPos - startPos));
-				break;*/
 			case 'A':
 			{
 				redTeamNicks = SplitData(infoStr.substr(startPos, endPos - startPos));
@@ -117,7 +114,7 @@ bool ParsedRoomInfo::CheckParsedInfo()
 	return true;
 }
 
-INT64 ParsedRoomInfo::findUserId(std::vector<std::string>& allNick, std::vector<INT64>& allIds, std::string nick) throw (std::runtime_error)
+INT64 ParsedRoomInfo::findUserId(std::vector<std::string>& allNick, std::vector<INT64>& allIds, std::string nick)
 {
 	for (INT64 i = 0; i < allNick.size(); i++)
 	{

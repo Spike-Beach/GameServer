@@ -13,7 +13,6 @@
 #include "Controll.h"
 #include "Sync.h"
 
-
 SpikeBeachGame::SpikeBeachGame()
 	:_gameStatus(GameStatus::EMPTY), _gameId(-1), _redScore(0), _blueScore(0), _leaveUserIdx(-1)
 {
@@ -197,8 +196,7 @@ bool SpikeBeachGame::UpdateLatency(INT64 userId, INT64 clientTime)
 	return false;
 }
 
-// true : score / false : no score
-bool SpikeBeachGame::PlayingSync()
+SyncResult SpikeBeachGame::PlayingSync()
 {
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
@@ -206,8 +204,7 @@ bool SpikeBeachGame::PlayingSync()
 	BallResult result = _ball.Sync(now);
 	if (_ball.Sync(now) != BallResult::NONE)
 	{
-		Score(result);
-		return true;
+		return Score(result);
 	}
 
 	for (size_t idx = 0; idx < 4; idx++)
@@ -215,18 +212,16 @@ bool SpikeBeachGame::PlayingSync()
 		if (_users[idx].second == nullptr)
 		{
 			g_logger.Log(LogLevel::ERR, "SpikeBeachGame::PlayingSync", "User is nullptr. user : " + std::to_string(_users[idx].first));
-			return false;
+			return SyncResult::ERR;
 		}
 		_users[idx].second->Sync(now);
 	}
 
 	_lastSyncTime = std::chrono::system_clock::now();
-	return false;
+	return SyncResult::NONE;
 }
 
-// 대기 시간이 지나면 유저들에게 통보 후 세션 해제 대기
-// 대기 시간이 지나지 않았고 모든 인원이 모였으면 게임 시작 신호 및 상태 변경
-bool SpikeBeachGame::WaitUserSync()
+SyncResult SpikeBeachGame::WaitUserSync()
 {
 	if (std::chrono::system_clock::now() > _waitDeadLine)
 	{
@@ -241,14 +236,14 @@ bool SpikeBeachGame::WaitUserSync()
 				g_sessionManager.ReleaseSession(_users[i].second->GetSessionId(), false);
 			}
 		}
-		return false;
+		return SyncResult::TIMEOVER;
 	}
 
 	for (size_t i = 0; i < 4; i++)
 	{
 		if (_users[i].second == nullptr)
 		{
-			return true;
+			return SyncResult::NONE;
 		}
 	}
 
@@ -267,15 +262,14 @@ bool SpikeBeachGame::WaitUserSync()
 	ResetToNewGame();
 
 	g_logger.Log(LogLevel::INFO, "WaitUserSync", std::to_string(_gameId) + "Game Start");
-	return true;
+	return SyncResult::NONE; // none
 }
 
-bool SpikeBeachGame::LeaveSync
-()
+SyncResult SpikeBeachGame::LeaveSync()
 {
 	if (_leaveUserIdx < 0)
 	{
-		return true;
+		return SyncResult::NONE; // none
 	}
 	std::unique_lock<std::shared_mutex> lock(_gameMutex);
 	if (_leaveUserIdx < 2)
@@ -286,7 +280,7 @@ bool SpikeBeachGame::LeaveSync
 	{
 		BlueWin();
 	}
-	return true;
+	return SyncResult::SOMEONELEAVE; // someoneLeave
 }
 
 void SpikeBeachGame::NoticeInGame(std::vector<char>&& notify)
@@ -300,7 +294,7 @@ void SpikeBeachGame::NoticeInGame(std::vector<char>&& notify)
 	}
 }
 
-bool SpikeBeachGame::Score(BallResult ballResult)
+SyncResult SpikeBeachGame::Score(BallResult ballResult)
 {
 	if (ballResult == BallResult::SCORE_RED)
 	{ 
@@ -308,7 +302,7 @@ bool SpikeBeachGame::Score(BallResult ballResult)
 		if (_redScore >= 3) // TODO
 		{ 
 			RedWin();
-			return true;
+			return SyncResult::GAMEFIN;
 		}
 	}
 	else if (ballResult == BallResult::SCORE_BLUE)
@@ -317,7 +311,7 @@ bool SpikeBeachGame::Score(BallResult ballResult)
 		if(_blueScore >= 3) // TODO
 		{ 
 			BlueWin(); 
-			return true;
+			return SyncResult::GAMEFIN;
 		}
 	}
 
@@ -329,7 +323,7 @@ bool SpikeBeachGame::Score(BallResult ballResult)
 	_roundStartTime = std::chrono::system_clock::now() + std::chrono::seconds(ROUND_COUNT_DOWN_SEC);
 	// TODO : 결과 패킷 공지
 	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::PlayingSync", std::to_string(_gameId) + " Game score is");
-	return true;
+	return SyncResult::NONE;
 }
 
 void SpikeBeachGame::RedWin()

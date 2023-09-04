@@ -28,7 +28,6 @@ public:
 	virtual size_t Deserialize(char* buf, size_t len)
 	{
 		size_t offset = Packet::Deserialize(buf, len);
-		//std::copy(buf + offset, buf + offset + sizeof(syncReqTime), &syncReqTime);
 		syncReqTime = *reinterpret_cast<INT64*>(buf + offset);
 		offset += sizeof(syncReqTime);
 		return offset;

@@ -1,5 +1,5 @@
 #pragma once
-#include "Session.h"
+#include "IocpSession.h"
 
 #define g_sessionManager SessionManager::Instance()
 
@@ -9,13 +9,13 @@ public:
 	SessionManager();
 	~SessionManager();
 	void Init();
-	std::shared_ptr<Session> GetEmptySession();
+	IocpSession* GetEmptySession();
 	std::list<INT32> GetTimeOverSessionList();
-	void SendData(INT32 idx, std::vector<char> serializedPacket);
 	bool ReleaseSession(INT32 idx, bool isForse);
-	INT32 ClientSessionCap();
+	void SendData(INT32 idx, std::vector<char> serializedPacket);
+
 private:
-	std::vector<std::shared_ptr<Session> > _sessions;
+	std::vector<IocpSession> _sessions;
 	std::stack<INT32> _emptySessionIndexStack;
 	std::mutex _mutex;
 	INT32 _sessionNum;

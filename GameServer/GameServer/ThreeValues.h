@@ -1,6 +1,5 @@
 #pragma once
 
-#pragma pack(push,1)
 class ThreeValues
 {
 public:
@@ -27,4 +26,3 @@ public:
 	virtual std::vector<char> Serialize();
 	virtual size_t Deserialize(char* buf, size_t len);
 };
-#pragma pack(pop)

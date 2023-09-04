@@ -4,11 +4,15 @@
 #include "Ball.h"
 
 #define WAIT_SEC 30
-#define ROUND_COUNT_DOWN_SEC 1
+#define ROUND_COUNT_DOWN_SEC 5
 
-class Map
+enum class SyncResult : INT16
 {
-
+	ERR = -1,
+	NONE = 0,
+	GAMEFIN = 1,
+	TIMEOVER = 4,
+	SOMEONELEAVE = 5
 };
 
 class SpikeBeachGame
@@ -27,9 +31,9 @@ public:
 	bool Controll(INT64 userId, INT64 ctlTime, Acceleration acc);
 	bool UpdateLatency(INT64 userId, INT64 clientTime);
 
-	bool PlayingSync();
-	bool WaitUserSync();
-	bool LeaveSync();
+	SyncResult PlayingSync();
+	SyncResult WaitUserSync();
+	SyncResult LeaveSync();
 	
 	void NoticeInGame(std::vector<char>&& notify);
 private:
@@ -44,6 +48,7 @@ private:
 	std::chrono::system_clock::time_point _gameStartTime;
 	std::chrono::system_clock::time_point _roundStartTime;
 	
+	// 패킷의 synctime이 _packetGenTime보다 과거이면 새로 패킷을 만들고 갱신.
 	std::shared_mutex _syncPacketMutex;
 	std::chrono::system_clock::time_point _packetGenTime;
 	std::vector<char> _serializedSyncPacket;
@@ -52,9 +57,9 @@ private:
 	INT16 _redScore;
 	INT16 _blueScore;
 	size_t _leaveUserIdx;
-	std::chrono::system_clock::time_point _lastSyncTime; // 패킷의 synctime이 _lastSyncTime보다 과거이면 새로 패킷을 만들고 갱신.
+	std::chrono::system_clock::time_point _lastSyncTime; 
 
-	bool Score(BallResult scoreResult);
+	SyncResult Score(BallResult scoreResult);
 	void RedWin();
 	void BlueWin();
 	INT16 FindUser(INT64 userId, SBUser** userPtr);

@@ -72,63 +72,8 @@ void GameObj::Reset()
 
 void GameObj::Reset(float posX, float posY, float posZ)
 {
-	//std::get<0>(_motionData).x = posX;
-	//std::get<0>(_motionData).y = posY;
-	//std::get<0>(_motionData).z = posZ;
-	//std::get<1>(_motionData).x = 0;
-	//std::get<1>(_motionData).y = 0;
-	//std::get<1>(_motionData).z = 0;
-	//std::get<2>(_motionData).x = 0;
-	//std::get<2>(_motionData).y = 0;
-	//std::get<2>(_motionData).z = 0;
 	_motionData = { {posX, posY, posZ}, {0, 0, 0}, {0, 0, 0} };;
 };
-
-//void GameObj::setPosition(const Position& position)
-//{
-//	std::unique_lock<std::shared_mutex> lock(_objMutex);
-//	std::get<0>(_motionData) = position;
-//}
-//
-//void GameObj::setPosition(float x, float y, float z)
-//{
-//	std::unique_lock<std::shared_mutex> lock(_objMutex);
-//	//std::get<0>(_motionData) = { x, y, z };
-//	std::get<0>(_motionData).x = x;
-//	std::get<0>(_motionData).y = y;
-//	std::get<0>(_motionData).z = z;
-//}
-//
-//void GameObj::setVelocity(const Velocity& velocity)
-//{
-//	std::unique_lock<std::shared_mutex> lock(_objMutex);
-//	std::get<1>(_motionData) = velocity;
-//}
-//
-//void GameObj::setVelocity(float x, float y, float z)
-//{
-//	std::unique_lock<std::shared_mutex> lock(_objMutex);
-//	//std::get<1>(_motionData) = { x, y, z };
-//	std::get<1>(_motionData).x = x;
-//	std::get<1>(_motionData).y = y;
-//	std::get<1>(_motionData).z = z;
-//}
-//
-//void GameObj::setAcceleration(const Acceleration& acceleration)
-//{
-//	std::unique_lock<std::shared_mutex> lock(_objMutex);
-//	std::get<2>(_motionData) = acceleration;
-//}
-//
-//void GameObj::setAcceleration(float x, float y, float z)
-//{
-//	std::unique_lock<std::shared_mutex> lock(_objMutex);
-//	//std::get<2>(_motionData) = { x, y, z }; 
-//	std::get<2>(_motionData).x = x;
-//	std::get<2>(_motionData).y = y;
-//	std::get<2>(_motionData).z = z;
-//} 공 : 전달받는 값 - 시간, 위치, 속도 / 가지고 있을 값 : 각 모션이 가능한 시간 계산.
-// 가지고 있는 값을 바탕으로 공을 칠 수 있는 지 판단. + 서버가 스파이크, ~~할 수 있는 시간대 인지 파악
 
 void GameObj::Controll(std::chrono::system_clock::time_point ctlTime, const Acceleration& acceleration)
 {
@@ -179,7 +124,6 @@ void GameObj::UpdateLatency(INT64 clientTime)
 {
 	INT64 nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	std::unique_lock<std::shared_mutex> lock(_objMutex);
-	//_latency = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - ctlTime).count();
 	g_logger.Log(LogLevel::INFO, "GameObj::UpdateLatency", "now:" + std::to_string(nowMs) + "/ clie:" + std::to_string(clientTime));
 	_latency = nowMs - clientTime;
 }

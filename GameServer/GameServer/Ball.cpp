@@ -49,9 +49,9 @@ bool Ball::CheckHitable(SBUser* user, SysTp hitTime, INT16 hitType)
 		return false;
 	}
 	// TODO
-	float syncElapsed = std::chrono::duration<float>(user->GetLastSyncTime() - _hitTime).count();
+	float syncElapsed = std::chrono::duration<float>(_hitTime - user->GetLastSyncTime()).count();
 	Position syncPos = user->getPosition();
-	//syncPos.CalNewPosition(user->getVelocity(), syncElapsed.count());
+	syncPos.CalNewPosition(user->getVelocity(), syncElapsed);
 	return _hitTypes[hitType].CheckInFrame(hitTime, syncPos);
 }
 
@@ -66,8 +66,7 @@ BallResult Ball::Sync(SysTp syncTime)
 	std::chrono::duration<float> syncElapsed = duration_cast<std::chrono::duration<float>>(syncTime - _hitTime);
 	if (syncElapsed.count() >= _fallenElapsedTime)
 	{	
-		// 레드가 실수
-		if ((_lastHitterIdx < 2 && (_fallenArea == CourtArea::OUT_OF_BOUNCE || _fallenArea == CourtArea::RED_AREA))
+		if ((_lastHitterIdx < 2 && (_fallenArea == CourtArea::OUT_OF_BOUNCE || _fallenArea == CourtArea::RED_AREA)) // 레드가 실수
 			|| (_lastHitterIdx >= 2 && _fallenArea == CourtArea::RED_AREA)) // 블루가 잘 쳐서 득점한 상홤
 		{
 			return BallResult::SCORE_BLUE;
@@ -81,7 +80,6 @@ BallResult Ball::Sync(SysTp syncTime)
 
 void Ball::CalFallen(Position pos, Velocity vel, SysTp hitTime)
 {
-	// Using the equation: time = sqrt((2 * distance) / acceleration)
 	_fallenElapsedTime = std::sqrt((2 * pos.z) / G); // TODO 게임 상 높이 0이 바닥이 아니니 필요시 수정.
 	Position fallPos(pos.x + vel.x * _fallenElapsedTime, pos.y + vel.y * _fallenElapsedTime, 0);
 	_fallenArea = Court::CheckAreaInCourt(fallPos);
