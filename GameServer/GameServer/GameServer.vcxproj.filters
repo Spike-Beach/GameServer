@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="DBMysql">
-      <UniqueIdentifier>{237dbd6e-c8a8-49b8-a367-4328fe80ebd8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tasks">
       <UniqueIdentifier>{b3ff27bd-bc32-4f04-8574-2ff905d852b0}</UniqueIdentifier>
     </Filter>
@@ -12,9 +9,6 @@
     </Filter>
     <Filter Include="Session">
       <UniqueIdentifier>{a8efb47c-68ac-41a4-a702-4582c1a07057}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ServerCore">
-      <UniqueIdentifier>{31eaea85-cfbc-483b-985a-c87b11a7e293}</UniqueIdentifier>
     </Filter>
     <Filter Include="Packets">
       <UniqueIdentifier>{86b01c6c-199c-4c5f-bfa7-1dbfac2cc0be}</UniqueIdentifier>
@@ -39,6 +33,9 @@
     </Filter>
     <Filter Include="SpikeBeach\utils">
       <UniqueIdentifier>{05af5cb6-3f62-4150-8e05-f8379cb5bc46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Server">
+      <UniqueIdentifier>{31eaea85-cfbc-483b-985a-c87b11a7e293}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,10 +75,10 @@
       <Filter>Session</Filter>
     </ClInclude>
     <ClInclude Include="Server.h">
-      <Filter>ServerCore</Filter>
+      <Filter>Server</Filter>
     </ClInclude>
     <ClInclude Include="IocpServer.h">
-      <Filter>ServerCore</Filter>
+      <Filter>Server</Filter>
     </ClInclude>
     <ClInclude Include="PacketId.h">
       <Filter>Packets\PacketBases</Filter>
@@ -217,10 +214,10 @@
       <Filter>Session</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
-      <Filter>ServerCore</Filter>
+      <Filter>Server</Filter>
     </ClCompile>
     <ClCompile Include="IocpServer.cpp">
-      <Filter>ServerCore</Filter>
+      <Filter>Server</Filter>
     </ClCompile>
     <ClCompile Include="Package.cpp">
       <Filter>Packets\PacketBases</Filter>
