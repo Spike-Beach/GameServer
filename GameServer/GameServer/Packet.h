@@ -1,6 +1,4 @@
 #pragma once
-
-//#include "IocpData.h" 순환참조
 #define PACKET_SIZE 2 * sizeof(INT32)
 
 class Packet

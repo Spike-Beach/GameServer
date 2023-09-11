@@ -7,8 +7,6 @@
 #include "GameEnter.h"
 #include "SBUser.h"
 
-class SBUser;
-
 SBUserCheckNSet::SBUserCheckNSet()
 {
 	_ip = g_config.config["ConnectionStrings"]["SessionDb"]["Ip"].asString();
@@ -24,7 +22,6 @@ void SBUserCheckNSet::Do()
 {
 	// FOT TEST
 	static INT64 XXX_TEST_ID_XXX = 0;
-	//static INT32 XXX_ROOM_ID_XXX = 0;
 
 	GameEnterRes res;
 	res.errorCode = ErrorCode::SessionError;
@@ -90,15 +87,12 @@ void SBUserCheckNSet::Do()
 			{
 				userArray[i]->SetUserId(XXX_TEST_ID_XXX);
 				userArray[i]->SetUserNickname(std::string("TEST_NICK") + std::to_string(XXX_TEST_ID_XXX));
-				//userArray[i]->SetUser(std::string("TEST_ASSIGNED_ID") + std::to_string(XXX_TEST_ID_XXX), "token", XXX_ROOM_ID_XXX);
 				userArray[i]->SetUser(std::string("TEST_ASSIGNED_ID") + std::to_string(XXX_TEST_ID_XXX), "token", user->GetGameId());
 				++XXX_TEST_ID_XXX;
 			}
 
-			//"\tI 4326\tT TestRoom\tU gyeon2 gyeon4 gyeon gyeon3\tA gyeon4 gyeon2\tB gyeon3 gyeon\tu 2 4 1 3"
-			//std::string testRoomInfoStr = std::string("\tI ") + std::to_string(XXX_ROOM_ID_XXX) + "\tT TestRoom" + std::to_string(XXX_ROOM_ID_XXX) + "\tU ";
+			//gen string:"\tI 4326\tT TestRoom\tU gyeon2 gyeon4 gyeon gyeon3\tA gyeon4 gyeon2\tB gyeon3 gyeon\tu 2 4 1 3"
 			std::string testRoomInfoStr = std::string("\tI ") + std::to_string(user->GetGameId()) + "\tT TestRoom" + std::to_string(user->GetGameId()) + "\tU ";
-			//++XXX_ROOM_ID_XXX;
 			for (int i = 0; i < 4; i++)
 			{
 				testRoomInfoStr += userArray[i]->GetNickName() + " ";
@@ -108,15 +102,27 @@ void SBUserCheckNSet::Do()
 			{
 				testRoomInfoStr += std::to_string(userArray[i]->GetId()) + " ";
 			}
-			g_SBManager.SetGame(testRoomInfoStr);
+			if (g_SBManager.SetGame(testRoomInfoStr) == false)
+			{
+				g_logger.Log(LogLevel::ERR, "UserCheckNSet", std::to_string(user->GetId()) +  " User Game Set Game : " + std::to_string(user->GetGameId()));
+				g_sessionManager.ReleaseSession(userArray[0]->GetSessionId(), true);
+			}
 
 			for (int i = 0; i < 4; i++)
 			{
-				if (g_SBManager.UserEnterGame(user->GetGameId(), userArray[i]) == true)
+				res.userIndex = g_SBManager.UserEnterGame(user->GetGameId(), userArray[i]);
+				if (res.userIndex >= 0)
 				{
 					res.errorCode = ErrorCode::GameEnterSuccess;
 				}
+				else // 이미 로그 남겼음
+				{
+					res.errorCode = ErrorCode::InvalidGame;
+					g_sessionManager.ReleaseSession(userArray[0]->GetSessionId(), true);
+					g_logger.Log(LogLevel::ERR, "UserCheckNSet 2!!!", std::to_string(user->GetId()) + " User Game Set Game : " + std::to_string(user->GetGameId()));
+				}
 			}
+			res.userIndex = 0;
 			g_sessionManager.SendData(user->GetSessionId(), res.Serialize());
 			return;
 		}

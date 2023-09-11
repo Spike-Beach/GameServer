@@ -1,10 +1,7 @@
 #pragma once
-
 #include <string>
 #include <memory>
 #include "GameHandler.h"
-
-class GameHandler;
 
 enum SERVER_STATUS
 {
@@ -26,7 +23,5 @@ protected:
 	INT32 _port;
 	SERVER_STATUS _status;
 	std::shared_ptr<GameHandler> _gameHandler;
-
-private:
 };
 

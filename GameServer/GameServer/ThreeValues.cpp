@@ -92,18 +92,19 @@ float ThreeValues::GetMagnitude()
 	return std::sqrtf(std::powf(x, 2) + std::powf(y, 2) + std::powf(z, 2));
 }
 
-std::optional<ThreeValues> ThreeValues::GetNomal()
+ThreeValues ThreeValues::GetNomal()
 {
 	ThreeValues temp(*this);
-	if (std::abs(x) < EPSILON && std::abs(y) < EPSILON && std::abs(z) < EPSILON)
+	float magnitude = std::sqrtf(std::powf(x, 2) + std::powf(y, 2) + std::powf(z, 2));
+	if (magnitude > EPSILON)
 	{
-		return std::nullopt;
+		temp.ScalarDiv(magnitude);
 	}
 	else
 	{
-		temp.ScalarDiv(GetMagnitude());
-		return temp;
+		temp.ScalarMul(0);
 	}
+	return temp;
 }
 
 bool ThreeValues::IsZero()

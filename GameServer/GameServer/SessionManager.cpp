@@ -12,10 +12,9 @@ SessionManager::SessionManager()
 
 SessionManager::~SessionManager()
 {
-	for (auto session : _sessions)
+	for (size_t i = 0; i < _sessions.size(); i++)
 	{
-		session->Close();
-		session.reset();
+		_sessions[i].Close();
 	}
 }
 
@@ -27,13 +26,12 @@ void SessionManager::Init()
 	_sessions.reserve(_sessionNum);
 	for (size_t idx = 0; idx < _sessionNum; idx++)
 	{
-		auto session = std::make_shared<IocpSession>(sessionIdx++, SOCK_TYPE::IOCP);
-		_sessions.push_back(session);
+		_sessions.push_back(IocpSession(sessionIdx++, SOCK_TYPE::IOCP));
 		_emptySessionIndexStack.push(idx);
 	}
 }
 
-std::shared_ptr<Session> SessionManager::GetEmptySession()
+IocpSession* SessionManager::GetEmptySession()
 {
 	std::unique_lock<std::mutex> lock(_mutex);
 	if (_emptySessionIndexStack.empty())
@@ -42,16 +40,16 @@ std::shared_ptr<Session> SessionManager::GetEmptySession()
 	}
 	auto sessionIdx = _emptySessionIndexStack.top();
 	_emptySessionIndexStack.pop();
-	return _sessions[sessionIdx];
+	return &_sessions[sessionIdx];
 }
 
 std::list<INT32> SessionManager::GetTimeOverSessionList()
 {
 	INT32 timeOverSessionId = -1;
 	std::list<INT32> timeOverSessionList;
-	for (auto sessionPtr : _sessions)
+	for (size_t i = 0; i < _sessions.size(); i++)
 	{
-		timeOverSessionId = sessionPtr.get()->CheckTimeOver();
+		timeOverSessionId = _sessions[i].CheckTimeOver();
 		if (timeOverSessionId != -1)
 		{
 			timeOverSessionList.push_back(timeOverSessionId);
@@ -74,7 +72,7 @@ void SessionManager::SendData(INT32 idx, std::vector<char> serializedPacket)
 		g_logger.Log(LogLevel::ERR, "SessionManager::SendData", "Invalid session index - " + std::to_string(idx));
 		return;
 	}
-	else if (_sessions[idx]->GetStatus() != SESSION_STATUS::CONN)
+	else if (_sessions[idx].GetStatus() != SESSION_STATUS::CONN)
 	{
 		return;
 	}
@@ -83,14 +81,8 @@ void SessionManager::SendData(INT32 idx, std::vector<char> serializedPacket)
 		g_logger.Log(LogLevel::ERR, "SessionManager::SendData", "serializedPacket.size() == 0");
 		return;
 	}
-	_sessions[idx]->SendData(serializedPacket);
+	_sessions[idx].SendData(serializedPacket);
 }
-
-//void SessionManager::SendData(INT32 idx, std::vector<char>& serializedPacket)
-//{
-//	std::vector<char> temp(serializedPacket);
-//	SendData(idx, std::move(temp));
-//}
 
 bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 {
@@ -120,19 +112,14 @@ bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 	}
 	if (isForse == true)
 	{
-		_sessions[sessionIdx]->Close();
-		_sessions[sessionIdx]->Clear();
+		_sessions[sessionIdx].Close();
+		_sessions[sessionIdx].Clear();
 		_emptySessionIndexStack.push(sessionIdx);
 	}
 	else
 	{
-		_sessions[sessionIdx]->WaitSelfDisconnect();
+		_sessions[sessionIdx].WaitSelfDisconnect();
 	}
 
 	return true;
-}
-
-INT32 SessionManager::ClientSessionCap()
-{
-	return _sessionNum;
 }

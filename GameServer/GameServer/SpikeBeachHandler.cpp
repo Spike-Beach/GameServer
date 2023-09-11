@@ -61,7 +61,6 @@ void SpikeBeachHandler::SyncGame(Package package)
 	SBUser* user = g_SBUserManager.GetUserBySessionId(package.sessionId);
 	if (user == nullptr)
 	{
-		//g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::SyncGame", "User is not exist");
 		return;
 	}
 	SyncReq req;
@@ -85,12 +84,10 @@ void SpikeBeachHandler::SyncGame(Package package)
 	SpikeBeachGame* game = g_SBManager.GetGame(user->GetGameId());
 	if (game == nullptr)
 	{
-		//g_logger.Log(LogLevel::ERR, "SpikeBeachHandler::SyncGame", "Game is not exist");
 		return;
 	}
-	game->UpdateLatency(user->GetId(), req.syncReqTime);
-	g_logger.Log(LogLevel::INFO, "SpikeBeachHandler::SyncGame", "Sync Req user: " + std::to_string(user->GetId()));
-	g_sessionManager.SendData(package.sessionId, game->GetSerialiedSyncPacket());
+	game->SetUserTimes(user->GetId(), req.syncReqTime, req.tts);
+	g_sessionManager.SendData(package.sessionId, game->GetSerializedSyncPacket(user->GetId()));
 }
 
 void SpikeBeachHandler::ControllGame(Package package)
@@ -109,7 +106,7 @@ void SpikeBeachHandler::ControllGame(Package package)
 		return;
 	}
 	req.Deserialize(&package._buffer[0], package._buffer.size());
-	game->Controll(user->GetId(), req.controllTime, req.contollAcc);
+	game->Controll(user->GetId(), req.xCtl, req.yCtl);
 }
 
 bool SpikeBeachHandler::IsRuning()

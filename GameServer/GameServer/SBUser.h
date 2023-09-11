@@ -4,50 +4,28 @@
 class SBUser : public GameObj
 {
 public:
-	SBUser() :_id(-1), _sessionId(-1), _token(""), _assignedId(""), _nickName("") {}
-	SBUser(const SBUser& other) : _id(other._id), _sessionId(other._sessionId), _token(other._token), _assignedId(other._assignedId), _nickName(other._nickName) {}
-	bool CheckToken(std::string requredToken)
-	{
-		return _token == requredToken;
-	}
+	SBUser(const SBUser& other);
+	void Clear();
+	bool CheckToken(std::string requredToken);
 
-	void SetUser(const std::string& assignedId, const std::string& token, INT32 gameId)
-	{
-		//_id = id;
-		_assignedId = assignedId;
-		_token = token;
-		_gameId = gameId;
-	}
+	INT64 GetId();
+	INT64 GetSessionId();
+	std::string GetToken();
+	std::string GetAssignedId();
+	std::string GetNickName();
+	INT32 GetGameId();
+	
+	void SetUser(const std::string& assignedId, const std::string& token, INT32 gameId);
+	void SetUserId(INT64 id);
+	void SetUserNickname(const std::string& nickname);
 
-	void SetUserId(INT64 id)
-	{
-		_id = id;
-	}
-
-	void SetUserNickname(const std::string& nickname)
-	{
-		_nickName = nickname;
-	}
-
-	void Clear()
-	{
-		_id = -1;
-		_sessionId = -1;
-		_token.clear();
-		_assignedId.clear();
-	}
-
-	INT64 GetId() { return _id; }
-	INT64 GetSessionId() { return _sessionId; }
-	std::string GetToken() { return _token; }
-	std::string GetAssignedId() { return _assignedId; }
-	std::string GetNickName() { return _nickName; }
-	INT32 GetGameId() { return _gameId; }
-
-	friend class SBUserManager;
 private:
+	// friend를 이용해서 SBUserManager만이 생성 및 세션 할당할 수 있게 함.
+	friend class SBUserManager;
+	SBUser();
+
 	INT64 _id;
-	INT64 _sessionId; // Only SBUserManager write
+	INT64 _sessionId;
 
 	std::string _token;
 	std::string _assignedId;

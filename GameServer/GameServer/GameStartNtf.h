@@ -3,9 +3,10 @@
 class GameStartNtf : public Packet
 {
 public:
-	GameStartNtf() : Packet(PacketId::GAME_START_NTF) {}
 	INT64 gameStartTime;
 	std::array<std::string, 4> nickNames;
+	
+	GameStartNtf() : Packet(PacketId::GAME_START_NTF) {}
 
 	std::vector<char> Serialize()
 	{

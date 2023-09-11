@@ -12,7 +12,7 @@ public:
 	bool Init();
 
 	bool SetGame(std::string gameInfoStr);
-	bool UserEnterGame(INT32 roomId, SBUser* user);
+	INT16 UserEnterGame(INT32 roomId, SBUser* user);
 	bool UserLeaveGame(INT32 roomId, SBUser* user);
 	SpikeBeachGame* GetGame(INT32 roomId);
 	void SyncGames();
@@ -25,7 +25,7 @@ private:
 	std::vector<SpikeBeachGame> _gamePool;
 	
 	std::stack<SpikeBeachGame*> _emptyGames;
-	// room id 2 game
+	// room id - game
 	std::unordered_map<INT32, SpikeBeachGame*> _runningGames;
 	std::mutex _runningGameMutex;
 	INT32 _poolSize;

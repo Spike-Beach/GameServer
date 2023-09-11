@@ -4,8 +4,7 @@
 
 class HittableRequest : public Packet
 {
-public:
-	HittableRequest
+
 };
 
 class HittableResponse : public Packet

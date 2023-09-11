@@ -2,7 +2,8 @@
 #include "TaskProcesser.h"
 
 TaskProcesser::TaskProcesser(INT32 ProcesserId)
-	: _idx(ProcesserId), _isShutdown(false) {}
+	: _idx(ProcesserId), _isShutdown(false) 
+{}
 
 TaskProcesser::~TaskProcesser()
 {

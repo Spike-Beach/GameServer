@@ -52,8 +52,7 @@ bool SBManager::SetGame(std::string infoStr)
 	}
 }
 
-// content단에서 입장 못할시 처리.
-bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
+INT16 SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 {
 	auto iter = _runningGames.find(roomId);
 	if (iter != _runningGames.end())
@@ -61,7 +60,7 @@ bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 		return iter->second->UserIn(user);
 	}
 	g_logger.Log(LogLevel::ERR, "SBManager::UserEnterGame", "Not found roomId : " + std::to_string(roomId));
-	return false;
+	return -1;
 }
 
 bool SBManager::UserLeaveGame(INT32 roomId, SBUser* user)
@@ -98,7 +97,7 @@ void SBManager::SyncGames()
 		status = runningGame.second->GetStatus();
 		if (status == GameStatus::WAITING)
 		{
-			if (runningGame.second->WaitUserSync() == false)
+			if (runningGame.second->WaitUserSync() != SyncResult::NONE)
 			{
 				runningGame.second->Clear();
 				makeEmptyGameStack.push(runningGame.first);
@@ -106,7 +105,7 @@ void SBManager::SyncGames()
 		}
 		else if (status == GameStatus::PLAYING)
 		{
-			if (runningGame.second->PlayingSync() == true) // 게임이 끝났다면
+			if (runningGame.second->PlayingSync() != SyncResult::NONE)
 			{
 				runningGame.second->Clear();
 				makeEmptyGameStack.push(runningGame.first);

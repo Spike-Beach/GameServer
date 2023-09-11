@@ -18,14 +18,11 @@ public:
     OVERLAPPED* GetOverlappedPtr();
     char* GetBufPtr();
     void Clear();
-
     void SetIoType(IO_TYPE ioType);
-    bool IsNeedMoreIo(size_t transferSize);
 
-    // for recv
-    Package ReadPacketFromBuf();
-    // for send
-    bool WriteToBuf(std::vector<char> serializedPacket);
+    bool IsNeedMoreIo(size_t transferSize); // keep io or not
+    Package ReadPacketFromBuf(); // for recv
+    bool WriteToBuf(std::vector<char> serializedPacket); // for send
 private:   
     OVERLAPPED _overlapped;
     IO_TYPE _ioType;

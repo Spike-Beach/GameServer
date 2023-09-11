@@ -7,12 +7,14 @@ SBUserManager::SBUserManager()
 {
 	Init();
 }
+
 void SBUserManager::Init()
 {
 	_userNum = g_config.config["GameSettings"]["GameUserCount"].asInt();
-	_userPool.resize(_userNum);
+	_userPool.reserve(_userNum);
 	for (int i = 0; i < _userNum; ++i)
 	{
+		_userPool.push_back(SBUser());
 		_emptyUsers.push(&_userPool[i]);
 	}
 }

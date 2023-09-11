@@ -25,6 +25,12 @@ Acceleration Acceleration::operator-(const Acceleration& other) const
 	return temp;
 }
 
+Acceleration Acceleration::operator*(const float& scalar) const
+{
+	Acceleration temp(x * scalar, y * scalar, z * scalar);
+	return temp;
+}
+
 Acceleration& Acceleration::operator+=(const Acceleration& other)
 {
 	(*this) = (*this) + other;
@@ -40,7 +46,15 @@ Acceleration& Acceleration::operator-=(const Acceleration& other)
 Acceleration Acceleration::GetNomalAcc()
 {
 	Acceleration temp(*this);
-	temp.ScalarDiv(std::sqrtf(std::powf(x, 2) + std::powf(y, 2) + std::powf(z, 2)));
+	float magnitude = std::sqrtf(std::powf(x, 2) + std::powf(y, 2) + std::powf(z, 2));
+	if (magnitude > EPSILON)
+	{
+		temp.ScalarDiv(magnitude);
+	}
+	else
+	{
+		temp.ScalarMul(0);
+	}
 	return temp;
 }
 

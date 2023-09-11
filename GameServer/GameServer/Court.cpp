@@ -27,14 +27,12 @@ CourtArea Court::CheckAreaInCourt(Position pos)
 		return CourtArea::OUT_OF_BOUNCE;
 	}
 
-	//bool outside2 = ((pos.y - corner2.y) * (corner4.x - corner2.x) - (corner4.y - corner2.y) * (pos.x - corner2.x)) < 0;
 	bool outside2 = ((pos.y - corner2.y) * (corner4.x - corner2.x) - (corner4.y - corner2.y) * (pos.x - corner2.x)) > 0;
 	if (outside2 == true)
 	{
 		return CourtArea::OUT_OF_BOUNCE;
 	}
 
-	//bool outside3 = ((pos.y - corner4.y) * (corner3.x - corner4.x) - (corner3.y - corner4.y) * (pos.x - corner4.x)) < 0;
 	bool outside3 = ((pos.y - corner4.y) * (corner3.x - corner4.x) - (corner3.y - corner4.y) * (pos.x - corner4.x)) > 0;
 	if (outside3 == true)
 	{

@@ -14,17 +14,14 @@ public:
 		size_t offset = Packet::Deserialize(buf, length);
 		
 		userAssignedId = std::string(buf + offset);
-		offset += userAssignedId.size() + 1; // +1 to skip the '\0' delimiter
+		offset += userAssignedId.size() + 1; // '\0'구분자 때문에 +1
 
-		// Parse token
 		token = std::string(buf + offset);
 		offset += token.size() + 1;
 
-		// Parse clientVersion
 		clientVersion = std::string(buf + offset);
 		offset += clientVersion.size() + 1;
 
-		// Parse gameId
 		gameId = *reinterpret_cast<INT32*>(buf + offset);
 		offset += sizeof(gameId);
 
@@ -58,15 +55,16 @@ class GameEnterRes : Packet
 public:
 	GameEnterRes() : Packet(PacketId::GAME_ENTER_RES) {}
 	ErrorCode errorCode;
+	INT16 userIndex;
 	std::vector<char> Serialize()
 	{
-		packetLength = sizeof(packetId) + sizeof(packetLength) + sizeof(errorCode);
+		packetLength = sizeof(packetId) + sizeof(packetLength) + sizeof(errorCode) + sizeof(userIndex);
 		
 		std::vector<char> serialized = Packet::Serialize();
 		
 		char* tempPtr = reinterpret_cast<char*>(&errorCode);
-		serialized.insert(serialized.end(), tempPtr, tempPtr + sizeof(errorCode));
-		
+		serialized.insert(serialized.end(), reinterpret_cast<char*>(&errorCode), reinterpret_cast<char*>(&errorCode) + sizeof(errorCode));
+		serialized.insert(serialized.end(), reinterpret_cast<char*>(&userIndex), reinterpret_cast<char*>(&userIndex) + sizeof(userIndex));
 		return serialized;
 	}
 
@@ -76,6 +74,8 @@ public:
 		
 		errorCode = *reinterpret_cast<ErrorCode*>(buf + offset);
 		offset += sizeof(errorCode);
+		userIndex = *reinterpret_cast<INT16*>(buf + offset);
+		offset += sizeof(userIndex);
 		return offset;
 	}
 };

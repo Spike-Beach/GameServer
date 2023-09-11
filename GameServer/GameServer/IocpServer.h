@@ -16,9 +16,8 @@ private:
 	bool SetListenSocket();
 	void SetAcceptedSocket(SOCKET accepter, SOCKADDR_IN addrInfo);
 
-	// 전역 싱글턴을 사용하기 위해 static으로 선언
-	static DWORD WINAPI AcceptThreadFunc(LPVOID serverPtr);
-	static DWORD WINAPI WorkerThreadFunc(LPVOID serverPtr);
+	static DWORD WINAPI AcceptThreadFunc(void* serverPtr);
+	static DWORD WINAPI WorkerThreadFunc(void* serverPtr);
 
 	SOCKET _listenSocket;
 	HANDLE _iocpHandle;
