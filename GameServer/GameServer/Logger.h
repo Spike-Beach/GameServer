@@ -16,15 +16,16 @@ class Logger : public Singleton<Logger>
 {
 public:
 	void Log(LogLevel level, const std::string& callLocation, const std::string& msg);
-	void PrintLogMsg();
+	void PrintLogMsg(); // for task
 
+	std::string GenNowTimeStr();
+	std::string GenNowTimeStr(std::chrono::system_clock::time_point tp);
 private:
 	std::mutex _queueMutex;
-	std::condition_variable condition;
 	std::queue<std::string> waitingLogQueue;
+
 	std::queue<std::string> writingLogQueue;
 
-	std::string GenTimeStr();
 	std::string GetLogLevelStr(LogLevel level);
 };
 

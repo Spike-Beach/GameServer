@@ -1,29 +1,37 @@
 #include "pch.h"
 #include "GameObj.h"
 
-void GameObj::Sync(std::chrono::system_clock::time_point syncTime)
+/*
+* std::get<2> : 가속도
+* std::get<1> : 속도
+* std::get<0> : 위치
+*/
+void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 {
 	Acceleration applyAcc(0);
 	float applyMaxVelMagnitude;
-	float deltaTime = std::chrono::duration<float>(syncTime - _lastSyncTime).count();
+	float deltaTime = std::chrono::duration<float>(syncReqTime - _lastSyncTime).count();
 	std::unique_lock<std::shared_mutex> lock(_objMutex);
-	if (_reservedControll.has_value() && _reservedControll.value().first > syncTime)
+
+	while (_reservedControll.empty() == false && _reservedControll.front().first <= syncReqTime)
 	{
-		std::get<2>(_motionData) = _reservedControll.value().second;
-		_reservedControll = std::nullopt;
+		auto dir = _reservedControll.front().second;
+		_reservedControll.pop_front();
+		Acceleration tempAcc(dir.first, dir.second, 0);
+		std::get<2>(_motionData) = tempAcc.GetNomalAcc() * CNTRL_ACC;
 	}
 
 	if (std::get<2>(_motionData).IsZero() == true)
 	{
-		auto optVelNomal = std::get<1>(_motionData).GetNomal();
-		if (optVelNomal.has_value())
+		ThreeValues VelNomalVec = std::get<1>(_motionData).GetNomal();
+		if (VelNomalVec.IsZero() == false)
 		{
-			applyAcc = optVelNomal.value() * STOP_ACC_SCAL;
+			applyAcc = VelNomalVec * STOP_ACC_SCAL;
 			applyMaxVelMagnitude = 0;
 		}
 		else
 		{
-			_lastSyncTime = syncTime;
+			_lastSyncTime = syncReqTime;
 			return ;
 		}
 	}
@@ -40,7 +48,7 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncTime)
 	{
 		std::get<0>(_motionData).CalNewPosition((oldVel + std::get<1>(_motionData)) / 2, deltaTime);
 	}
-	else if (maxVelApprochElapseSec <= EPSILON) // 이미 최대 속력에 도달함. 속도 유지 및 위치 계산
+	else if (maxVelApprochElapseSec <= EPSILON) // 싱크 동안 최대 속력 유지. 속도 유지 및 위치 계산
 	{
 		std::get<1>(_motionData).AdjustToMaxMagnitude(applyMaxVelMagnitude, oldVel);
 		std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), deltaTime);
@@ -54,15 +62,27 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncTime)
 		std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), deltaTime - maxVelApprochElapseSec);
 	}
 
-	_lastSyncTime = syncTime;
-	lock.unlock();
+	_lastSyncTime = syncReqTime;
 	return ;
 };
+
+bool GameObj::Controll(std::chrono::system_clock::time_point ctlTime, const std::pair<float, float> dir)
+{
+	SysTp now = std::chrono::system_clock::now();
+	std::unique_lock<std::shared_mutex> lock(_objMutex);
+	if (_reservedControll.empty() == false && _reservedControll.back().second == dir)
+	{
+		return false;
+	}
+	std::pair<std::chrono::system_clock::time_point, std::pair<int, int>> ctlPair(ctlTime, dir);
+	_reservedControll.push_back(ctlPair);
+	return true;
+}
 
 void GameObj::clear()
 {
 	Reset();
-	_latency = -1;
+	_tts = -1;
 }
 
 void GameObj::Reset()
@@ -75,67 +95,45 @@ void GameObj::Reset(float posX, float posY, float posZ)
 	_motionData = { {posX, posY, posZ}, {0, 0, 0}, {0, 0, 0} };;
 };
 
-void GameObj::Controll(std::chrono::system_clock::time_point ctlTime, const Acceleration& acceleration)
-{
-	SysTp now = std::chrono::system_clock::now();
-	std::unique_lock<std::shared_mutex> lock(_objMutex);
-	if (now >= ctlTime)
-	{
-		std::get<2>(_motionData) = acceleration;
-	}
-	else
-	{
-		std::pair<std::chrono::system_clock::time_point, Acceleration> ctlPair(ctlTime, acceleration);
-		_reservedControll = ctlPair;
-	}
-}
-
 std::tuple<Position, Velocity, Acceleration> GameObj::GetMotionData()
 {
-	std::shared_lock<std::shared_mutex> lock(_objMutex);
+	std::shared_lock<std::shared_mutex> sharedLock(_objMutex);
 	return _motionData;
 }
 
 Position GameObj::getPosition()
 {
-	std::shared_lock<std::shared_mutex> lock(_objMutex);
+	std::shared_lock<std::shared_mutex> sharedLock(_objMutex);
 	return std::get<0>(_motionData);
 }
 
 Velocity GameObj::getVelocity()
 {
-	std::shared_lock<std::shared_mutex> lock(_objMutex);
+	std::shared_lock<std::shared_mutex> sharedLock(_objMutex);
 	return std::get<1>(_motionData);
 }
 
 Acceleration GameObj::getAcceleration()
 {
-	std::shared_lock<std::shared_mutex> lock(_objMutex);
+	std::shared_lock<std::shared_mutex> sharedLock(_objMutex);
 	return std::get<2>(_motionData);
 }
 
-SysTp GameObj::GetLastSyncTime()
+INT64 GameObj::GetLastSyncTime()
 {
-	std::shared_lock<std::shared_mutex> lock(_objMutex);
-	return _lastSyncTime;
+	std::shared_lock<std::shared_mutex> sharedLock(_objMutex);
+	return _lastSyncReqTime;
 }
 
-void GameObj::UpdateLatency(INT64 clientTime)
+INT64 GameObj::GetTTS()
 {
-	INT64 nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	std::unique_lock<std::shared_mutex> lock(_objMutex);
-	g_logger.Log(LogLevel::INFO, "GameObj::UpdateLatency", "now:" + std::to_string(nowMs) + "/ clie:" + std::to_string(clientTime));
-	_latency = nowMs - clientTime;
+	std::shared_lock<std::shared_mutex> sharedLock(_objMutex);
+	return _tts;
 }
 
-void GameObj::SetLastSyncTime(std::chrono::system_clock::time_point syncTime)
+void GameObj::SetUserTimes(INT64 syncReqTime, INT64 tts)
 {
 	std::unique_lock<std::shared_mutex> lock(_objMutex);
-	_lastSyncTime = syncTime;
-}
-
-INT64 GameObj::GetLatency()
-{
-	std::shared_lock<std::shared_mutex> lock(_objMutex);
-	return _latency;
+	_lastSyncReqTime = syncReqTime;
+	_tts = tts;
 }

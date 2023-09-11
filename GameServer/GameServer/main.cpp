@@ -21,7 +21,7 @@ int main()
 		g_TaskManager.AddTask(std::move(std::make_unique<LoggingTask>()), 100, 0, LOG_TASK_PROCESSER_ID);
 		g_TaskManager.AddTask(std::move(std::make_unique<SBUserCheckNSet>()), 100, 0, GAME_TASK_PROCESSER_ID);
 		g_TaskManager.AddTask(std::move(std::make_unique<GameSetTask>()), 500, 0, GAME_TASK_PROCESSER_ID);
-		g_TaskManager.AddTask(std::move(std::make_unique<GameSyncTask>()), 50, 0, GAME_TASK_PROCESSER_ID);
+		g_TaskManager.AddTask(std::move(std::make_unique<GameSyncTask>()), 10, 0, GAME_TASK_PROCESSER_ID);
 		g_TaskManager.AddTask(std::move(std::make_unique<GameResultWriteTask>()), 100, 0, DB_TASK_PROCESSER_ID);
 	}
 	catch (std::exception e)

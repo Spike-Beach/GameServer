@@ -12,6 +12,5 @@ class Court
 {
 public:
 	static CourtArea CheckAreaInCourt(Position pos);
-private:
 };
 

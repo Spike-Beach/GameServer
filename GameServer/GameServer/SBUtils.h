@@ -27,7 +27,6 @@ enum class GameStatus : UINT16
 	SOMEONE_LEANVE = 4,
 };
 
-
 #define HIT_RADIUS_SQUAR 225 // HIT_RADIUS : 15
 class HitChecker
 {
@@ -38,6 +37,7 @@ public:
 		_hitPoint = hitPoint;
 		_ballVel = vel;
 
+		// 근의 공식
 		_centerElapsed1 = vel.z - std::sqrtf(std::powf(vel.z, 2) - 2 * G * (targetHeight - hitPoint.z));
 		_centerElapsed2 = vel.z + std::sqrtf(std::powf(vel.z, 2) - 2 * G * (targetHeight - hitPoint.z));
 	}
@@ -46,18 +46,21 @@ public:
 	{
 		std::chrono::duration<float> duration = _hitTime - checkTime;
 		float deltaTime = duration.count();
+		// 근의 공식으로 나온 2가지 시간 검사
 		if (CheckUserData(userPos, deltaTime, _centerElapsed1) == true)
 		{
 			return true;
 		}
 		return CheckUserData(userPos, deltaTime, _centerElapsed2);
 	}
+
 private:
 	SysTp _hitTime;
 	Position _hitPoint;
 	Velocity _ballVel;
 	float _centerElapsed1;
 	float _centerElapsed2;
+
 	bool CheckUserData(Position userPos, float userDeltaTime, float centerTime)
 	{
 		if (centerTime < 0)
@@ -65,12 +68,14 @@ private:
 			return false;
 		}
 
-		// userPos로 유처가 칠 수 있는 위치에 서있는지 검증
+		// 칠 수 있는 원형 범위의 중심 계산
 		float centerX = _hitPoint.x + _ballVel.x * centerTime;
 		float centerY = _hitPoint.y + _ballVel.y * centerTime;
+
+		// 원의 부등식 서버가 가지고 있는 유처의 위치가 칠 수 있는 위치인지 검증
 		if (std::powf(userPos.x - centerX, 2) + std::powf(userPos.y - centerY, 2) < HIT_RADIUS_SQUAR)
 		{
-			// userDeltaTime시간 경과 후 공이 칠 수 있는 위치로 이동했는지 검증
+			// 현재 공의 위치가 칠 수 있는 위치로 이동했는지 검증
 			float moveX = _hitPoint.x + _ballVel.x * userDeltaTime;
 			float moveY = _hitPoint.y + _ballVel.y * userDeltaTime;
 			return (std::powf(centerX - moveX, 2) + std::powf(centerY - moveY, 2) < HIT_RADIUS_SQUAR);

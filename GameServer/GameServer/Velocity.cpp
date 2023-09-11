@@ -91,10 +91,10 @@ void Velocity::AdjustToMaxMagnitude(float maxVelMagnitude, const Velocity& oldVe
 	}
 	else if (ThreeValues::GetMagnitude() > maxVelMagnitude)
 	{
-		auto optNomal = GetNomal();
-		if (optNomal.has_value())
+		ThreeValues optNomal = GetNomal();
+		if (optNomal.IsZero() == false)
 		{
-			Velocity nomal = optNomal.value();
+			Velocity nomal = optNomal;
 			nomal.ScalarMul(maxVelMagnitude);
 			this->operator=(nomal);
 		}

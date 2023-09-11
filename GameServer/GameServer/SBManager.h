@@ -12,7 +12,7 @@ public:
 	bool Init();
 
 	bool SetGame(std::string gameInfoStr);
-	bool UserEnterGame(INT32 roomId, SBUser* user);
+	INT16 UserEnterGame(INT32 roomId, SBUser* user);
 	bool UserLeaveGame(INT32 roomId, SBUser* user);
 	SpikeBeachGame* GetGame(INT32 roomId);
 	void SyncGames();

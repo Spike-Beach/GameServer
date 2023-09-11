@@ -34,7 +34,7 @@ public:
 
 	void AnalyzeBallTrajectory(Position pos, Velocity vel, SysTp hitTime, INT16 hitterIdx);
 	bool CheckHitable(SBUser* user, SysTp hitTime, INT16 hitType);
-	BallResult Sync(SysTp syncTime);
+	BallResult Sync(SysTp syncReqTime);
 
 private:
 	void CalFallen(Position pos, Velocity vel, SysTp hitTime);

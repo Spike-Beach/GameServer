@@ -14,14 +14,16 @@ class SyncReq : public Packet
 public:
 	SyncReq() : Packet(PacketId::SYNC_REQ) {}
 	INT64 syncReqTime;
+	INT64 tts;
 
 	virtual std::vector<char> Serialize()
 	{
-		packetLength = PACKET_SIZE + sizeof(syncReqTime);
+		packetLength = PACKET_SIZE + sizeof(syncReqTime) + sizeof(tts);
 		std::vector<char> serializeVec = Packet::Serialize();
 		serializeVec.reserve(packetLength);
 
 		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&syncReqTime), reinterpret_cast<char*>(&syncReqTime) + sizeof(syncReqTime));
+		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&tts), reinterpret_cast<char*>(&tts) + sizeof(tts));
 		return serializeVec;
 	}
 
@@ -30,6 +32,8 @@ public:
 		size_t offset = Packet::Deserialize(buf, len);
 		syncReqTime = *reinterpret_cast<INT64*>(buf + offset);
 		offset += sizeof(syncReqTime);
+		tts = *reinterpret_cast<INT64*>(buf + offset);
+		offset += sizeof(tts);
 		return offset;
 	}
 };
@@ -38,8 +42,8 @@ class SyncRes : public Packet
 {
 public:
 	SyncRes() : Packet(PacketId::SYNC_RES) {}
-	INT64 syncTime;
-	std::array<INT64, 4> latency;
+	INT64 syncReqTime; // ToDo
+	std::array<INT64, 4> ttses; // ToDo
 	std::array<std::tuple<Position, Velocity, Acceleration>, 4> users;
 
 	virtual std::vector<char> Serialize()
@@ -48,10 +52,10 @@ public:
 		std::vector<char> serializeVec = Packet::Serialize();
 		serializeVec.reserve(packetLength);
 
-		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&syncTime), reinterpret_cast<char*>(&syncTime) + sizeof(syncTime));
-		for (size_t i = 0; i < latency.size(); i++)
+		serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&syncReqTime), reinterpret_cast<char*>(&syncReqTime) + sizeof(syncReqTime));
+		for (size_t i = 0; i < ttses.size(); i++)
 		{
-			serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&latency[i]), reinterpret_cast<char*>(&latency[i]) + sizeof(latency[i]));
+			serializeVec.insert(serializeVec.end(), reinterpret_cast<char*>(&ttses[i]), reinterpret_cast<char*>(&ttses[i]) + sizeof(ttses[i]));
 		}
 
 		for (size_t i = 0; i < 4; i++)
@@ -66,13 +70,13 @@ public:
 	{
 		size_t offset = Packet::Deserialize(buf, len);
 
-		syncTime = *reinterpret_cast<INT64*>(buf + offset);
-		offset += sizeof(syncTime);
+		syncReqTime = *reinterpret_cast<INT64*>(buf + offset);
+		offset += sizeof(syncReqTime);
 
-		for (size_t i = 0; i < latency.size(); i++)
+		for (size_t i = 0; i < ttses.size(); i++)
 		{
-			latency[i] = *reinterpret_cast<INT64*>(buf + offset);
-			offset += sizeof(latency[i]);
+			ttses[i] = *reinterpret_cast<INT64*>(buf + offset);
+			offset += sizeof(ttses[i]);
 		}
 
 		for (size_t i = 0; i < 4; i++)

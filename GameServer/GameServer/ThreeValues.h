@@ -21,7 +21,7 @@ public:
 	virtual void ScalarMul(const float scalar);
 	virtual bool ScalarDiv(const float scalar);
 	float GetMagnitude();
-	std::optional<ThreeValues> GetNomal();
+	ThreeValues GetNomal();
 	bool IsZero();
 	virtual std::vector<char> Serialize();
 	virtual size_t Deserialize(char* buf, size_t len);

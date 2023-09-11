@@ -52,8 +52,7 @@ bool SBManager::SetGame(std::string infoStr)
 	}
 }
 
-// content단에서 입장 못할시 처리.
-bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
+INT16 SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 {
 	auto iter = _runningGames.find(roomId);
 	if (iter != _runningGames.end())
@@ -61,7 +60,7 @@ bool SBManager::UserEnterGame(INT32 roomId, SBUser* user)
 		return iter->second->UserIn(user);
 	}
 	g_logger.Log(LogLevel::ERR, "SBManager::UserEnterGame", "Not found roomId : " + std::to_string(roomId));
-	return false;
+	return -1;
 }
 
 bool SBManager::UserLeaveGame(INT32 roomId, SBUser* user)

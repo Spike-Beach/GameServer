@@ -4,7 +4,8 @@
 #include "Ball.h"
 
 #define WAIT_SEC 30
-#define ROUND_COUNT_DOWN_SEC 5
+//#define ROUND_COUNT_DOWN_SEC 5
+#define ROUND_COUNT_DOWN_SEC 0
 
 enum class SyncResult : INT16
 {
@@ -23,13 +24,15 @@ public:
 	GameStatus GetStatus();
 	void Clear();
 	void ResetToNewGame();
-	std::vector<char> GetSerialiedSyncPacket();
+	std::vector<char> GetSerializedSyncPacket(INT64 userId);
 	bool SetGame(INT32 gameId, Team redTeam, Team blueTeam);
-	bool UserIn(SBUser* UserId);
+	INT16 UserIn(SBUser* UserId);
 	bool UserOut(SBUser* UserId);
 	
-	bool Controll(INT64 userId, INT64 ctlTime, Acceleration acc);
-	bool UpdateLatency(INT64 userId, INT64 clientTime);
+	//bool Controll(INT64 userId, INT64 ctlTime, Acceleration acc);
+	bool Controll(INT64 userId, float xCtl , float yCtl);
+	INT64 CalControllDelay(INT64 sendUserId);
+	bool SetUserTimes(INT64 userId, INT64 clientTime, INT64 tts);
 
 	SyncResult PlayingSync();
 	SyncResult WaitUserSync();
@@ -47,22 +50,15 @@ private:
 	std::array<std::pair<INT64, SBUser* >, 4> _users;
 	std::chrono::system_clock::time_point _gameStartTime;
 	std::chrono::system_clock::time_point _roundStartTime;
-	
-	// 패킷의 synctime이 _packetGenTime보다 과거이면 새로 패킷을 만들고 갱신.
-	std::shared_mutex _syncPacketMutex;
-	std::chrono::system_clock::time_point _packetGenTime;
-	std::vector<char> _serializedSyncPacket;
 
 	Ball _ball;
 	INT16 _redScore;
 	INT16 _blueScore;
 	size_t _leaveUserIdx;
-	std::chrono::system_clock::time_point _lastSyncTime; 
 
 	SyncResult Score(BallResult scoreResult);
 	void RedWin();
 	void BlueWin();
 	INT16 FindUser(INT64 userId, SBUser** userPtr);
-	std::vector<char> GenSerializedSyncPacket();
 };
 

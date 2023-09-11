@@ -12,6 +12,7 @@ public:
 	Acceleration& operator=(const ThreeValues& tv);
 	Acceleration operator+(const Acceleration& other) const;
 	Acceleration operator-(const Acceleration& other) const;
+	Acceleration operator*(const float& scalar) const;
 	Acceleration& operator+=(const Acceleration& other);
 	Acceleration& operator-=(const Acceleration& other);
 	Acceleration GetNomalAcc();

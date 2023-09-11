@@ -10,7 +10,8 @@ public:
 private:
 	std::atomic_bool _isRunning;
 	void EnterGame(Package package);
-	//void LeaveGame(Package package);
+	
+	void LeaveGame(Package package);
 	void SyncGame(Package package);
 	void ControllGame(Package package);
 };

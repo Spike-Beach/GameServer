@@ -117,7 +117,7 @@ void IocpServer::SetAcceptedSocket(SOCKET socket, SOCKADDR_IN addrInfo)
 	iocpSession->RecvTrigger();
 }
 
-DWORD WINAPI IocpServer::AcceptThreadFunc(LPVOID serverPtr)
+DWORD WINAPI IocpServer::AcceptThreadFunc(void* serverPtr)
 {
 	IocpServer* server = static_cast<IocpServer*>(serverPtr);
 	SOCKET acceptSocket;
@@ -143,7 +143,7 @@ DWORD WINAPI IocpServer::AcceptThreadFunc(LPVOID serverPtr)
 	return 0;
 }
 
-DWORD WINAPI IocpServer::WorkerThreadFunc(LPVOID serverPtr)
+DWORD WINAPI IocpServer::WorkerThreadFunc(void* serverPtr)
 {
 	IocpServer* server = static_cast<IocpServer*>(serverPtr);
 	IocpData* iocpData = nullptr;

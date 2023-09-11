@@ -30,7 +30,7 @@ GameStatus SpikeBeachGame::GetStatus()
 
 void SpikeBeachGame::Clear()
 {
-	std::unique_lock<std::shared_mutex> lock(_gameMutex);
+	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
 	_gameStatus = GameStatus::EMPTY;
 	for (size_t i = 0; i < 4 ; i++)
 	{
@@ -66,25 +66,37 @@ void SpikeBeachGame::ResetToNewGame()
 	_users[3].second->Reset(2112.010468, 1337.891186, 20);
 }
 
-std::vector<char> SpikeBeachGame::GetSerialiedSyncPacket()
+std::vector<char> SpikeBeachGame::GetSerializedSyncPacket(INT64 userId)
 {
-	std::shared_lock<std::shared_mutex> sharedLock(_syncPacketMutex);
-	if (_serializedSyncPacket.empty() || _lastSyncTime > _packetGenTime)
+	SyncRes syncRes;
+	std::shared_lock<std::shared_mutex> sharedLock(_gameMutex);
+	for (size_t i = 0; i < 4; i++)
 	{
-		sharedLock.unlock();
-		GenSerializedSyncPacket();
+		if (_users[i].second->GetId() == userId)
+		{
+			syncRes.syncReqTime = _users[i].second->GetLastSyncTime();
+		}
+		syncRes.ttses[i] = _users[i].second->GetTTS();
+		// !!!! FOR TEST !!!
+		if (syncRes.ttses[i] < 0)
+		{
+			syncRes.ttses[i] = 3000;
+		}
+		// !!!! FOR TEST !!!
+		syncRes.users[i] = _users[i].second->GetMotionData();
 	}
-	return _serializedSyncPacket;
+	return syncRes.Serialize();
 }
 
 bool SpikeBeachGame::SetGame(INT32 gameId, Team redTeam, Team blueTeam)
 {
 	if (_gameStatus.load() != GameStatus::EMPTY)
 	{
+		g_logger.Log(LogLevel::CRITICAL, "SpikeBeachGame::SetGame", std::to_string(_gameId) + " Game is Not Empty");
 		return false;
 	}
 
-	std::unique_lock<std::shared_mutex> lock(_gameMutex);
+	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
 	_gameId = gameId;
 	_gameStatus = GameStatus::WAITING;
 	_waitDeadLine = std::chrono::system_clock::now() + std::chrono::seconds(WAIT_SEC);
@@ -98,15 +110,15 @@ bool SpikeBeachGame::SetGame(INT32 gameId, Team redTeam, Team blueTeam)
 	return true;
 }
 
-bool SpikeBeachGame::UserIn(SBUser* user)
+INT16 SpikeBeachGame::UserIn(SBUser* user)
 {
 	if (_gameStatus != GameStatus::WAITING)
 	{
 		g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", std::to_string(_gameId) + " Game is not waiting, user : " + std::to_string(user->GetId()));
-		return false;
+		return -1;
 	}
 
-	std::unique_lock<std::shared_mutex> lock(_gameMutex);
+	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
 	INT64 userId = user->GetId();
 
 	for (size_t idx = 0; idx < 4; idx++)
@@ -120,12 +132,12 @@ bool SpikeBeachGame::UserIn(SBUser* user)
 			}
 			_users[idx].second = user;
 			g_logger.Log(LogLevel::INFO, "SpikeBeachGame::UserIn", "User in " + std::to_string(_gameId) + " game. user : " + std::to_string(_users[idx].second->GetId()));
-			return true;
+			return idx;
 		}
 	}
 
 	g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "Invalid game enter. user : " + std::to_string(user->GetId()));
-	return false;
+	return -1;
 }
 
 bool SpikeBeachGame::UserOut(SBUser* user)
@@ -135,7 +147,7 @@ bool SpikeBeachGame::UserOut(SBUser* user)
 		return false;
 	}
 
-	std::unique_lock<std::shared_mutex> lock(_gameMutex);
+	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
 	for (size_t i = 0; i < 4; i++)
 	{
 		if (_users[i].second != NULL
@@ -156,39 +168,67 @@ bool SpikeBeachGame::UserOut(SBUser* user)
 	return false;
 }
 
-bool SpikeBeachGame::Controll(INT64 userId, INT64 ctlTime, Acceleration acc)
+bool SpikeBeachGame::Controll(INT64 userId, float xCtl, float yCtl)
 {
 	SBUser* userPtr = nullptr;
 	INT16 userIdx = FindUser(userId, &userPtr);
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	if (userIdx == -1 || userPtr == nullptr)
 	{
+		g_logger.Log(LogLevel::ERR, "SpikeBeachGame::Controll", "Invalid user : " + std::to_string(userId));
 		return false;
 	}
-	if (_roundStartTime > now)
+	if (now < _roundStartTime)
 	{
 		return false;
 	}
 	// https://stackoverflow.com/questions/31255486/how-do-i-convert-a-stdchronotime-point-to-long-and-back
 	// 1970년 1월 1일 00:00:00 UTC (UNIX epoch)부터의 시간. 약 292,271 년 후 오버플로우 발생.
-	std::chrono::milliseconds dur(ctlTime);
-	std::chrono::system_clock::time_point ctlTimePoint(dur);
-	userPtr->Controll(ctlTimePoint, acc);
-	ControllNtf ntf;
-	ntf.userIdx = userIdx;
-	ntf.controllTime = ctlTime;
-	ntf.contollAcc = acc;
-	NoticeInGame(ntf.Serialize());
-	return true;
+	INT64 delayInt64 = CalControllDelay(userId);
+	std::chrono::milliseconds delay(delayInt64);
+	std::pair<float, float> dir(xCtl, yCtl);
+	if (userIdx > 1) // blue팀은 바라보는 방향이 반대이므로 x,y 방향을 반대로.
+	{
+		dir.first *= -1;
+		dir.second *= -1;
+	}
+	if (userPtr->Controll(now + delay, dir) == true)
+	{
+		ControllNtf ntf;
+		ntf.userIdx = userIdx;
+		ntf.xAppliedCtl = dir.first;
+		ntf.yAppliedCtl = dir.second;
+		NoticeInGame(ntf.Serialize());
+		return true;
+	}
+	return false;
 }
 
-bool SpikeBeachGame::UpdateLatency(INT64 userId, INT64 clientTime)
+INT64 SpikeBeachGame::CalControllDelay(INT64 sendUserId)
+{
+	INT64 calTTS = 0;
+	for (size_t i = 0; i < 4; i++)
+	{
+		if (_users[i].second != NULL && _users[i].second->GetId() != sendUserId)
+		{
+			INT64 tts = _users[i].second->GetTTS();
+			if (tts < 0)
+			{
+				tts = 3000; // !!!! FORTEST. 0으로 변경하거나, 에러 출력.
+			}
+			calTTS += tts / 6;
+		}
+	}
+	return calTTS;
+}
+
+bool SpikeBeachGame::SetUserTimes(INT64 userId, INT64 clientTime, INT64 tts)
 {
 	for (size_t i = 0; i < 4; i++)
 	{
 		if (_users[i].first == userId)
 		{
-			_users[i].second->UpdateLatency(clientTime);
+			_users[i].second->SetUserTimes(clientTime, tts);
 			return true;
 		}
 	}
@@ -199,10 +239,10 @@ bool SpikeBeachGame::UpdateLatency(INT64 userId, INT64 clientTime)
 SyncResult SpikeBeachGame::PlayingSync()
 {
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	std::unique_lock<std::shared_mutex> lock(_gameMutex);
+	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
 	//SyncResult result = _ball.AnalyzeBallTrajectory(now);
 	BallResult result = _ball.Sync(now);
-	if (_ball.Sync(now) != BallResult::NONE)
+	if (result != BallResult::NONE)
 	{
 		return Score(result);
 	}
@@ -217,7 +257,6 @@ SyncResult SpikeBeachGame::PlayingSync()
 		_users[idx].second->Sync(now);
 	}
 
-	_lastSyncTime = std::chrono::system_clock::now();
 	return SyncResult::NONE;
 }
 
@@ -225,7 +264,7 @@ SyncResult SpikeBeachGame::WaitUserSync()
 {
 	if (std::chrono::system_clock::now() > _waitDeadLine)
 	{
-		std::unique_lock<std::shared_mutex> lock(_gameMutex);
+		std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
 		GameTimeoutNtf timeoutPacket;
 		NoticeInGame(timeoutPacket.Serialize());
 		         
@@ -251,7 +290,6 @@ SyncResult SpikeBeachGame::WaitUserSync()
 	_roundStartTime = std::chrono::system_clock::now() + std::chrono::seconds(ROUND_COUNT_DOWN_SEC);
 	
 	GameStartNtf startNtf;
-	// _roundStartTime를 INT64로 변환하여 startNtf.gameStartTime에 저장
 	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(_roundStartTime.time_since_epoch());
 	startNtf.gameStartTime = ms.count();
 	for (size_t i = 0; i < startNtf.nickNames.size(); i++)
@@ -262,16 +300,16 @@ SyncResult SpikeBeachGame::WaitUserSync()
 	ResetToNewGame();
 
 	g_logger.Log(LogLevel::INFO, "WaitUserSync", std::to_string(_gameId) + "Game Start");
-	return SyncResult::NONE; // none
+	return SyncResult::NONE;
 }
 
 SyncResult SpikeBeachGame::LeaveSync()
 {
 	if (_leaveUserIdx < 0)
 	{
-		return SyncResult::NONE; // none
+		return SyncResult::NONE;
 	}
-	std::unique_lock<std::shared_mutex> lock(_gameMutex);
+	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
 	if (_leaveUserIdx < 2)
 	{
 		RedWin();
@@ -280,7 +318,7 @@ SyncResult SpikeBeachGame::LeaveSync()
 	{
 		BlueWin();
 	}
-	return SyncResult::SOMEONELEAVE; // someoneLeave
+	return SyncResult::SOMEONELEAVE;
 }
 
 void SpikeBeachGame::NoticeInGame(std::vector<char>&& notify)
@@ -321,7 +359,6 @@ SyncResult SpikeBeachGame::Score(BallResult ballResult)
 	}
 	_ball.Reset();
 	_roundStartTime = std::chrono::system_clock::now() + std::chrono::seconds(ROUND_COUNT_DOWN_SEC);
-	// TODO : 결과 패킷 공지
 	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::PlayingSync", std::to_string(_gameId) + " Game score is");
 	return SyncResult::NONE;
 }
@@ -381,21 +418,4 @@ INT16 SpikeBeachGame::FindUser(INT64 userId, SBUser** userPtr)
 	g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "Invalid game enter. user : " + std::to_string(userId));
 	*userPtr = nullptr;
 	return -1;
-}
-
-std::vector<char> SpikeBeachGame::GenSerializedSyncPacket()
-{
-	SyncRes syncRes;
-
-	std::unique_lock<std::shared_mutex> uniqueLock(_syncPacketMutex);
-	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	syncRes.syncTime = ms.count();
-	for (size_t i = 0; i < 4; i++)
-	{
-		syncRes.latency[i] = _users[i].second->GetLatency();
-		syncRes.users[i] = _users[i].second->GetMotionData();
-	}
-	_packetGenTime = _lastSyncTime;
-	_serializedSyncPacket = syncRes.Serialize();
-	return _serializedSyncPacket;
 }

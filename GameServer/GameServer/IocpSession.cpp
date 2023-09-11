@@ -1,7 +1,6 @@
-
 #include "pch.h"
 #include "IocpSession.h"
-
+#include "SessionManager.h"
 
 void IocpSession::KeepSendData(size_t transferSize)
 {
@@ -10,9 +9,8 @@ void IocpSession::KeepSendData(size_t transferSize)
 		WSABUF wsabuf = _iocpData[IO_TYPE::WRITE].GetWSABuf();
 		if (wsabuf.buf == nullptr || wsabuf.len == 0)
 		{
-			g_logger.Log(LogLevel::ERR, "IocpSession::KeepSendData()", "wsabuf.buf == nullptr || wsabuf.len == 0");
-			Close();
-			Clear();
+			g_logger.Log(LogLevel::ERR, "IocpSession::KeepSendData()", "wsabuf.buf == nullptr || wsabuf.len == 0, transferSize : " + std::to_string(transferSize));
+			g_sessionManager.ReleaseSession(_idx, true);
 			return;
 		}
 
@@ -35,8 +33,6 @@ std::optional<Package> IocpSession::KeepRecvPacket(size_t transferSize)
 	return rtPackage;
 }
 
-// WSASend 완료 이전에 WSASend가 들어오는 경우 문제 발생할 듯.
-// TODO: 문제 발생시 해결.
 void IocpSession::SendData(std::vector<char> serializedPacket)
 {
 	_iocpData[IO_TYPE::WRITE].WriteToBuf(serializedPacket);
@@ -47,8 +43,7 @@ void IocpSession::SendData(std::vector<char> serializedPacket)
 	if (wsabuf.buf == nullptr || wsabuf.len == 0)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpSession::SendData()", "wsabuf.buf == nullptr || wsabuf.len == 0");
-		Close();
-		Clear();
+		g_sessionManager.ReleaseSession(_idx, true);
 		return;
 	}
 
@@ -65,8 +60,7 @@ void IocpSession::RecvTrigger()
 	if (wsabuf.buf == nullptr || wsabuf.len == 0)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpSession::RecvTrigger()", "wsabuf.buf == nullptr || wsabuf.len == 0");
-		Close();
-		Clear();
+		g_sessionManager.ReleaseSession(_idx, true);
 		return;
 	}
 
@@ -76,8 +70,7 @@ void IocpSession::RecvTrigger()
 	if (errCode != ERROR_IO_PENDING && errorCode == SOCKET_ERROR)
 	{
 		g_logger.Log(LogLevel::ERR, "IocpSession::RecvTrigger()", "WSARecv() failed with error: %d" + std::to_string(errCode));
-		Clear();
-		Close();
+		g_sessionManager.ReleaseSession(_idx, true);
 		return;
 	}
 }

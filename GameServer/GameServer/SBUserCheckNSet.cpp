@@ -102,15 +102,27 @@ void SBUserCheckNSet::Do()
 			{
 				testRoomInfoStr += std::to_string(userArray[i]->GetId()) + " ";
 			}
-			g_SBManager.SetGame(testRoomInfoStr);
+			if (g_SBManager.SetGame(testRoomInfoStr) == false)
+			{
+				g_logger.Log(LogLevel::ERR, "UserCheckNSet", std::to_string(user->GetId()) +  " User Game Set Game : " + std::to_string(user->GetGameId()));
+				g_sessionManager.ReleaseSession(userArray[0]->GetSessionId(), true);
+			}
 
 			for (int i = 0; i < 4; i++)
 			{
-				if (g_SBManager.UserEnterGame(user->GetGameId(), userArray[i]) == true)
+				res.userIndex = g_SBManager.UserEnterGame(user->GetGameId(), userArray[i]);
+				if (res.userIndex >= 0)
 				{
 					res.errorCode = ErrorCode::GameEnterSuccess;
 				}
+				else // 이미 로그 남겼음
+				{
+					res.errorCode = ErrorCode::InvalidGame;
+					g_sessionManager.ReleaseSession(userArray[0]->GetSessionId(), true);
+					g_logger.Log(LogLevel::ERR, "UserCheckNSet 2!!!", std::to_string(user->GetId()) + " User Game Set Game : " + std::to_string(user->GetGameId()));
+				}
 			}
+			res.userIndex = 0;
 			g_sessionManager.SendData(user->GetSessionId(), res.Serialize());
 			return;
 		}
