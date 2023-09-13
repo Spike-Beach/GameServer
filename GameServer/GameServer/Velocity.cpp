@@ -51,20 +51,6 @@ Velocity Velocity::operator/(const float& scalar) const
 	return true;
 }
 
-//std::optional<Velocity> Velocity::GetNomalVel()
-//{
-//	Velocity temp(*this);
-//	if (x == 0 && y == 0 && z == 0)
-//	{
-//		return std::nullopt;
-//	}
-//	else
-//	{
-//		temp.ScalarDiv(GetMagnitude());
-//		return temp;
-//	}
-//}
-
 void Velocity::ApplyBrakes(float decelerate, float elapsedSec)
 {
 	x -= decelerate * elapsedSec;

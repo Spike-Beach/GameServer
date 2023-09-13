@@ -1,8 +1,6 @@
 #pragma once
 #include "Task.h"
 
-using MilliDuration = std::chrono::duration<int, std::milli>;
-
 class TaskContainer
 {
 public:
@@ -17,7 +15,6 @@ public:
 	void doTask();
 
 private:
-	// 포인터를 쓰는 이유 : Task를 상속받은 클래스를 사용하기 위해
 	std::unique_ptr<Task> _task;
 	MilliDuration _freqMs;
 	bool _isRepeat;

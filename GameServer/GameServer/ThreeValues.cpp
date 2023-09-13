@@ -110,7 +110,6 @@ ThreeValues ThreeValues::GetNomal()
 bool ThreeValues::IsZero()
 {
 	return ((x < EPSILON && x > -EPSILON) && (y < EPSILON && y > -EPSILON) && (z < EPSILON && z > -EPSILON));
-	//return (x == 0 && y == 0 && z == 0);
 }
 
 std::vector<char> ThreeValues::Serialize()

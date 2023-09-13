@@ -17,7 +17,6 @@ public:
 	Velocity operator*(const float& scalar) const;
 	Velocity operator/(const float& scalar) const;
 
-	//std::optional<Velocity> GetNomalVel();
 	void ApplyBrakes(float decelerate, float elapsedSec);
 	float CalMaxVelApprochElapseSec(Acceleration acc, float maxVelMagnitude);
 	void AdjustToMaxMagnitude(float Magnitude, const Velocity& oldVel);

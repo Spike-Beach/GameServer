@@ -4,26 +4,6 @@
 // 목표하는 길이와, 현재 받은 길이를 비교하여 WSABUF의 시작위치와 길이를 반환.
 WSABUF IocpData::GetWSABuf()
 {
-	//WSABUF wsabuf = { 0, nullptr };
-	//if (_desiredLength == 0 && _currentLength == 0)
-	//{
-	//	wsabuf.buf = _buffer.data();
-	//	wsabuf.len = _buffer.size();
-	//}
-	//else if (_desiredLength != 0)
-	//{
-	//	wsabuf.len = _desiredLength - _currentLength;
-	//	if (wsabuf.len <= BUFSIZE)
-	//	{
-	//		wsabuf.buf = _buffer.data() + _currentLength;
-	//	}
-	//}
-	//else // _desiredLength == 0 < _currentLength != 0
-	//{
-	//	g_logger.Log(LogLevel::ERR, "IocpData::GetWSABuf()", "Invalid _desiredLength length. \
-	//		_desiredLength : " + std::to_string(_desiredLength) + ", _currentLength : " + std::to_string(_currentLength));
-	//	return wsabuf;
-	//}
 	WSABUF wsabuf;
 	if (_currentLength >= _buffer.size())
 	{

@@ -42,8 +42,8 @@ class SyncRes : public Packet
 {
 public:
 	SyncRes() : Packet(PacketId::SYNC_RES) {}
-	INT64 syncReqTime; // ToDo
-	std::array<INT64, 4> ttses; // ToDo
+	INT64 syncReqTime;
+	std::array<INT64, 4> ttses;
 	std::array<std::tuple<Position, Velocity, Acceleration>, 4> users;
 
 	virtual std::vector<char> Serialize()

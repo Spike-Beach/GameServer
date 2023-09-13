@@ -132,12 +132,6 @@ DWORD WINAPI IocpServer::AcceptThreadFunc(void* serverPtr)
 			g_logger.Log(LogLevel::ERR, "IocpServer::AcceptThreadFunc()", "WSAAccept() failed with error code: " + std::to_string(WSAGetLastError()));
 		}
 
-		//SetAcceptedSocket(acceptSocket, recvAddrInfo); <- 에러.C++ a nonstatic member reference must be relative to a specific object
-		// 1. static이 아닌 멤버함수를 사용하려면, 인스턴스가 필요.
-		// 2. 지금 이 함수가 호출되는 시점은 static이므로 인스턴스 생성 이전임
-		// 3. 따라서 그냥 SetAcceptedSocket()를 쓰면 인스턴스가 없어서 에러가남.
-		// 4. 근데 위에서 serverPtr로 서버의 인스턴스를 받아와서 사용 가능
-		// 5. 짜피, 이 함수는 인스턴스 생성 이후에만 호출되므로 에러 안남
 		server->SetAcceptedSocket(acceptSocket, recvAddrInfo);
 	}
 	return 0;

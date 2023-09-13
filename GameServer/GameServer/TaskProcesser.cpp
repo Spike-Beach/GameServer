@@ -54,6 +54,6 @@ void TaskProcesser::TaskThread()
 				iter++;
 			}
 		}
-		::SwitchToThread(); // TODO: check, Sleep(0)¿Í ºñ±³.
+		::SwitchToThread(); 
 	}
 }

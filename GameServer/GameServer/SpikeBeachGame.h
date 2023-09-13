@@ -4,8 +4,7 @@
 #include "Ball.h"
 
 #define WAIT_SEC 30
-//#define ROUND_COUNT_DOWN_SEC 5
-#define ROUND_COUNT_DOWN_SEC 0
+#define ROUND_COUNT_DOWN_SEC 5
 
 enum class SyncResult : INT16
 {
@@ -28,8 +27,7 @@ public:
 	bool SetGame(INT32 gameId, Team redTeam, Team blueTeam);
 	INT16 UserIn(SBUser* UserId);
 	bool UserOut(SBUser* UserId);
-	
-	//bool Controll(INT64 userId, INT64 ctlTime, Acceleration acc);
+
 	bool Controll(INT64 userId, float xCtl , float yCtl);
 	INT64 CalControllDelay(INT64 sendUserId);
 	bool SetUserTimes(INT64 userId, INT64 clientTime, INT64 tts);

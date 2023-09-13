@@ -60,12 +60,6 @@ std::list<INT32> SessionManager::GetTimeOverSessionList()
 
 void SessionManager::SendData(INT32 idx, std::vector<char> serializedPacket)
 {
-	// !!!!!!!FOR TEST!!!!!!!
-	if (idx < 0)
-	{
-		return;
-	}
-	// !!!!!!!FOR TEST!!!!!!!
 
 	if (idx < 0 || idx > _sessions.size())
 	{
@@ -96,13 +90,6 @@ bool SessionManager::ReleaseSession(INT32 sessionIdx, bool isForse)
 			g_logger.Log(LogLevel::INFO, "SessionManager::ReleaseSession", "user " + std::to_string(user->GetId()) + " leave " + std::to_string(gameId) + "Game");
 		}
 	}
-
-	// !!!!!!!FOR TEST!!!!!!!
-	if (sessionIdx < 0)
-	{
-		return true;
-	}
-	// !!!!!!!FOR TEST!!!!!!!
 
 	std::unique_lock<std::mutex> lock(_mutex);
 	if (sessionIdx < 0 && sessionIdx > _sessions.size())

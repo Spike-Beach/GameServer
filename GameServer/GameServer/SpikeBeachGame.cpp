@@ -77,12 +77,6 @@ std::vector<char> SpikeBeachGame::GetSerializedSyncPacket(INT64 userId)
 			syncRes.syncReqTime = _users[i].second->GetLastSyncTime();
 		}
 		syncRes.ttses[i] = _users[i].second->GetTTS();
-		// !!!! FOR TEST !!!
-		if (syncRes.ttses[i] < 0)
-		{
-			syncRes.ttses[i] = 3000;
-		}
-		// !!!! FOR TEST !!!
 		syncRes.users[i] = _users[i].second->GetMotionData();
 	}
 	return syncRes.Serialize();
@@ -182,8 +176,7 @@ bool SpikeBeachGame::Controll(INT64 userId, float xCtl, float yCtl)
 	{
 		return false;
 	}
-	// https://stackoverflow.com/questions/31255486/how-do-i-convert-a-stdchronotime-point-to-long-and-back
-	// 1970년 1월 1일 00:00:00 UTC (UNIX epoch)부터의 시간. 약 292,271 년 후 오버플로우 발생.
+
 	INT64 delayInt64 = CalControllDelay(userId);
 	std::chrono::milliseconds delay(delayInt64);
 	std::pair<float, float> dir(xCtl, yCtl);
@@ -212,10 +205,6 @@ INT64 SpikeBeachGame::CalControllDelay(INT64 sendUserId)
 		if (_users[i].second != NULL && _users[i].second->GetId() != sendUserId)
 		{
 			INT64 tts = _users[i].second->GetTTS();
-			if (tts < 0)
-			{
-				tts = 3000; // !!!! FORTEST. 0으로 변경하거나, 에러 출력.
-			}
 			calTTS += tts / 6;
 		}
 	}

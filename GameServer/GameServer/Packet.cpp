@@ -25,9 +25,6 @@ std::vector<char> Packet::Serialize()
 {
 	std::vector<char> serialized;
 
-	//INT32 _packetLength;
-	//INT32 _packetId;
-
 	char* tempPtr = reinterpret_cast<char*>(&packetLength);
 	serialized.insert(serialized.end(), tempPtr, tempPtr + sizeof(packetLength));
 
@@ -52,8 +49,3 @@ size_t Packet::Deserialize(char* buf, size_t length)
 	return totalSize;
 }
 
-//PacketId Packet::GetPacketId()
-//{
-//	return PacketId::GAME_ENTER_REQ;
-//	//return (PacketId)_packetId;
-//}

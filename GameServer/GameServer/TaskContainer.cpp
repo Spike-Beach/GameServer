@@ -23,8 +23,7 @@ bool TaskContainer::IsExpired()
 	{
 		return false;
 	}
-	// _task == false는 컴파일러에 의해 암묵적으로 !_task로 변환
-	// _task == true는 암묵적인 bool 변환이 적용되지 않는다....왜?
+
 	if (!_task || std::chrono::system_clock::now() > _expireTime)
 	{
 		return true;
