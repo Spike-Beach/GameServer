@@ -5,6 +5,7 @@
 * std::get<2> : 가속도
 * std::get<1> : 속도
 * std::get<0> : 위치
+* 게임을 sync할 때, 유저마다 실행하여 위치 정보를 동기화 할 함수.
 */
 void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 {
@@ -13,6 +14,7 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 	float deltaTime = std::chrono::duration<float>(syncReqTime - _lastSyncTime).count();
 	std::unique_lock<std::shared_mutex> lock(_objMutex);
 
+	// 예약된 동작이 있다면, 시간 확인 후 적용.
 	while (_reservedControll.empty() == false && _reservedControll.front().first <= syncReqTime)
 	{
 		auto dir = _reservedControll.front().second;
@@ -21,6 +23,7 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 		std::get<2>(_motionData) = tempAcc.GetNomalAcc() * CNTRL_ACC;
 	}
 
+	// 조작이 없다면, 정지 가속도 및 목표 속도 적용
 	if (std::get<2>(_motionData).IsZero() == true)
 	{
 		ThreeValues VelNomalVec = std::get<1>(_motionData).GetNomal();
@@ -35,7 +38,7 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 			return ;
 		}
 	}
-	else
+	else // 조작이 있다면 조작 가속도 및 최대 속도 적용
 	{
 		applyAcc = std::get<2>(_motionData);
 		applyMaxVelMagnitude = MAX_VEL;
