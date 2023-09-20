@@ -2,6 +2,8 @@
 #include "ThreeValues.h"
 #include "Velocity.h"
 
+#define POSITION_SIZE 3 * sizeof(float)
+
 class Position : public ThreeValues
 {
 public:

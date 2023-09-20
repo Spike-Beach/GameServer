@@ -41,26 +41,12 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 		applyMaxVelMagnitude = MAX_VEL;
 	}
 
+	// 속도 : 과거속도 + 현재 가속된속도. 최대속도 넘지 않게.
+	// 위치 : 현재속도 * 시간.
 	Velocity oldVel = std::get<1>(_motionData);
 	std::get<1>(_motionData).UpdateVelocity(applyAcc, deltaTime); // 속도 갱신
-	float maxVelApprochElapseSec = oldVel.CalMaxVelApprochElapseSec(applyAcc, applyMaxVelMagnitude);
-	if (maxVelApprochElapseSec > deltaTime) // 아직 가속중. 시간에 따라 속도 적용 및 등가속도 공식으로 위치 계산
-	{
-		std::get<0>(_motionData).CalNewPosition((oldVel + std::get<1>(_motionData)) / 2, deltaTime);
-	}
-	else if (maxVelApprochElapseSec <= EPSILON) // 싱크 동안 최대 속력 유지. 속도 유지 및 위치 계산
-	{
-		std::get<1>(_motionData).AdjustToMaxMagnitude(applyMaxVelMagnitude, oldVel);
-		std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), deltaTime);
-	}
-	else // 싱크 중간에 최대속력에 도달했음. 최대 속력 적용 및 계산한 최대 속력 시간을 적용해서 위치를 계산한다.
-	{
-		std::get<1>(_motionData).UpdateVelocity(applyAcc, deltaTime);
-		std::get<1>(_motionData).AdjustToMaxMagnitude(applyMaxVelMagnitude, oldVel);
-
-		std::get<0>(_motionData).CalNewPosition((oldVel + std::get<1>(_motionData)) / 2, maxVelApprochElapseSec);
-		std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), deltaTime - maxVelApprochElapseSec);
-	}
+	std::get<1>(_motionData).AdjustToMaxMagnitude(applyMaxVelMagnitude, oldVel);
+	std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), deltaTime);
 
 	_lastSyncTime = syncReqTime;
 	return ;

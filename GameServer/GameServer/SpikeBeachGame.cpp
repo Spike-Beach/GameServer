@@ -84,6 +84,7 @@ std::vector<char> SpikeBeachGame::GetSerializedSyncPacket(INT64 userId)
 		}
 		// !!!! FOR TEST !!!
 		syncRes.users[i] = _users[i].second->GetMotionData();
+		//g_logger.Log(LogLevel::INFO, "SyncTest", std::to_string(_gameId) + "Game " + std::to_string(i) + "user PosY:" + std::to_string(std::get<0>(syncRes.users[i]).y));
 	}
 	return syncRes.Serialize();
 }
@@ -187,10 +188,9 @@ bool SpikeBeachGame::Controll(INT64 userId, float xCtl, float yCtl)
 	INT64 delayInt64 = CalControllDelay(userId);
 	std::chrono::milliseconds delay(delayInt64);
 	std::pair<float, float> dir(xCtl, yCtl);
-	if (userIdx > 1) // blue팀은 바라보는 방향이 반대이므로 x,y 방향을 반대로.
+	if (userIdx <= 1) // red팀은 바라보는 방향이 반대이므로 x축 방향을 반대로.
 	{
 		dir.first *= -1;
-		dir.second *= -1;
 	}
 	if (userPtr->Controll(now + delay, dir) == true)
 	{
@@ -292,12 +292,13 @@ SyncResult SpikeBeachGame::WaitUserSync()
 	GameStartNtf startNtf;
 	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(_roundStartTime.time_since_epoch());
 	startNtf.gameStartTime = ms.count();
+	ResetToNewGame();
 	for (size_t i = 0; i < startNtf.nickNames.size(); i++)
 	{
 		startNtf.nickNames[i] = _users[i].second->GetNickName();
+		startNtf.positions[i] = _users[i].second->getPosition();
 	}
 	NoticeInGame(startNtf.Serialize());
-	ResetToNewGame();
 
 	g_logger.Log(LogLevel::INFO, "WaitUserSync", std::to_string(_gameId) + "Game Start");
 	return SyncResult::NONE;
