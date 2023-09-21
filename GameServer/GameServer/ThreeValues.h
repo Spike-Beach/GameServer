@@ -22,7 +22,7 @@ public:
 	virtual bool ScalarDiv(const float scalar);
 	float GetMagnitude();
 	ThreeValues GetNomal();
-	bool IsZero();
+	bool IsZero() const;
 	virtual std::vector<char> Serialize();
 	virtual size_t Deserialize(char* buf, size_t len);
 };
