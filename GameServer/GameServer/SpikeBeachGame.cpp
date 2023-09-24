@@ -180,15 +180,15 @@ bool SpikeBeachGame::Controll(INT64 userId, float xCtl, float yCtl)
 	INT64 delayInt64 = CalControllDelay(userId);
 	std::chrono::milliseconds delay(delayInt64);
 	std::pair<float, float> dir(xCtl, yCtl);
-	if (userIdx > 1) // blue팀은 바라보는 방향이 반대이므로 x,y 방향을 반대로.
+	if (userIdx <= 1) // red팀은 바라보는 방향이 반대이므로 x축 방향을 반대로.
 	{
 		dir.first *= -1;
-		dir.second *= -1;
 	}
 	if (userPtr->Controll(now + delay, dir) == true)
 	{
 		ControllNtf ntf;
 		ntf.userIdx = userIdx;
+		ntf.expectedSyncDuration = delayInt64;
 		ntf.xAppliedCtl = dir.first;
 		ntf.yAppliedCtl = dir.second;
 		NoticeInGame(ntf.Serialize());

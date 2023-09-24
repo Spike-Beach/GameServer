@@ -9,65 +9,80 @@
 */
 void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 {
-	Acceleration applyAcc(0);
-	float applyMaxVelMagnitude;
-	float deltaTime = std::chrono::duration<float>(syncReqTime - _lastSyncTime).count();
+	Acceleration& objAcc = std::get<2>(_motionData);
+	Velocity& objVel = std::get<1>(_motionData);
+	Position& objPos = std::get<0>(_motionData);
+	Acceleration beforeCtrlAcc(objAcc);
+	Acceleration afterCtrlAcc(0);
+
+	float beforeCtrlMaxVelMagnitude = 0;
+	float afterCtrlMaxVelMagnitude = 0;
+
+	float beforeCtrlDeltaTime = std::chrono::duration<float>(syncReqTime - _lastSyncTime).count();
+	float afterCtrlDeltaTime = 0;
+
 	std::unique_lock<std::shared_mutex> lock(_objMutex);
 
-	// 예약된 동작이 있다면, 시간 확인 후 적용.
 	while (_reservedControll.empty() == false && _reservedControll.front().first <= syncReqTime)
 	{
+		beforeCtrlDeltaTime = std::chrono::duration<float>(_reservedControll.front().first - _lastSyncTime).count();
+		afterCtrlDeltaTime = std::chrono::duration<float>(syncReqTime - _reservedControll.front().first).count();
+
 		auto dir = _reservedControll.front().second;
 		_reservedControll.pop_front();
 		Acceleration tempAcc(dir.first, dir.second, 0);
-		std::get<2>(_motionData) = tempAcc.GetNomalAcc() * CNTRL_ACC;
+		afterCtrlAcc = tempAcc.GetNomalAcc() * CNTRL_ACC;
+		objAcc = afterCtrlAcc;
 	}
 
-	// 조작이 없다면, 정지 가속도 및 목표 속도 적용
-	if (std::get<2>(_motionData).IsZero() == true)
+	// 컨트롤 이전에 적용된 가속도 계산(컨트롤이 없으면 싱크 전체 구간)
+	std::tie(beforeCtrlAcc, beforeCtrlMaxVelMagnitude) = DetermineAccNVel(beforeCtrlAcc);
+	if (beforeCtrlMaxVelMagnitude >= 0)
+	{
+		Velocity oldVel = objVel;
+		objVel.UpdateVelocity(beforeCtrlAcc, beforeCtrlDeltaTime); // 속도 갱신
+		objVel.AdjustToMaxMagnitude(beforeCtrlMaxVelMagnitude, oldVel);
+		objPos.CalNewPosition(objVel, beforeCtrlDeltaTime);
+	}
+
+	// 컨트롤이 있다면
+	if (afterCtrlDeltaTime > 0)
+	{
+		// 컨트롤 이후 적용된 가속도 계산
+		std::tie(afterCtrlAcc, afterCtrlMaxVelMagnitude) = DetermineAccNVel(afterCtrlAcc);
+		if (afterCtrlMaxVelMagnitude >= 0)
+		{
+			Velocity oldVel = objVel;
+			objVel.UpdateVelocity(afterCtrlAcc, afterCtrlDeltaTime); // 속도 갱신
+			objVel.AdjustToMaxMagnitude(afterCtrlMaxVelMagnitude, oldVel);
+			objPos.CalNewPosition(objVel, afterCtrlDeltaTime);
+		}
+	}
+
+	_lastSyncTime = syncReqTime;
+	return;
+};
+
+std::pair<Acceleration, float> GameObj::DetermineAccNVel(const Acceleration& acc)
+{
+	Acceleration determinedAcc(0);
+	float determinedVel = -1;
+	if (acc.IsZero() == true)
 	{
 		ThreeValues VelNomalVec = std::get<1>(_motionData).GetNomal();
 		if (VelNomalVec.IsZero() == false)
 		{
-			applyAcc = VelNomalVec * STOP_ACC_SCAL;
-			applyMaxVelMagnitude = 0;
-		}
-		else
-		{
-			_lastSyncTime = syncReqTime;
-			return ;
+			determinedAcc = VelNomalVec * STOP_ACC_SCAL;
+			determinedVel = 0;
 		}
 	}
-	else // 조작이 있다면 조작 가속도 및 최대 속도 적용
+	else
 	{
-		applyAcc = std::get<2>(_motionData);
-		applyMaxVelMagnitude = MAX_VEL;
+		determinedAcc = acc;
+		determinedVel = MAX_VEL;
 	}
-
-	Velocity oldVel = std::get<1>(_motionData);
-	std::get<1>(_motionData).UpdateVelocity(applyAcc, deltaTime); // 속도 갱신
-	float maxVelApprochElapseSec = oldVel.CalMaxVelApprochElapseSec(applyAcc, applyMaxVelMagnitude);
-	if (maxVelApprochElapseSec > deltaTime) // 아직 가속중. 시간에 따라 속도 적용 및 등가속도 공식으로 위치 계산
-	{
-		std::get<0>(_motionData).CalNewPosition((oldVel + std::get<1>(_motionData)) / 2, deltaTime);
-	}
-	else if (maxVelApprochElapseSec <= EPSILON) // 싱크 동안 최대 속력 유지. 속도 유지 및 위치 계산
-	{
-		std::get<1>(_motionData).AdjustToMaxMagnitude(applyMaxVelMagnitude, oldVel);
-		std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), deltaTime);
-	}
-	else // 싱크 중간에 최대속력에 도달했음. 최대 속력 적용 및 계산한 최대 속력 시간을 적용해서 위치를 계산한다.
-	{
-		std::get<1>(_motionData).UpdateVelocity(applyAcc, deltaTime);
-		std::get<1>(_motionData).AdjustToMaxMagnitude(applyMaxVelMagnitude, oldVel);
-
-		std::get<0>(_motionData).CalNewPosition((oldVel + std::get<1>(_motionData)) / 2, maxVelApprochElapseSec);
-		std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), deltaTime - maxVelApprochElapseSec);
-	}
-
-	_lastSyncTime = syncReqTime;
-	return ;
-};
+	return std::make_pair(determinedAcc, determinedVel);
+}
 
 bool GameObj::Controll(std::chrono::system_clock::time_point ctlTime, const std::pair<float, float> dir)
 {
