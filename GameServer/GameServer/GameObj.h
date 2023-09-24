@@ -11,6 +11,7 @@ class GameObj
 {
 public:
 	virtual void Sync(std::chrono::system_clock::time_point syncReqTime);
+	std::pair<Acceleration, float> DetermineAccNVel(const Acceleration& acc);
 	void clear();
 	void Reset();
 	void Reset(float posX, float posY, float posZ);
