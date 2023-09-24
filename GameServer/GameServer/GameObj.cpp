@@ -8,7 +8,10 @@
 */
 void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 {
-	Acceleration beforeCtrlAcc(std::get<2>(_motionData));
+	Acceleration& objAcc = std::get<2>(_motionData);
+	Velocity& objVel = std::get<1>(_motionData);
+	Position& objPos = std::get<0>(_motionData);
+	Acceleration beforeCtrlAcc(objAcc);
 	Acceleration afterCtrlAcc(0);
 
 	float beforeCtrlMaxVelMagnitude = 0;
@@ -28,17 +31,17 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 		_reservedControll.pop_front();
 		Acceleration tempAcc(dir.first, dir.second, 0);
 		afterCtrlAcc = tempAcc.GetNomalAcc() * CNTRL_ACC;
-		std::get<2>(_motionData) = afterCtrlAcc;
+		objAcc = afterCtrlAcc;
 	}
 
 	// 컨트롤 이전에 적용된 가속도 계산(컨트롤이 없으면 싱크 전체 구간)
 	std::tie(beforeCtrlAcc, beforeCtrlMaxVelMagnitude) = DetermineAccNVel(beforeCtrlAcc);
 	if (beforeCtrlMaxVelMagnitude >= 0)
 	{
-		Velocity oldVel = std::get<1>(_motionData);
-		std::get<1>(_motionData).UpdateVelocity(beforeCtrlAcc, beforeCtrlDeltaTime); // 속도 갱신
-		std::get<1>(_motionData).AdjustToMaxMagnitude(beforeCtrlMaxVelMagnitude, oldVel);
-		std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), beforeCtrlDeltaTime);
+		Velocity oldVel = objVel;
+		objVel.UpdateVelocity(beforeCtrlAcc, beforeCtrlDeltaTime); // 속도 갱신
+		objVel.AdjustToMaxMagnitude(beforeCtrlMaxVelMagnitude, oldVel);
+		objPos.CalNewPosition(objVel, beforeCtrlDeltaTime);
 	}
 
 	// 컨트롤이 있다면
@@ -48,19 +51,13 @@ void GameObj::Sync(std::chrono::system_clock::time_point syncReqTime)
 		std::tie(afterCtrlAcc, afterCtrlMaxVelMagnitude) = DetermineAccNVel(afterCtrlAcc);
 		if (afterCtrlMaxVelMagnitude >= 0)
 		{
-			Velocity oldVel = std::get<1>(_motionData);
-			std::get<1>(_motionData).UpdateVelocity(afterCtrlAcc, afterCtrlDeltaTime); // 속도 갱신
-			std::get<1>(_motionData).AdjustToMaxMagnitude(afterCtrlMaxVelMagnitude, oldVel);
-			std::get<0>(_motionData).CalNewPosition(std::get<1>(_motionData), afterCtrlDeltaTime);
+			Velocity oldVel = objVel;
+			objVel.UpdateVelocity(afterCtrlAcc, afterCtrlDeltaTime); // 속도 갱신
+			objVel.AdjustToMaxMagnitude(afterCtrlMaxVelMagnitude, oldVel);
+			objPos.CalNewPosition(objVel, afterCtrlDeltaTime);
 		}
 	}
 
-	if (std::get<1>(_motionData).x != 0 || std::get<1>(_motionData).y != 0)
-	{
-		g_logger.Log(LogLevel::INFO, "", "Acc:" + std::to_string(std::get<2>(_motionData).x) + ", " + std::to_string(std::get<2>(_motionData).y) + ", " + std::to_string(std::get<2>(_motionData).z));
-		g_logger.Log(LogLevel::INFO, "", "Vel:" + std::to_string(std::get<1>(_motionData).x) + ", " + std::to_string(std::get<1>(_motionData).y) + ", " + std::to_string(std::get<1>(_motionData).z));
-		g_logger.Log(LogLevel::INFO, "", "Pos:" + std::to_string(std::get<0>(_motionData).x) + ", " + std::to_string(std::get<0>(_motionData).y) + ", " + std::to_string(std::get<0>(_motionData).z) + "\n");
-	}
 	_lastSyncTime = syncReqTime;
 	return ;
 };

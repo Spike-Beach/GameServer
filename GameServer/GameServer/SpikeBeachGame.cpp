@@ -196,6 +196,7 @@ bool SpikeBeachGame::Controll(INT64 userId, float xCtl, float yCtl)
 	{
 		ControllNtf ntf;
 		ntf.userIdx = userIdx;
+		ntf.expectedSyncDuration = delayInt64;
 		ntf.xAppliedCtl = dir.first;
 		ntf.yAppliedCtl = dir.second;
 		NoticeInGame(ntf.Serialize());

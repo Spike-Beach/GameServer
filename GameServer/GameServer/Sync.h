@@ -7,7 +7,7 @@
 #define POS_SIZE 3 * sizeof(float)
 #define VEL_SIZE 3 * sizeof(float)
 #define ACC_SIZE 3 * sizeof(float)
-#define USER_SYNC_DATA_SIZE 5 * sizeof(INT64) + 4 * (POS_SIZE + VEL_SIZE + ACC_SIZE)
+#define USER_SYNC_DATA_SIZE 4 * (POS_SIZE + VEL_SIZE + ACC_SIZE)
 
 class SyncReq : public Packet
 {
@@ -48,7 +48,7 @@ public:
 
 	virtual std::vector<char> Serialize()
 	{
-		packetLength = PACKET_SIZE + USER_SYNC_DATA_SIZE;
+		packetLength = PACKET_SIZE + USER_SYNC_DATA_SIZE + 5 * sizeof(INT64);
 		std::vector<char> serializeVec = Packet::Serialize();
 		serializeVec.reserve(packetLength);
 
