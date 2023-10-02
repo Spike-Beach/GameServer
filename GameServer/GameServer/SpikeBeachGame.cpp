@@ -13,59 +13,6 @@
 #include "Controll.h"
 #include "Sync.h"
 
-SpikeBeachGame::SpikeBeachGame()
-	:_gameStatus(GameStatus::EMPTY), _gameId(-1), _redScore(0), _blueScore(0), _leaveUserIdx(-1)
-{
-	for (size_t i = 0; i < 4; i++)
-	{
-		_users[i].first = -1;
-		_users[i].second = nullptr;
-	}
-}
-
-GameStatus SpikeBeachGame::GetStatus()
-{
-	return _gameStatus;
-}
-
-void SpikeBeachGame::Clear()
-{
-	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
-	_gameStatus = GameStatus::EMPTY;
-	for (size_t i = 0; i < 4 ; i++)
-	{
-		if (_users[i].second != nullptr)
-		{
-			g_SBUserManager.ReleaseUser(_users[i].second);
-			_users[i].second->clear();
-			_users[i].second = nullptr;
-		}
-		_users[i].first = -1;
-	}
-	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::Clear", std::to_string(_gameId) + " Game is cleared");
-	_ball.Reset();
-	_redScore = 0;
-	_blueScore = 0;
-	_gameId = -1;
-	_leaveUserIdx = -1;
-}
-
-/*
-	r1 (1860.006355, 292.065717, 20)
-	r2 (2112.010027, 269.346001, 20)
-
-	b1 (1860.005797, 1350.856280, 20)
-	b2 (2112.010468, 1337.891186, 20)
-*/
-void SpikeBeachGame::ResetToNewGame()
-{
-	_ball.Reset();
-	_users[0].second->Reset(1860.006355, 292.065717, 20);
-	_users[1].second->Reset(2112.010027, 269.346001, 20);
-	_users[2].second->Reset(1860.005797, 1350.856280, 20);
-	_users[3].second->Reset(2112.010468, 1337.891186, 20);
-}
-
 std::vector<char> SpikeBeachGame::GetSerializedSyncPacket(INT64 userId)
 {
 	SyncRes syncRes;
@@ -407,4 +354,57 @@ INT16 SpikeBeachGame::FindUser(INT64 userId, SBUser** userPtr)
 	g_logger.Log(LogLevel::ERR, "SpikeBeachGame::UserIn", "Invalid game enter. user : " + std::to_string(userId));
 	*userPtr = nullptr;
 	return -1;
+}
+
+SpikeBeachGame::SpikeBeachGame()
+	:_gameStatus(GameStatus::EMPTY), _gameId(-1), _redScore(0), _blueScore(0), _leaveUserIdx(-1)
+{
+	for (size_t i = 0; i < 4; i++)
+	{
+		_users[i].first = -1;
+		_users[i].second = nullptr;
+	}
+}
+
+GameStatus SpikeBeachGame::GetStatus()
+{
+	return _gameStatus;
+}
+
+void SpikeBeachGame::Clear()
+{
+	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
+	_gameStatus = GameStatus::EMPTY;
+	for (size_t i = 0; i < 4 ; i++)
+	{
+		if (_users[i].second != nullptr)
+		{
+			g_SBUserManager.ReleaseUser(_users[i].second);
+			_users[i].second->clear();
+			_users[i].second = nullptr;
+		}
+		_users[i].first = -1;
+	}
+	g_logger.Log(LogLevel::INFO, "SpikeBeachGame::Clear", std::to_string(_gameId) + " Game is cleared");
+	_ball.Reset();
+	_redScore = 0;
+	_blueScore = 0;
+	_gameId = -1;
+	_leaveUserIdx = -1;
+}
+
+/*
+	r1 (1860.006355, 292.065717, 20)
+	r2 (2112.010027, 269.346001, 20)
+
+	b1 (1860.005797, 1350.856280, 20)
+	b2 (2112.010468, 1337.891186, 20)
+*/
+void SpikeBeachGame::ResetToNewGame()
+{
+	_ball.Reset();
+	_users[0].second->Reset(1860.006355, 292.065717, 20);
+	_users[1].second->Reset(2112.010027, 269.346001, 20);
+	_users[2].second->Reset(1860.005797, 1350.856280, 20);
+	_users[3].second->Reset(2112.010468, 1337.891186, 20);
 }
