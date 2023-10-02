@@ -204,6 +204,7 @@ INT64 SpikeBeachGame::CalControllDelay(INT64 sendUserId)
 	{
 		if (_users[i].second != NULL && _users[i].second->GetId() != sendUserId)
 		{
+			// Todo: 완성본에서 튀는 tts걸러주는 로직 추가.
 			INT64 tts = _users[i].second->GetTTS();
 			calTTS += tts / 6;
 		}
@@ -229,7 +230,6 @@ SyncResult SpikeBeachGame::PlayingSync()
 {
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::unique_lock<std::shared_mutex> uniqueLock(_gameMutex);
-	//SyncResult result = _ball.AnalyzeBallTrajectory(now);
 	BallResult result = _ball.Sync(now);
 	if (result != BallResult::NONE)
 	{
