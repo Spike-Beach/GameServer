@@ -18,9 +18,9 @@ private:
 	INT32 _userNum;
 	std::vector<SBUser> _userPool;
 	std::stack<SBUser*> _emptyUsers;
-	std::shared_timed_mutex _runningGameMutex;
+	std::shared_mutex _runningGameMutex;
 	std::unordered_map<INT64, SBUser*> _sessionId2UserMap;
 	std::queue<SBUser*> _authWaitingUsers;
-	std::shared_timed_mutex _authWaitingUsersMutex;
+	std::shared_mutex _authWaitingUsersMutex;
 };
 
